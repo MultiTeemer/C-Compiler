@@ -1,0 +1,33 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+    Params:
+              argc int
+              argv []char*
+
+      Locals:
+                  a int
+                  b int
+                  c int
+
+      Instructions:
+          Locals:
+                          a int
+
+          Instructions:
+              Locals:
+                                  a int
+                                  b void*
+                                  c [10]char*
+
+
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

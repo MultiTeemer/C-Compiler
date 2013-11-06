@@ -1,0 +1,35 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      a int
+  
+    Function b()
+    Value:
+        int
+
+  
+    Function c()
+    Params:
+               int
+    Value:
+        int
+
+  
+    Function d()
+    Params:
+               int*
+               []int
+    Value:
+        int
+
+  
+    Function f()
+    Params:
+              intptr int*
+              vptr void*
+    Value:
+        int
+
++------------------------------------------------------------------+

@@ -1,0 +1,17 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      struct a
+              a int
+              struct b
+                      a int
+                      b int
+                      struct c
+                              a float
+                              b float
+                              c float
+                              d float
+                              struct d
++------------------------------------------------------------------+

@@ -1,0 +1,29 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Instructions:
+        return
+        return
+          0
+        for (;;) ..
+        First action:
+        Condition:
+        Step:
+        Block:
+          break
+        while () do ..
+        Condition:
+          1
+        Block:
+          continue
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

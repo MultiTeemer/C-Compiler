@@ -1,0 +1,58 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Locals:
+                  a int
+                  b int
+                  c int
+
+      Instructions:
+        if
+
+          a
+
+        then
+
+            Instructions:
+              a
+              ++
+
+        else
+
+            Instructions:
+              if
+
+                b
+
+              then
+
+                  <empty block>
+
+              else
+
+                  Instructions:
+                    if
+
+                      c
+
+                    then
+
+                        <empty block>
+
+                    else
+
+                        <empty block>
+
+
+
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

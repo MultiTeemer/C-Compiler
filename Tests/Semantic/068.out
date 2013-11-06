@@ -1,0 +1,21 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Instructions:
+        while () do ..
+        Condition:
+          1
+        Block:
+            <empty block>
+
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

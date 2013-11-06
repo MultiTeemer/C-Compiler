@@ -1,0 +1,16 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      i alias for int
+      c alias for char
+      vp alias for void*
+      a int
+      b int
+      d int
+      c1 char
+      c2 char
+      c3 char
+      _a void*
++------------------------------------------------------------------+

@@ -1,0 +1,12 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      a const int
+      d const float
+      D const float
+      dd const float
+      DD const float
+      c const char*
++------------------------------------------------------------------+

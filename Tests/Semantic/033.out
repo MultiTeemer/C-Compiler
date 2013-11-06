@@ -1,0 +1,15 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      struct point
+              x int
+              y int
+              z int
+              struct inner_struct
+                      x float
+                      y float
+                      z float
+              $fields inner_struct
++------------------------------------------------------------------+

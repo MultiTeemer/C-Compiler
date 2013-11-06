@@ -1,0 +1,31 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function c()
+    Params:
+               int
+
+      Locals:
+                  c int
+                  b void*
+        
+          Function foo()
+          Value:
+                    void
+
+        
+          Function bar()
+          Params:
+                           int
+          Value:
+                    void
+
+
+
+    Value:
+        void*
+
++------------------------------------------------------------------+

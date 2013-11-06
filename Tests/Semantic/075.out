@@ -1,0 +1,32 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Instructions:
+        do .. while ()
+        Condition:
+          1
+        Block:
+            Locals:
+                              a int
+                              b int
+                              c int
+
+            Instructions:
+              1
+                a
+              =
+                  b
+                +
+                  c
+
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

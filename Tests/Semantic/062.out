@@ -1,0 +1,22 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Instructions:
+        for (;;) ..
+        First action:
+        Condition:
+        Step:
+        Block:
+            <empty block>
+
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

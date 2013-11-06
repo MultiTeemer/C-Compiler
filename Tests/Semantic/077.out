@@ -1,0 +1,64 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+  
+    Function main()
+
+      Locals:
+                  i int
+
+      Instructions:
+        if
+
+          0
+
+        then
+
+          while () do ..
+          Condition:
+            1
+          Block:
+            do .. while ()
+            Condition:
+              1
+            Block:
+              1
+        else
+
+          if
+
+            0
+
+          then
+
+            for (;;) ..
+            First action:
+            Condition:
+            Step:
+            Block:
+              do .. while ()
+              Condition:
+                0
+              Block:
+                if
+
+                    1
+                  +
+                    1
+
+                then
+
+                  while () do ..
+                  Condition:
+                    0
+                  Block:
+                    i
+                    ++
+
+
+    Value:
+        int
+
++------------------------------------------------------------------+

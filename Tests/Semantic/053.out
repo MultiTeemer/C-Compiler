@@ -1,0 +1,11 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      struct point
+      sp alias for point
+      spp alias for point*
+      a const point
+      ap const point*
++------------------------------------------------------------------+

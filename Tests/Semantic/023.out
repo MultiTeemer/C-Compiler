@@ -1,0 +1,40 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      a const float
+  
+    Function sqrt()
+    Params:
+              a float
+    Value:
+        const float
+
+  
+    Function swap()
+    Params:
+               float*
+               float*
+    Value:
+        const float
+
+  
+    Function avrg()
+    Params:
+               []float
+               int
+    Value:
+        const float
+
+  
+    Function qsort()
+    Params:
+               []float
+               int
+               int
+               int
+    Value:
+        const float
+
++------------------------------------------------------------------+
