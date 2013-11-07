@@ -345,8 +345,9 @@ TypeSym* Parser::parseArrayDimensions(TypeSym* baseType, bool inParamList)
 	return baseType;
 }
 
-Symbol* Parser::parseParam(SymTable* nameSpace)
+void Parser::parseParam()
 {
+	Symbol* param = 0;
 	TypeSym* type = parseType(true);
 	Token* token = lexer.get();
 	throwException(*type == "void" && *token != MULT, "Argument type cannot be a void");	
@@ -354,16 +355,45 @@ Symbol* Parser::parseParam(SymTable* nameSpace)
 	{
 		type = new PointerSym(type);
 		token = lexer.next();
+	}	
+	if (*token == PARENTHESIS_FRONT)
+		param = parseComplexDecl(type);
+	else {
+		string name = dynamic_cast<IdentifierToken*>(token) ? token->text : "";
+		if (name.length() > 0) 
+		{
+			throwException(tableStack.top()->exists(name), "Redefinition");
+			token = lexer.next();
+		}
+		if (*token == BRACKET_FRONT)
+			type = parseArrayDimensions(type, true);
+		param = new VarSym(name, type);
 	}
-	string name = dynamic_cast<IdentifierToken*>(token) ? token->text : "";
-	if (name.length() > 0) 
+	tableStack.add(param);
+}
+
+void Parser::parseArgList()
+{
+	Token* token = lexer.next();
+	while (*token != PARENTHESIS_BACK)
 	{
-		throwException(nameSpace->exists(name), "Redefinition");
-		token = lexer.next();
+		parseParam();
+		token = lexer.get();
+		throwException(*token != COMMA && *token != PARENTHESIS_BACK, "Expected comma or close parenthesis");
+		if (*token == COMMA)
+			token = lexer.next();
 	}
-	if (*token == BRACKET_FRONT)
-		type = parseArrayDimensions(type, true);
-	return new VarSym(name, type);
+	lexer.next();
+}
+
+FuncSym* Parser::createFunctionSymbol(const string& name, TypeSym* type)
+{
+	FuncSym* function = new FuncSym(name, type);
+	function->params = new SymTable();
+	tableStack.push(function->params);
+	parseArgList();
+	tableStack.pop();
+	return function;
 }
 
 Symbol* Parser::parseIdentifier(TypeSym* type)
@@ -376,6 +406,8 @@ Symbol* Parser::parseIdentifier(TypeSym* type)
 		type = new PointerSym(type);
 		token = lexer.next();
 	}
+	if (*token == PARENTHESIS_FRONT)
+		return parseComplexDecl(type);
 	throwException(!dynamic_cast<IdentifierToken*>(token), "Expected identifier");
 	string name = dynamic_cast<IdentifierToken*>(token)->val;
 	int line = token->line, col = token->col;	
@@ -388,26 +420,60 @@ Symbol* Parser::parseIdentifier(TypeSym* type)
 		if (type->isStruct())
 			name = '$' + name;
 		res = new VarSym(name, type);
-	} else {
-		FuncSym* function = new FuncSym(name, type);
-		SymTable* params = new SymTable();
-		function->params = params;
-		token = lexer.next();
-		while (*token != PARENTHESIS_BACK)
-		{
-			params->add(parseParam(params));
-			token = lexer.get();
-			throwException(*token != COMMA && *token != PARENTHESIS_BACK, "Expected comma or close parenthesis");
-			if (*token == COMMA)
-				token = lexer.next();
-		}
-		lexer.next();
-		res = function;
-	}
+	} else 		
+		res = createFunctionSymbol(name, type);	
 	if (*lexer.get() == COMMA)
 		lexer.next();
 	throwException(tableStack.existsInLastNamespace(name), "Redefinition");
 	return res;
+}
+
+void Parser::hitch(VarSym* start, TypeSym* type)
+{
+	if (!start->type)
+		start->type = type;
+	else {
+		TypeSym* penultimate = start->type;
+		while (penultimate->nextType())
+			penultimate = penultimate->nextType();
+		penultimate->setNextType(type);
+	}
+}
+
+VarSym* Parser::parseDirectDecl()
+{
+	VarSym* sym = 0;
+	TypeSym* type = 0;
+	while (*lexer.next() == MULT)
+		type = new PointerSym(type);
+	if (*lexer.get() == PARENTHESIS_FRONT)
+		sym = parseDirectDecl();
+	else {
+		throwException(!dynamic_cast<IdentifierToken*>(lexer.get()), "Expected identifier");
+		throwException(tableStack.find(lexer.get()->text), "Redefinition");
+		sym = new VarSym(lexer.get()->text, 0);
+		lexer.next();
+	}
+	if (*lexer.get() == PARENTHESIS_FRONT)	
+		type = createFunctionSymbol("", type);
+	 else if (*lexer.get() == BRACKET_FRONT) 
+		type = parseArrayDimensions(type, true);	
+	hitch(sym, type);
+	lexer.next();
+	return sym;
+}
+
+Symbol* Parser::parseComplexDecl(TypeSym* baseType)
+{
+	VarSym* sym = parseDirectDecl();
+	if (*lexer.get() == PARENTHESIS_FRONT)
+		baseType = createFunctionSymbol("", baseType);
+	else if (*lexer.get() == BRACKET_FRONT)
+		baseType = parseArrayDimensions(baseType, true);
+	hitch(sym, baseType);
+	if (*lexer.get() == COMMA)
+		lexer.next();
+	return sym;
 }
 
 void Parser::parseDeclaration()
@@ -415,13 +481,13 @@ void Parser::parseDeclaration()
 	TypeSym* type = parseType();
 	while (*lexer.get() != SEMICOLON)
 	{
-		Symbol* sym = parseIdentifier(type);
+		Symbol* sym = *lexer.get() == PARENTHESIS_FRONT ? parseComplexDecl(type) : parseIdentifier(type);		
 		tableStack.add(sym);
 		if (*lexer.get() == ASSIGN)
 		{
 			Token* assign = lexer.get();
 			lexer.next();
-			Node* assignOperand = parseExpression(2);
+			Node* assignOperand = parseExpression(priorityTable[COMMA] + 1);
 			throwException(blocks.size() == 0, "Cannot assign out of block");
 			blocks.top()->AddStatement(new BinaryOpNode(assign, new IdentifierNode(sym), assignOperand));
 			if (*lexer.get() == COMMA)

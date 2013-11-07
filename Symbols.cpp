@@ -35,12 +35,13 @@ string ConstTypeSym::typeName() const
 
 string ArraySym::typeName() const
 {
-	return "[" + (size != -1 ? to_string(size): "") + "]" + type->typeName();
+	//return "[" + (size != -1 ? to_string(size): "") + "]" + type->typeName();
+	return "array[" + (size != -1 ? to_string(size): "") + "] of " + type->typeName();
 }
 
 string PointerSym::typeName() const
 {
-	return type->typeName() + '*';
+	return "pointer to " + type->typeName();
 }
 
 void AliasSym::print(int deep) const
@@ -60,6 +61,11 @@ void StructSym::print(int deep) const
 		fields->print(deep + 1);
 }
 
+string StructSym::typeName() const
+{
+	return "struct " + name;
+}
+
 void FuncSym::print(int deep) const
 {
 	cout << endl << string(M * deep, ' ') << "Function " << name << "()" << endl;
@@ -75,6 +81,19 @@ void FuncSym::print(int deep) const
 		cout << endl;
 	}
 	cout << string(M * deep, ' ') << "Value:" << endl << string(M * 2 * deep, ' ') << val->typeName() << endl << endl;
+}
+
+string FuncSym::typeName() const
+{
+	string str = "function(";
+	for (int i = 0; i < params->size(); i++)
+	{
+		str += dynamic_cast<VarSym*>(params->symbols[i])->type->typeName();
+		if (i < params->size() - 1)
+			str += ", "; 
+	}
+	str += ") returning " + val->typeName();
+	return str;
 }
 
 

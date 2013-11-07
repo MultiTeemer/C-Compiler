@@ -8,5 +8,5 @@
       D const float
       dd const float
       DD const float
-      c const char*
+      c pointer to const char
 +------------------------------------------------------------------+

@@ -6,7 +6,7 @@
   
     Function foo()
     Params:
-              bar []int
+              bar array[] of int
     Value:
         int
 

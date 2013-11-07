@@ -6,7 +6,7 @@
   
     Function bar()
     Params:
-              foo_ptr void*
+              foo_ptr pointer to void
     Value:
         int
 

@@ -7,7 +7,7 @@
               x int
               y int
               z int
-      $a point
-      $b point
-      $c point
+      $a struct point
+      $b struct point
+      $c struct point
 +------------------------------------------------------------------+

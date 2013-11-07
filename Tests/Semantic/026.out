@@ -10,7 +10,7 @@
 
       Locals:
                   c int
-                  b void*
+                  b pointer to void
         
           Function foo()
           Value:
@@ -26,6 +26,6 @@
 
 
     Value:
-        void*
+        pointer to void
 
 +------------------------------------------------------------------+

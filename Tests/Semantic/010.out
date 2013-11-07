@@ -4,11 +4,11 @@
       void
 +------------------------------------------------------------------+
       b int
-      c [10]int
+      c array[10] of int
       a int
-      d float*
-      x [10]float**
-      abc [10][20][30]float***
-      cx char*
-      string [][20]char*
+      d pointer to float
+      x array[10] of pointer to pointer to float
+      abc array[10] of array[20] of array[30] of pointer to pointer to pointer to float
+      cx pointer to char
+      string array[] of array[20] of pointer to char
 +------------------------------------------------------------------+

@@ -3,8 +3,8 @@
       char
       void
 +------------------------------------------------------------------+
-      a int*
-      b void*
-      d float**
-      c char****
+      a pointer to int
+      b pointer to void
+      d pointer to pointer to float
+      c pointer to pointer to pointer to pointer to char
 +------------------------------------------------------------------+

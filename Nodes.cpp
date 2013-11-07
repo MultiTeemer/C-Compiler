@@ -199,7 +199,10 @@ void ForStatement::print(int deep) const
 	if (increment)
 		increment->print(deep + 1);
 	cout << tab << "Block:" << endl;
-	body->print(deep + 1);
+	if (body)
+		body->print(deep + 1);
+	else
+		cout << tab << "<empty block>";
 }
 
 void IfStatement::print(int deep) const

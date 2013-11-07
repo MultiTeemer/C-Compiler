@@ -7,7 +7,7 @@
     Function main()
     Params:
               argc int
-              argv char**
+              argv pointer to pointer to char
     Value:
         int
 

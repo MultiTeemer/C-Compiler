@@ -4,28 +4,28 @@
       void
 +------------------------------------------------------------------+
       struct point
-      sp alias for point
-      spp alias for point*
+      sp alias for struct point
+      spp alias for pointer to struct point
   
     Function foo()
     Params:
-               point
-               point
-               point*
+               struct point
+               struct point
+               pointer to struct point
     Value:
-        point
+        struct point
 
   
     Function bar()
     Params:
-               point
-               point*
-               point
-               point*
-              a point
-               point*
-              b point*
+               struct point
+               pointer to struct point
+               struct point
+               pointer to struct point
+              a struct point
+               pointer to struct point
+              b pointer to struct point
     Value:
-        point
+        struct point
 
 +------------------------------------------------------------------+

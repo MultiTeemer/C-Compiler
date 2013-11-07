@@ -11,5 +11,5 @@
                       x float
                       y float
                       z float
-              $fields inner_struct
+              $fields struct inner_struct
 +------------------------------------------------------------------+

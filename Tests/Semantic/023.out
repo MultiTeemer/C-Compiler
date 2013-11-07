@@ -14,15 +14,15 @@
   
     Function swap()
     Params:
-               float*
-               float*
+               pointer to float
+               pointer to float
     Value:
         const float
 
   
     Function avrg()
     Params:
-               []float
+               array[] of float
                int
     Value:
         const float
@@ -30,7 +30,7 @@
   
     Function qsort()
     Params:
-               []float
+               array[] of float
                int
                int
                int

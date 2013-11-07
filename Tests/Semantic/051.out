@@ -4,16 +4,16 @@
       void
 +------------------------------------------------------------------+
       struct point
-      sp alias for point
-      spp alias for point*
+      sp alias for struct point
+      spp alias for pointer to struct point
   
     Function foo()
     Value:
-        point
+        struct point
 
   
     Function foop()
     Value:
-        point*
+        pointer to struct point
 
 +------------------------------------------------------------------+

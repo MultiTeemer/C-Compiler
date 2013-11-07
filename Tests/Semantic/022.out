@@ -19,16 +19,16 @@
   
     Function d()
     Params:
-               int*
-               []int
+               pointer to int
+               array[] of int
     Value:
         int
 
   
     Function f()
     Params:
-              intptr int*
-              vptr void*
+              intptr pointer to int
+              vptr pointer to void
     Value:
         int
 

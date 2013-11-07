@@ -3,10 +3,10 @@
       char
       void
 +------------------------------------------------------------------+
-      a [10]int
-      b [10]float
-      c [10]char
-      abc [10]void
-      multd [10][20]int
-      multv [10][20][30]void
+      a array[10] of int
+      b array[10] of float
+      c array[10] of char
+      abc array[10] of void
+      multd array[10] of array[20] of int
+      multv array[10] of array[20] of array[30] of void
 +------------------------------------------------------------------+

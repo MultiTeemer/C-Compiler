@@ -6,13 +6,13 @@
   
     Function foo()
     Params:
-               []int
-               [][10]int
-               [10][20][30]int
-               [][10][20][30]int
-               int*
-               int**
-               int*
+               array[] of int
+               array[] of array[10] of int
+               array[10] of array[20] of array[30] of int
+               array[] of array[10] of array[20] of array[30] of int
+               pointer to int
+               pointer to pointer to int
+               pointer to int
     Value:
         int
 

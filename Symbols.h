@@ -24,6 +24,7 @@ private:
 	vector<Symbol*> symbols;
 	map<string, int> index;
 public:
+	friend class FuncSym;
 	SymTable(): names(0), symbols(0) {}
 	Symbol* find(const string& name) const;
 	void add(Symbol* s);
@@ -35,10 +36,10 @@ public:
 class SymTableStack : public SymInterface
 {
 private:
-	vector<SymTable*> tables;
-	SymTable* top();
+	vector<SymTable*> tables;	
 public:
 	Symbol* find(const string& name) const;
+	SymTable* top();
 	void add(Symbol* s);
 	void print(int deep = 0) const;
 	bool existsInLastNamespace(const string& name);	
@@ -61,6 +62,8 @@ public:
 	virtual string typeName() const;
 	bool operator == (const string& o) const;
 	virtual bool isStruct() { return false; }
+	virtual TypeSym* nextType() const { return 0; }
+	virtual void setNextType(TypeSym* type) {}
 };
 
 class ConstTypeSym : public TypeSym
@@ -88,6 +91,8 @@ public:
 	friend class Parser;
 	ArraySym(TypeSym* t, int s): TypeSym(""), type(t), size(s) {}
 	string typeName() const;
+	TypeSym* nextType() const { return type; }
+	void setNextType(TypeSym* t) { type = t; }
 };
 
 class PointerSym : public TypeSym 
@@ -97,6 +102,8 @@ private:
 public:
 	PointerSym(TypeSym* t): TypeSym(""), type(t) {}
 	string typeName() const;
+	TypeSym* nextType() const { return type; }
+	void setNextType(TypeSym* t) { type = t; }
 };
 
 class AliasSym : public TypeSym
@@ -118,11 +125,7 @@ public:
 	StructSym(const string& name, SymTable* f): TypeSym(name), fields(f) {}
 	void print(int deep) const;
 	bool isStruct() { return true; }
-};
-
-class FuncTypeSym : public TypeSym
-{
-
+	string typeName() const;
 };
 
 class VarSym : public Symbol
@@ -130,6 +133,8 @@ class VarSym : public Symbol
 private:
 	TypeSym* type;
 public:
+	friend class Parser;
+	friend class FuncSym;
 	VarSym(const string& n, TypeSym* t): Symbol(n), type(t) {} 
 	void print(int deep) const;
 };
@@ -153,7 +158,7 @@ public:
 	void print(int deep, OutputModsT mode = ALL) const; 
 };
 
-class FuncSym : public Symbol
+class FuncSym : public TypeSym
 {
 private:
 	SymTable* params;
@@ -161,8 +166,11 @@ private:
 	TypeSym* val;
 public:
 	friend class Parser;
-	FuncSym(const string& n, TypeSym* v): Symbol(n), val(v), params(0), body(0) {} 
+	FuncSym(const string& n, TypeSym* v): TypeSym(n), val(v), params(0), body(0) {} 
+	string typeName() const;
 	void print(int deep) const;
+	TypeSym* nextType() const { return val; }
+	void setNextType(TypeSym* t) { val = t; }
 };
 
 #endif

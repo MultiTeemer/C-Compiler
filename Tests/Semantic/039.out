@@ -7,9 +7,9 @@
   
     Function foo()
     Params:
-              a point
-              b point
+              a struct point
+              b struct point
     Value:
-        point
+        struct point
 
 +------------------------------------------------------------------+

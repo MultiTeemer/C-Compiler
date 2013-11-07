@@ -7,7 +7,7 @@
     Function main()
     Params:
               argc int
-              argv []char*
+              argv array[] of pointer to char
 
       Locals:
                   a int
@@ -21,8 +21,8 @@
           Instructions:
               Locals:
                                   a int
-                                  b void*
-                                  c [10]char*
+                                  b pointer to void
+                                  c array[10] of pointer to char
 
 
 
