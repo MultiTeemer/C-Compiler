@@ -13,18 +13,18 @@
       Instructions:
         for (;;) ..
         First action:
-            i
-          =
-            0
+          i
+          ++
         Condition:
             i
           <
             n
         Step:
-          i
-          ++
+            i
+          =
+            0
         Block:
-            <empty block>
+          <empty block>
 
 
 

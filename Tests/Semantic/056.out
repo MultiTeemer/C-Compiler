@@ -23,46 +23,46 @@
 
         then
 
-            Instructions:
-              if
+          Instructions:
+            if
 
+              b
+
+            then
+
+              Instructions:
+                a
+                --
                 b
-
-              then
-
-                  Instructions:
-                    a
-                    --
-                    b
-                    ++
+                ++
 
 
         else
 
-            Instructions:
-              if
+          Instructions:
+            if
 
-                a
+              a
 
-              then
+            then
 
-                  <empty block>
+              <empty block>
 
-              else
+            else
 
-                  <empty block>
+              <empty block>
 
-              if
+            if
 
-                b
+              b
 
-              then
+            then
 
-                  <empty block>
+              <empty block>
 
-              else
+            else
 
-                  <empty block>
+              <empty block>
 
 
 

@@ -4,7 +4,6 @@
 #include <map>
 #include <stack>
 #include "Scanner.h"
-#include "Nodes.h"
 #include "Symbols.h"
 
 using namespace std;
@@ -25,10 +24,11 @@ private:
 	TypeSym* parseArrayDimensions(TypeSym* baseType, bool inParamList = false);
 	StructSym* parseStruct(bool inParamList);
 	FuncSym* createFunctionSymbol(const string& name, TypeSym* type);
-	Node* parseFactor();	
-	Node* parseStatement();
-	Node* parseJumpStatement();
-	Node* fetchCondition();
+	Node* parseFactor();
+	Node* parseExpressionTree(int priority = 0);
+	Statement* parseStatement();
+	JumpStatement* parseJumpStatement();
+	Expression* fetchCondition();
 	ForStatement* parseFor();
 	WhilePreCondStatement* parseWhile();
 	WhilePostCondStatement* parseDoWhile();
@@ -46,7 +46,7 @@ private:
 	void parseParam();
 public:
 	Parser(Scanner& scanner);
-	Node* parseExpression(int priority = 0);	
+	Expression* parseExpression(int priority = 0);	
 	void parse();
 };
 

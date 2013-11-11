@@ -7,10 +7,10 @@
     Function foo()
 
       Instructions:
+        Instructions:
           Instructions:
-              Instructions:
-                  Instructions:
-                      <empty block>
+            Instructions:
+              <empty block>
 
 
 

@@ -15,13 +15,11 @@
       Instructions:
         for (;;) ..
         First action:
-              i
-            =
-              0
+            i
+            ++
           ,
-              j
-            =
-              0
+            j
+            ++
         Condition:
               i
             <
@@ -31,13 +29,15 @@
             <
               k
         Step:
-            i
-            ++
+              i
+            =
+              0
           ,
-            j
-            ++
+              j
+            =
+              0
         Block:
-            <empty block>
+          <empty block>
 
 
 

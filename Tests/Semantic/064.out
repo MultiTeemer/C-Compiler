@@ -13,13 +13,13 @@
       Instructions:
         for (;;) ..
         First action:
+        Condition:
+        Step:
             i
           =
             0
-        Condition:
-        Step:
         Block:
-            <empty block>
+          <empty block>
 
         for (;;) ..
         First action:
@@ -29,41 +29,16 @@
             n
         Step:
         Block:
-            <empty block>
+          <empty block>
 
         for (;;) ..
         First action:
-        Condition:
-        Step:
           i
           ++
-        Block:
-            <empty block>
-
-        for (;;) ..
-        First action:
-            i
-          =
-            0
-        Condition:
-            i
-          <
-            n
-        Step:
-        Block:
-            <empty block>
-
-        for (;;) ..
-        First action:
-            i
-          =
-            0
         Condition:
         Step:
-          i
-          ++
         Block:
-            <empty block>
+          <empty block>
 
         for (;;) ..
         First action:
@@ -72,10 +47,35 @@
           <
             n
         Step:
+            i
+          =
+            0
+        Block:
+          <empty block>
+
+        for (;;) ..
+        First action:
           i
           ++
+        Condition:
+        Step:
+            i
+          =
+            0
         Block:
-            <empty block>
+          <empty block>
+
+        for (;;) ..
+        First action:
+          i
+          ++
+        Condition:
+            i
+          <
+            n
+        Step:
+        Block:
+          <empty block>
 
 
 

@@ -3,4 +3,27 @@
       char
       void
 +------------------------------------------------------------------+
+  
+    Function main()
+
+      Locals:
+        
+          Function ix()
+          Params:
+                          x pointer to function() returning int
+          Value:
+                    pointer to void
+
+        
+          Function x()
+          Params:
+                          x function() returning pointer to array[3] of pointer to function() returning pointer to array[5] of array[5] of pointer to int
+          Value:
+                    int
+
+
+
+    Value:
+        int
+
 +------------------------------------------------------------------+

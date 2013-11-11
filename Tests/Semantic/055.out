@@ -23,35 +23,35 @@
 
         then
 
-            Locals:
-                              a int
-                              b int
-                              c int
+          Locals:
+                          a int
+                          b int
+                          c int
 
-            Instructions:
-                a
-              =
-                  b
-                +
-                    c
-                  <<
-                    2
+          Instructions:
+              a
+            =
+                b
+              +
+                  c
+                <<
+                  2
 
         else
 
-            Locals:
-                              c int
-                              b int
-                              a int
+          Locals:
+                          c int
+                          b int
+                          a int
 
-            Instructions:
-                c
-              =
-                  b
-                +
-                    a
-                  >>
-                    2
+          Instructions:
+              c
+            =
+                b
+              +
+                  a
+                >>
+                  2
 
 
 

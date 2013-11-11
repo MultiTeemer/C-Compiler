@@ -100,6 +100,12 @@ Parser::Parser(Scanner& scanner): lexer(scanner)
 	tableStack.push(new SymTable());
 }
 
+void Parser::throwException(bool condition, const char* msg)
+{
+	if (condition)
+		throw ParserException(msg, lexer.get()->line, lexer.get()->col);
+}
+
 void Parser::parseFuncCall(NodeP& root)
 {
 	Token* next = lexer.get();
@@ -109,7 +115,7 @@ void Parser::parseFuncCall(NodeP& root)
 			root = new FuncCallNode(root, tableStack.find(""));
 			while (*t != PARENTHESIS_BACK)
 			{
-				dynamic_cast<FuncCallNode*>(root)->addArg(parseExpression(priorityTable[COMMA] + 1));
+				dynamic_cast<FuncCallNode*>(root)->addArg(parseExpressionTree(priorityTable[COMMA] + 1));
 				t = lexer.get();
 					throwException(*t == END_OF_FILE, "Expected parenthesis close after function argument list");
 				if (*t == COMMA)
@@ -129,7 +135,7 @@ void Parser::parseArrIndex(NodeP& root)
 			while (*t == BRACKET_FRONT)
 			{
 				lexer.next();
-				Node* index = parseExpression();
+				Node* index = parseExpressionTree();
 				dynamic_cast<ArrNode*>(root)->addArg(index);
 				t = lexer.get();
 				throwException(*t != BRACKET_BACK, "Expected bracket close after array index");
@@ -144,7 +150,7 @@ Node* Parser::parseFactor()
 	bool nextNeeded = true;
 	Token* token = lexer.get();
 	if (*token == SEMICOLON)
-		return 0;
+		return new EmptyNode();
 	switch (token->type) {
 	case INTEGER:
 		root = new IntNode(token);
@@ -175,7 +181,7 @@ Node* Parser::parseFactor()
 				string typeName = kw == CHAR ? "char" : kw == INT ? "int" : "float";
 				throwException(*lexer.get() != PARENTHESIS_FRONT, "Expected open parenthesis");
 				lexer.next();
-				root = new CoerceNode(token, parseExpression(), tableStack.find(typeName));
+				root = new CoerceNode(token, parseExpressionTree(), tableStack.find(typeName));
 				throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 				lexer.next();
 			} else 
@@ -188,13 +194,13 @@ Node* Parser::parseFactor()
 			if (*token == PARENTHESIS_FRONT)
 			{
 				lexer.next();
-				root = parseExpression();
+				root = parseExpressionTree();
 				Token* close = lexer.get();
 				if (!close || *close != PARENTHESIS_BACK)
 					throw ParserException("Expected parenthesis close", root->token->line, root->token->col);
 			} else if (unaryOps[dynamic_cast<OpToken*>(token)->val] == true) {
 				lexer.next();
-				root = new UnaryOpNode(token, parseExpression(priorityTable[DEC]));
+				root = new UnaryOpNode(token, parseExpressionTree(priorityTable[DEC]));
 				nextNeeded = false;
 			} else
 				throwException(true, "Empty expression is not allowed");
@@ -206,17 +212,11 @@ Node* Parser::parseFactor()
 	return root;
 }
 
-void Parser::throwException(bool condition, const char* msg)
-{
-	if (condition)
-		throw ParserException(msg, lexer.get()->line, lexer.get()->col);
-}
-
-Node* Parser::parseExpression(int priority)
+Node* Parser::parseExpressionTree(int priority)
 {
 	if (priority > 15)
 		return parseFactor();
-	Node* left = parseExpression(priority + 1);
+	Node* left = parseExpressionTree(priority + 1);
 	Node* root = left;
 	Token* opTok = lexer.get();
 	if (*opTok == END_OF_FILE || *opTok == PARENTHESIS_BACK || *opTok == BRACKET_BACK
@@ -237,15 +237,15 @@ Node* Parser::parseExpression(int priority)
 			lexer.next();		
 		} else if (op == QUESTION) {
 			lexer.next();
-			Node* l = parseExpression();
+			Node* l = parseExpressionTree();
 			if (*lexer.get() != COLON)
 				throw ParserException("Missed branch of ternary operator", lexer.line, lexer.col);
 			lexer.next();
-			Node* r = parseExpression();
+			Node* r = parseExpressionTree();
 			root = new TernaryOpNode(opTok, root, l, r);
 		} else {
 			lexer.next();
-			root = new BinaryOpNode(opTok, root, parseExpression(priority + (rightAssocOps[op] == true ? 0 : 1)));		
+			root = new BinaryOpNode(opTok, root, parseExpressionTree(priority + (rightAssocOps[op] == true ? 0 : 1)));		
 			Node* bon = dynamic_cast<BinaryOpNode*>(root)->right;
 			IdentifierNode* in = dynamic_cast<IdentifierNode*>(bon);
 			FunctionalNode* fn = dynamic_cast<FunctionalNode*>(bon);
@@ -255,6 +255,11 @@ Node* Parser::parseExpression(int priority)
 		opTok = lexer.get();
 	}
 	return root;
+}
+
+Expression* Parser::parseExpression(int priority)
+{
+	return new Expression(parseExpressionTree(priority));
 }
 
 StructSym* Parser::parseStruct(bool inParamList)
@@ -487,9 +492,9 @@ void Parser::parseDeclaration()
 		{
 			Token* assign = lexer.get();
 			lexer.next();
-			Node* assignOperand = parseExpression(priorityTable[COMMA] + 1);
+			Node* assignOperand = parseExpressionTree(priorityTable[COMMA] + 1);
 			throwException(blocks.size() == 0, "Cannot assign out of block");
-			blocks.top()->AddStatement(new BinaryOpNode(assign, new IdentifierNode(sym), assignOperand));
+			blocks.top()->AddStatement(new SingleStatement(new Expression(new BinaryOpNode(assign, new IdentifierNode(sym), assignOperand))));
 			if (*lexer.get() == COMMA)
 				lexer.next();
 		}
@@ -505,9 +510,9 @@ void Parser::parseDeclaration()
 	lexer.next();
 }
 
-Node* Parser::parseJumpStatement()
+JumpStatement* Parser::parseJumpStatement()
 {
-	Node* stmnt = 0;
+	JumpStatement* stmnt = 0;
 	switch (dynamic_cast<KeywordToken*>(lexer.get())->val) 
 	{
 	case CONTINUE:
@@ -517,7 +522,7 @@ Node* Parser::parseJumpStatement()
 		stmnt = new BreakStatement();
 		break;
 	case RETURN:
-		Node* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
+		Expression* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
 		stmnt = new ReturnStatement(arg);
 	}
 	if (*lexer.get() != SEMICOLON)
@@ -527,7 +532,7 @@ Node* Parser::parseJumpStatement()
 	return stmnt;
 }
 
-Node* Parser::parseStatement() 
+Statement* Parser::parseStatement() 
 {
 	Token* token = lexer.get();
 	if (*token == IF)
@@ -539,22 +544,22 @@ Node* Parser::parseStatement()
 	else if (*token == DO)
 		return parseDoWhile();
 	else if (*token == BRACE_FRONT)	
-		return new BlockNode(parseBlock());
+		return parseBlock();
 	else if (*token == CONTINUE || *token == BREAK || *token == RETURN)
 		return parseJumpStatement();
 	else {
-		Node* stnmt =  parseExpression();
+		SingleStatement* stnmt = new SingleStatement(parseExpression());
 		if (*lexer.get() == SEMICOLON)
 			lexer.next();
 		return stnmt;
 	}	
 }
 
-Node* Parser::fetchCondition()
+Expression* Parser::fetchCondition()
 {
 	throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
 	lexer.next();
-	Node* condition = parseExpression();
+	Expression* condition = parseExpression();
 	throwException(!condition, "Loop must have an condition");
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
@@ -578,26 +583,26 @@ ForStatement* Parser::parseFor()
 {
 	throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
 	lexer.next();
-	Node* initialization = parseExpression();
+	Expression* initialization = parseExpression();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
-	Node* condition = parseExpression();
+	Expression* condition = parseExpression();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
-	Node* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : 0;
+	Expression* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : new Expression(new EmptyNode());
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
 	initBlock();
-	Node* body = parseStatement();
+	Statement* body = parseStatement();
 	popBlock();
-	return new ForStatement(condition, body, initialization, increment);
+	return new ForStatement(initialization, condition, increment, body);
 }
 
 WhilePreCondStatement* Parser::parseWhile()
 {
-	Node* condition = fetchCondition();
+	Expression* condition = fetchCondition();
 	initBlock();
-	Node* body = parseStatement();
+	Statement* body = parseStatement();
 	popBlock();
 	return new WhilePreCondStatement(condition, body);
 }
@@ -606,10 +611,10 @@ WhilePostCondStatement* Parser::parseDoWhile()
 {
 	lexer.next();
 	initBlock();
-	Node* body = parseStatement();
+	Statement* body = parseStatement();
 	popBlock();
 	throwException(*lexer.get() != WHILE, "Expected 'while'");
-	Node* condition = fetchCondition();
+	Expression* condition = fetchCondition();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
 	return new WhilePostCondStatement(condition, body);
@@ -617,11 +622,11 @@ WhilePostCondStatement* Parser::parseDoWhile()
 
 IfStatement* Parser::parseIf()
 {
-	Node* condition = fetchCondition();
+	Expression* condition = fetchCondition();
 	initBlock();
-	Node* trueBranch = parseStatement();
+	Statement* trueBranch = parseStatement();
 	popBlock();
-	Node* falseBranch = 0;
+	Statement* falseBranch = 0;
 	if (*lexer.get() == ELSE)
 	{
 		lexer.next();

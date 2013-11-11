@@ -18,35 +18,35 @@
 
         then
 
-            Instructions:
-              a
-              ++
+          Instructions:
+            a
+            ++
 
         else
 
-            Instructions:
-              if
+          Instructions:
+            if
 
-                b
+              b
 
-              then
+            then
+
+              <empty block>
+
+            else
+
+              Instructions:
+                if
+
+                  c
+
+                then
 
                   <empty block>
 
-              else
+                else
 
-                  Instructions:
-                    if
-
-                      c
-
-                    then
-
-                        <empty block>
-
-                    else
-
-                        <empty block>
+                  <empty block>
 
 
 

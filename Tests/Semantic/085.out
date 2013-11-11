@@ -3,4 +3,16 @@
       char
       void
 +------------------------------------------------------------------+
+  
+    Function main()
+
+      Locals:
+                  x pointer to function() returning int
+                  y pointer to array[10] of int
+                  z function() returning pointer to function() returning pointer to function() returning pointer to int
+
+
+    Value:
+        int
+
 +------------------------------------------------------------------+

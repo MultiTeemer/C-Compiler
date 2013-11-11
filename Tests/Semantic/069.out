@@ -11,19 +11,19 @@
         Condition:
           1
         Block:
-            Locals:
-                              a int
-                              b int
-                              c int
+          Locals:
+                          a int
+                          b int
+                          c int
 
-            Instructions:
-                a
+          Instructions:
+              a
+            =
+                b
               =
-                  b
+                  c
                 =
-                    c
-                  =
-                    1
+                  1
 
 
 

@@ -4,10 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "Nodes.h"
 
 using namespace std;
-
-class Symbol;
 
 class SymInterface
 {
@@ -45,14 +44,6 @@ public:
 	bool existsInLastNamespace(const string& name);	
 	void push(SymTable* table);
 	void pop();
-};
-
-class Symbol
-{
-public:
-	string name;
-	Symbol(const string& n): name(n) {}
-	virtual void print(int deep) const;
 };
 
 class TypeSym : public Symbol
@@ -139,23 +130,22 @@ public:
 	void print(int deep) const;
 };
 
-class Node;
+class Statement 
+{
+public:
+	virtual void print(int deep) const = 0;
+};
 
-class Block
+class Block : public Statement
 {
 private:
 	SymTable* locals;
-	vector<Node*> statements;
+	vector<Statement*> statements;
 public:
-	typedef enum {
-		DECLARATIONS,
-		STATEMENTS,
-		ALL
-	} OutputModsT;
 	friend class Parser;
 	Block(SymTable* l): locals(l), statements(0) {}
-	void AddStatement(Node* stmt) { statements.push_back(stmt); }
-	void print(int deep, OutputModsT mode = ALL) const; 
+	void AddStatement(Statement* stmt) { statements.push_back(stmt); }
+	void print(int deep) const; 
 };
 
 class FuncSym : public TypeSym
@@ -172,5 +162,105 @@ public:
 	TypeSym* nextType() const { return val; }
 	void setNextType(TypeSym* t) { val = t; }
 };
+
+class Expression
+{
+private:
+	Node* root;
+public:
+	friend class Parser;
+	Expression(Node* r): root(r) {}
+	void print(int deep = 0) const { root->print(deep); }
+};
+
+class SingleStatement : public Statement
+{
+private:
+	Expression* expr;
+public:
+	SingleStatement(Expression* e): expr(e) {}
+	void print(int deep) const { expr->print(deep); }
+};
+
+class CondStatement : public Statement
+{
+protected:
+	Expression* condition;
+public:
+	CondStatement(Expression* cond): condition(cond) {}
+};
+
+class IfStatement : public CondStatement
+{
+private:
+	Statement* trueBranch;
+	Statement* falseBranch;
+public:
+	friend class Parser;
+	IfStatement(Expression* cond, Statement* tB, Statement* fB): CondStatement(cond), trueBranch(tB), falseBranch(fB) {}
+	void print(int deep) const;
+};
+
+class CycleStatement : public CondStatement
+{
+protected:
+	Statement* body;
+public:
+	CycleStatement(Expression* cond, Statement* b): CondStatement(cond), body(b) {}
+	virtual void print(int deep) const;
+};
+
+class WhilePreCondStatement : public CycleStatement
+{
+public:
+	friend class Parser;
+	WhilePreCondStatement(Expression* cond, Statement* b): CycleStatement(cond, b) {}
+	void print(int deep) const;
+};
+
+class WhilePostCondStatement : public CycleStatement
+{
+public:
+	friend class Parser;
+	WhilePostCondStatement(Expression* cond, Statement* b): CycleStatement(cond, b) {}
+	void print(int deep) const;
+};
+
+class ForStatement : public CycleStatement
+{
+private:
+	Expression* initialization;
+	Expression* increment;
+public:
+	friend class Parser;
+	ForStatement(Expression* initial, Expression* condition, Expression* inc, Statement* block): 
+		CycleStatement(condition, block), initialization(initial), increment(inc) {}
+	void print(int deep) const;
+};
+
+class JumpStatement : public Statement
+{};
+
+class BreakStatement : public JumpStatement
+{
+public:
+	void print(int deep) const;
+};
+
+class ContinueStatement : public JumpStatement
+{
+public:
+	void print(int deep) const;
+};
+
+class ReturnStatement : public JumpStatement
+{
+private:
+	Expression* arg;
+public:
+	ReturnStatement(Expression* a): arg(a) {}
+	void print(int deep) const;
+};
+
 
 #endif

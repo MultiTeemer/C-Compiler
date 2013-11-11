@@ -15,14 +15,14 @@
                   c int
 
       Instructions:
+        Locals:
+                      a int
+
+        Instructions:
           Locals:
                           a int
-
-          Instructions:
-              Locals:
-                                  a int
-                                  b pointer to void
-                                  c array[10] of pointer to char
+                          b pointer to void
+                          c array[10] of pointer to char
 
 
 
