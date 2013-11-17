@@ -3,32 +3,32 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  struct point
-                          x int
-                          y int
-                  $a struct point
-                  $b struct point
+        Locals:
+                      struct point
+                              x int
+                              y int
+                      $a struct point
+                      $b struct point
 
-      Instructions:
-          $a
-        .
-          x
-          $a
-        .
-          y
-          $b
-        .
-          x
-          $b
-        .
-          y
+        Instructions:
+            $a
+          .
+            x
+            $a
+          .
+            y
+            $b
+          .
+            x
+            $b
+          .
+            y
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

@@ -3,18 +3,18 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Instructions:
-        do .. while ()
-        Condition:
-          1
-        Block:
-          1
+        Instructions:
+          do .. while ()
+          Condition:
+            1
+          Block:
+            1
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

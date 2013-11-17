@@ -3,34 +3,34 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Instructions:
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          do .. while ()
+        Instructions:
+          for (;;) ..
+          First action:
+            <empty expression>
           Condition:
-            0
+            <empty expression>
+          Step:
+            <empty expression>
           Block:
-            for (;;) ..
-            First action:
-              <empty expression>
+            do .. while ()
             Condition:
-              <empty expression>
-            Step:
-              <empty expression>
+              0
             Block:
-              1
+              for (;;) ..
+              First action:
+                <empty expression>
+              Condition:
+                <empty expression>
+              Step:
+                <empty expression>
+              Block:
+                1
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

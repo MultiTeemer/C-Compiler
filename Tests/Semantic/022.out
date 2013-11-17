@@ -4,32 +4,8 @@
       void
 +------------------------------------------------------------------+
       a int
-  
-    Function b()
-    Value:
-        int
-
-  
-    Function c()
-    Params:
-               int
-    Value:
-        int
-
-  
-    Function d()
-    Params:
-               pointer to int
-               array[] of int
-    Value:
-        int
-
-  
-    Function f()
-    Params:
-              intptr pointer to int
-              vptr pointer to void
-    Value:
-        int
-
+      b function() returning int
+      c function(int) returning int
+      d function(pointer to int, array[] of int) returning int
+      f function(pointer to int, pointer to void) returning int
 +------------------------------------------------------------------+

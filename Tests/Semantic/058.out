@@ -3,28 +3,28 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  a int
+        Locals:
+                      a int
 
-      Instructions:
-        if
+        Instructions:
+          if
 
-          a
+            a
 
-        then
+          then
 
-          a
-          ++
-        else
+            a
+            ++
+          else
 
-          a
-          --
+            a
+            --
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

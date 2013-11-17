@@ -3,32 +3,32 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function foo()
+      foo
+      Function ()
 
-      Locals:
-                  a int
-                  b int
-                  c int
-                  d int
+        Locals:
+                      a int
+                      b int
+                      c int
+                      d int
 
-      Instructions:
-          a
-        =
-          1
-          c
-        =
-          3
-          d
-        =
+        Instructions:
             a
-          *
-              c
+          =
+            1
+            c
+          =
+            3
+            d
+          =
+              a
             *
-              1
+                c
+              *
+                1
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

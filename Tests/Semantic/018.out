@@ -3,12 +3,5 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
-    Params:
-              argc int
-              argv array[] of pointer to char
-    Value:
-        int
-
+      main function(int, array[] of pointer to char) returning int
 +------------------------------------------------------------------+

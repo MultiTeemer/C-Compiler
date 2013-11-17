@@ -3,78 +3,78 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
+        Locals:
+                      i int
 
-      Instructions:
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          i
-          ++
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          if
-
-            1
-
-          then
-
+        Instructions:
+          for (;;) ..
+          First action:
+            <empty expression>
+          Condition:
+            <empty expression>
+          Step:
+            <empty expression>
+          Block:
             i
             ++
-          else
-
-            i
-            --
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          if
-
-            0
-
-          then
-
-            i
-            ++
-          else
-
+          for (;;) ..
+          First action:
+            <empty expression>
+          Condition:
+            <empty expression>
+          Step:
+            <empty expression>
+          Block:
             if
 
-              --
-                i
+              1
 
             then
 
               i
-              --
+              ++
             else
 
+              i
+              --
+          for (;;) ..
+          First action:
+            <empty expression>
+          Condition:
+            <empty expression>
+          Step:
+            <empty expression>
+          Block:
+            if
+
+              0
+
+            then
+
+              i
+              ++
+            else
+
+              if
+
+                --
+                  i
+
+              then
+
                 i
-              +=
-                5
+                --
+              else
+
+                  i
+                +=
+                  5
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

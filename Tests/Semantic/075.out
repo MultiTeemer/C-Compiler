@@ -3,30 +3,30 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Instructions:
-        do .. while ()
-        Condition:
-          1
-        Block:
-          Locals:
-                          a int
-                          b int
-                          c int
-
-          Instructions:
+        Instructions:
+          do .. while ()
+          Condition:
             1
-              a
-            =
-                b
-              +
-                c
+          Block:
+            Locals:
+                              a int
+                              b int
+                              c int
+
+            Instructions:
+              1
+                a
+              =
+                  b
+                +
+                  c
 
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

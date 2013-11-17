@@ -3,56 +3,56 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  a int
-                  b int
-                  c int
+        Locals:
+                      a int
+                      b int
+                      c int
 
-      Instructions:
-        if
+        Instructions:
+          if
 
-          a
-
-        then
-
-          Instructions:
             a
-            ++
 
-        else
+          then
 
-          Instructions:
-            if
+            Instructions:
+              a
+              ++
 
-              b
+          else
 
-            then
+            Instructions:
+              if
 
-              <empty block>
+                b
 
-            else
+              then
 
-              Instructions:
-                if
+                <empty block>
 
-                  c
+              else
 
-                then
+                Instructions:
+                  if
 
-                  <empty block>
+                    c
 
-                else
+                  then
 
-                  <empty block>
+                    <empty block>
+
+                  else
+
+                    <empty block>
 
 
 
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

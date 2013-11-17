@@ -1,0 +1,11 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      struct point
+      sp alias for struct point
+      spp alias for pointer to struct point
+      foo function() returning struct point
+      foop function() returning pointer to struct point
++------------------------------------------------------------------+

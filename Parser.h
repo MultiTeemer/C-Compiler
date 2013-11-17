@@ -19,13 +19,13 @@ private:
 	map<OperationsT, int> priorityTable;
 	map<OperationsT, bool> unaryOps;
 	map<OperationsT, bool> rightAssocOps;		
-	Symbol* parseComplexDecl(TypeSym* baseType);
-	Symbol* parseIdentifier(TypeSym* baseType);
+	VarSym* parseComplexDecl(TypeSym* baseType);
+	VarSym* parseIdentifier(TypeSym* baseType);
 	VarSym* parseDirectDecl();
 	TypeSym* parseType(bool inParamList = false);
 	TypeSym* parseArrayDimensions(TypeSym* baseType, bool inParamList = false);
 	StructSym* parseStruct(bool inParamList);
-	FuncSym* createFunctionSymbol(const string& name, TypeSym* type);
+	FuncSym* createFunctionSymbol(TypeSym* type);
 	Node* parseFactor();
 	Node* parseMember(Node* left);
 	Statement* parseStatement();

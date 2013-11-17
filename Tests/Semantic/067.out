@@ -3,21 +3,13 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
+        Locals:
+                      i int
 
-      Instructions:
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
+        Instructions:
           for (;;) ..
           First action:
             <empty expression>
@@ -42,21 +34,29 @@
               Step:
                 <empty expression>
               Block:
-                i
-                ++
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          i
-          --
+                for (;;) ..
+                First action:
+                  <empty expression>
+                Condition:
+                  <empty expression>
+                Step:
+                  <empty expression>
+                Block:
+                  i
+                  ++
+          for (;;) ..
+          First action:
+            <empty expression>
+          Condition:
+            <empty expression>
+          Step:
+            <empty expression>
+          Block:
+            i
+            --
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

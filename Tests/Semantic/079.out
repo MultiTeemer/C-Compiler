@@ -3,19 +3,19 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function foo()
+      foo
+      Function ()
 
-      Locals:
-                  a int
+        Locals:
+                      a int
 
-      Instructions:
-          a
-        =
-          1
+        Instructions:
+            a
+          =
+            1
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

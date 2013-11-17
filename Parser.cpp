@@ -434,9 +434,9 @@ void Parser::parseArgList()
 	lexer.next();
 }
 
-FuncSym* Parser::createFunctionSymbol(const string& name, TypeSym* type)
+FuncSym* Parser::createFunctionSymbol(TypeSym* type)
 {
-	FuncSym* function = new FuncSym(name, type);
+	FuncSym* function = new FuncSym(type);
 	function->params = new SymTable();
 	tableStack.push(function->params);
 	parseArgList();
@@ -444,8 +444,9 @@ FuncSym* Parser::createFunctionSymbol(const string& name, TypeSym* type)
 	return function;
 }
 
-Symbol* Parser::parseIdentifier(TypeSym* type)
+VarSym* Parser::parseIdentifier(TypeSym* type)
 {
+	VarSym* res = 0;
 	Token* token = lexer.get();
 	while (*token == MULT)
 	{
@@ -456,18 +457,16 @@ Symbol* Parser::parseIdentifier(TypeSym* type)
 		return parseComplexDecl(type);
 	throwException(!dynamic_cast<IdentifierToken*>(token), "Expected identifier");
 	string name = dynamic_cast<IdentifierToken*>(token)->val;
-	int line = token->line, col = token->col;	
-	token = lexer.next();
-	Symbol* res = 0;
+	token = lexer.next();	
 	if (*token != PARENTHESIS_FRONT)
 	{
 		if (*token == BRACKET_FRONT)
 			type = parseArrayDimensions(type);
 		if (type->isStruct())
 			name = '$' + name;
-		res = new VarSym(name, type);
 	} else 		
-		res = createFunctionSymbol(name, type);	
+		type = createFunctionSymbol(type);	
+	res = new VarSym(name, type);
 	throwException(tableStack.existsInLastNamespace(name), "Redefinition");
 	return res;
 }
@@ -499,7 +498,7 @@ VarSym* Parser::parseDirectDecl()
 		lexer.next();
 	}
 	if (*lexer.get() == PARENTHESIS_FRONT)	
-		type = createFunctionSymbol("", type);
+		type = createFunctionSymbol(type);
 	 else if (*lexer.get() == BRACKET_FRONT) 
 		type = parseArrayDimensions(type, true);	
 	hitch(sym, type);
@@ -507,11 +506,11 @@ VarSym* Parser::parseDirectDecl()
 	return sym;
 }
 
-Symbol* Parser::parseComplexDecl(TypeSym* baseType)
+VarSym* Parser::parseComplexDecl(TypeSym* baseType)
 {
 	VarSym* sym = parseDirectDecl();
 	if (*lexer.get() == PARENTHESIS_FRONT)
-		baseType = createFunctionSymbol("", baseType);
+		baseType = createFunctionSymbol(baseType);
 	else if (*lexer.get() == BRACKET_FRONT)
 		baseType = parseArrayDimensions(baseType, true);
 	hitch(sym, baseType);
@@ -521,7 +520,7 @@ Symbol* Parser::parseComplexDecl(TypeSym* baseType)
 void Parser::parseDeclaration()
 {	
 	TypeSym* type = parseType();
-	Symbol* sym = 0;
+	VarSym* sym = 0;
 	while (true)
 	{
 		if (type->isStruct() && *lexer.get() == SEMICOLON)
@@ -545,10 +544,10 @@ void Parser::parseDeclaration()
 			lexer.next();
 	};
 	if (*lexer.get() == BRACE_FRONT)
-		if (dynamic_cast<FuncSym*>(sym))
+		if (dynamic_cast<FuncSym*>(sym->type))
 		{
 			throwException(blocks.size() != 0, "Cannot define function in block");
-			dynamic_cast<FuncSym*>(sym)->body = parseBlock();
+			dynamic_cast<FuncSym*>(sym->type)->body = parseBlock();
 		} else 
 			throwException(true, "Unexpected brace");
 	lexer.next();
@@ -690,8 +689,7 @@ Block* Parser::parseBlock()
 	Token* token = lexer.get();
 	while (*token != BRACE_BACK)
 	{
-		if (*token == CONST || *token == STRUCT || 
-			(dynamic_cast<TypeSym*>(tableStack.find(token->text)) && !dynamic_cast<FuncSym*>(tableStack.find(token->text))))
+		if (*token == CONST || *token == STRUCT || dynamic_cast<TypeSym*>(tableStack.find(token->text)))
 			parseDeclaration();
 		else if (*token == TYPEDEF)
 			parseTypeDef();

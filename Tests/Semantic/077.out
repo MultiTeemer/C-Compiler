@@ -3,65 +3,65 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
+        Locals:
+                      i int
 
-      Instructions:
-        if
-
-          0
-
-        then
-
-          while () do ..
-          Condition:
-            1
-          Block:
-            do .. while ()
-            Condition:
-              1
-            Block:
-              1
-        else
-
+        Instructions:
           if
 
             0
 
           then
 
-            for (;;) ..
-            First action:
-              <empty expression>
+            while () do ..
             Condition:
-              <empty expression>
-            Step:
-              <empty expression>
+              1
             Block:
               do .. while ()
               Condition:
-                0
+                1
               Block:
-                if
+                1
+          else
 
-                    1
-                  +
-                    1
+            if
 
-                then
+              0
 
-                  while () do ..
-                  Condition:
-                    0
-                  Block:
-                    i
-                    ++
+            then
+
+              for (;;) ..
+              First action:
+                <empty expression>
+              Condition:
+                <empty expression>
+              Step:
+                <empty expression>
+              Block:
+                do .. while ()
+                Condition:
+                  0
+                Block:
+                  if
+
+                      1
+                    +
+                      1
+
+                  then
+
+                    while () do ..
+                    Condition:
+                      0
+                    Block:
+                      i
+                      ++
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

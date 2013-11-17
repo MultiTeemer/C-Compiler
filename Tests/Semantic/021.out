@@ -3,11 +3,5 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function bar()
-    Params:
-              foo_ptr pointer to void
-    Value:
-        int
-
+      bar function(pointer to void) returning int
 +------------------------------------------------------------------+

@@ -3,29 +3,19 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function c()
-    Params:
-               int
+      c
+      Function ()
+      Params:
+                   int
 
-      Locals:
-                  c int
-                  b pointer to void
-        
-          Function foo()
-          Value:
-                    void
-
-        
-          Function bar()
-          Params:
-                           int
-          Value:
-                    void
+        Locals:
+                      c int
+                      b pointer to void
+                      foo function() returning void
+                      bar function(int) returning void
 
 
-
-    Value:
-        pointer to void
+      Value:
+            pointer to void
 
 +------------------------------------------------------------------+

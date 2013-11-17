@@ -12,7 +12,9 @@ void Symbol::print(int deep) const
 void VarSym::print(int deep) const
 {
 	cout << string(M * deep, ' ') << name;
-	if (type->typeName().length() > 0)
+	if (dynamic_cast<FuncSym*>(type) && dynamic_cast<FuncSym*>(type)->blockDefined())
+		type->print(deep + 1);
+	else if (type->typeName().length() > 0)
 		cout << ' ' << type->typeName() << endl;
 	else 
 		type->print(deep + 1);	
@@ -102,14 +104,6 @@ Symbol* SymTable::find(const string& name) const
 		return symbols[index.at(name)];
 	else if (index.count('$' + name))
 		return symbols[index.at('$' + name)];
-	else 
-		for (int i = 0; i < symbols.size(); i++)
-		{
-			StructSym* struc = dynamic_cast<StructSym*>(symbols[i]);
-			Symbol* res = 0;
-			if (struc && (res = struc->fields->find(name)))
-				return res;
-		}
 	return 0;
 }
 

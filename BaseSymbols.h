@@ -97,12 +97,13 @@ private:
 public:
 	friend class Parser;
 	friend class FuncCallNode;
-	FuncSym(const string& n, TypeSym* v): TypeSym(n), val(v), params(0), body(0) {} 
+	FuncSym(TypeSym* v): TypeSym(""), val(v), params(0), body(0) {} 
 	string typeName() const;
 	void print(int deep) const;
 	TypeSym* nextType() const { return val; }
 	void setNextType(TypeSym* t) { val = t; }
 	TypeSym* getType() { return val; } 
+	bool blockDefined() const { return body != 0; }
 };
 
 extern ScalarSym* intType;

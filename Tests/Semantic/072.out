@@ -3,34 +3,34 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
+        Locals:
+                      i int
 
-      Instructions:
-        while () do ..
-        Condition:
-          1
-        Block:
-          for (;;) ..
-          First action:
-            <empty expression>
+        Instructions:
+          while () do ..
           Condition:
-            <empty expression>
-          Step:
-            <empty expression>
+            1
           Block:
-            while () do ..
+            for (;;) ..
+            First action:
+              <empty expression>
             Condition:
-              i
+              <empty expression>
+            Step:
+              <empty expression>
             Block:
-              i
-              --
+              while () do ..
+              Condition:
+                i
+              Block:
+                i
+                --
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

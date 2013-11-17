@@ -3,26 +3,26 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  struct point
-                          x int
-                          y int
-                          struct $$unnamedStruct0
-                                  ro int
-                                  fi int
-                          $z struct $$unnamedStruct0
-                  $a struct point
+        Locals:
+                      struct point
+                              x int
+                              y int
+                              struct $$unnamedStruct0
+                                      ro int
+                                      fi int
+                              $z struct $$unnamedStruct0
+                      $a struct point
 
-      Instructions:
-          $a
-        .
-          $z
+        Instructions:
+            $a
+          .
+            $z
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

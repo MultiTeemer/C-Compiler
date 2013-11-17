@@ -4,37 +4,8 @@
       void
 +------------------------------------------------------------------+
       a const float
-  
-    Function sqrt()
-    Params:
-              a float
-    Value:
-        const float
-
-  
-    Function swap()
-    Params:
-               pointer to float
-               pointer to float
-    Value:
-        const float
-
-  
-    Function avrg()
-    Params:
-               array[] of float
-               int
-    Value:
-        const float
-
-  
-    Function qsort()
-    Params:
-               array[] of float
-               int
-               int
-               int
-    Value:
-        const float
-
+      sqrt function(float) returning const float
+      swap function(pointer to float, pointer to float) returning const float
+      avrg function(array[] of float, int) returning const float
+      qsort function(array[] of float, int, int, int) returning const float
 +------------------------------------------------------------------+

@@ -1,0 +1,56 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      f1 function() returning int
+                      f2 function(char) returning int
+                      f3 function(int) returning int
+                      f4 function(float) returning int
+
+        Instructions:
+          f1
+          (
+          )
+          f2
+          (
+            'c'
+          )
+          f3
+          (
+            int            (
+              'c'
+            )
+          )
+          f3
+          (
+            3
+          )
+          f4
+          (
+            float            (
+              int              (
+                'c'
+              )
+            )
+          )
+          f4
+          (
+            float            (
+              3
+            )
+          )
+          f4
+          (
+            3
+          )
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

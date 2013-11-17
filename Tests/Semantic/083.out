@@ -3,17 +3,17 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  struct a
-                  x pointer to array[15] of struct a
-                  y pointer to function(struct a, struct a) returning struct a
-                  z pointer to function(array[] of struct a, array[] of pointer to struct a) returning struct a
+        Locals:
+                      struct a
+                      x pointer to array[15] of struct a
+                      y pointer to function(struct a, struct a) returning struct a
+                      z pointer to function(array[] of struct a, array[] of pointer to struct a) returning struct a
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

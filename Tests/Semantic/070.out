@@ -3,22 +3,22 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
+        Locals:
+                      i int
 
-      Instructions:
-        while () do ..
-        Condition:
-          1
-        Block:
-          i
-          ++
+        Instructions:
+          while () do ..
+          Condition:
+            1
+          Block:
+            i
+            ++
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

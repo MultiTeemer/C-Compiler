@@ -3,11 +3,5 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function foo()
-    Params:
-              bar array[] of int
-    Value:
-        int
-
+      foo function(array[] of int) returning int
 +------------------------------------------------------------------+

@@ -1,7 +1,4 @@
-      int
-      float
-      char
-      void
 +------------------------------------------------------------------+
-      main function(int, pointer to pointer to char) returning int
+Incorrect parameters
+On line 5 col 1
 +------------------------------------------------------------------+

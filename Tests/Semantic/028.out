@@ -3,21 +3,21 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function foo()
+      foo
+      Function ()
 
-      Instructions:
         Instructions:
           Instructions:
             Instructions:
-              <empty block>
+              Instructions:
+                <empty block>
 
 
 
 
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

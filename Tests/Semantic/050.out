@@ -1,0 +1,15 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      struct point
+      sp alias for struct point
+      psp alias for pointer to struct point
+      a struct point
+      b struct point
+      ap pointer to struct point
+      bp pointer to struct point
+      aps array[] of array[100] of pointer to struct point
+      bps array[10] of struct point
++------------------------------------------------------------------+

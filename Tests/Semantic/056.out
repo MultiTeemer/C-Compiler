@@ -3,71 +3,71 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  a int
-                  b int
+        Locals:
+                      a int
+                      b int
 
-      Instructions:
-        if
+        Instructions:
+          if
 
-              a
-            >
-              0
-          &&
-              b
-            <
-              0
-
-        then
-
-          Instructions:
-            if
-
-              b
-
-            then
-
-              Instructions:
                 a
-                --
+              >
+                0
+            &&
                 b
-                ++
+              <
+                0
+
+          then
+
+            Instructions:
+              if
+
+                b
+
+              then
+
+                Instructions:
+                  a
+                  --
+                  b
+                  ++
 
 
-        else
+          else
 
-          Instructions:
-            if
+            Instructions:
+              if
 
-              a
+                a
 
-            then
+              then
 
-              <empty block>
+                <empty block>
 
-            else
+              else
 
-              <empty block>
+                <empty block>
 
-            if
+              if
 
-              b
+                b
 
-            then
+              then
 
-              <empty block>
+                <empty block>
 
-            else
+              else
 
-              <empty block>
-
-
+                <empty block>
 
 
-    Value:
-        int
+
+
+      Value:
+            int
 
 +------------------------------------------------------------------+

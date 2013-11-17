@@ -3,14 +3,5 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function a()
-    Params:
-              b int
-              d float
-              c char
-              s int
-    Value:
-        int
-
+      a function(int, float, char, int) returning int
 +------------------------------------------------------------------+

@@ -3,32 +3,32 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  i int
-                  n int
+        Locals:
+                      i int
+                      n int
 
-      Instructions:
-        for (;;) ..
-        First action:
+        Instructions:
+          for (;;) ..
+          First action:
+              i
+            =
+              0
+          Condition:
+              i
+            <
+              n
+          Step:
             i
-          =
-            0
-        Condition:
-            i
-          <
-            n
-        Step:
-          i
-          ++
-        Block:
-          <empty block>
+            ++
+          Block:
+            <empty block>
 
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

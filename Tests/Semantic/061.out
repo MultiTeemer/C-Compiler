@@ -3,47 +3,47 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Locals:
-                  a int
-                  b int
-                  c int
-                  d int
+        Locals:
+                      a int
+                      b int
+                      c int
+                      d int
 
-      Instructions:
-        if
-
-          a
-
-        then
-
-          a
-        else
-
+        Instructions:
           if
 
-            b
+            a
 
           then
 
-            b
+            a
           else
 
             if
 
-              c
+              b
 
             then
 
-              c
+              b
             else
 
-              d
+              if
+
+                c
+
+              then
+
+                c
+              else
+
+                d
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

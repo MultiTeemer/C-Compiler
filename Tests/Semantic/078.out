@@ -3,30 +3,30 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function main()
+      main
+      Function ()
 
-      Instructions:
-        return
-        return
-          0
-        for (;;) ..
-        First action:
-          <empty expression>
-        Condition:
-          <empty expression>
-        Step:
-          <empty expression>
-        Block:
-          break
-        while () do ..
-        Condition:
-          1
-        Block:
-          continue
+        Instructions:
+          return
+          return
+            0
+          for (;;) ..
+          First action:
+            <empty expression>
+          Condition:
+            <empty expression>
+          Step:
+            <empty expression>
+          Block:
+            break
+          while () do ..
+          Condition:
+            1
+          Block:
+            continue
 
 
-    Value:
-        int
+      Value:
+            int
 
 +------------------------------------------------------------------+

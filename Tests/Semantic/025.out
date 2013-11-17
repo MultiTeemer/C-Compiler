@@ -3,17 +3,17 @@
       char
       void
 +------------------------------------------------------------------+
-  
-    Function a()
-    Params:
-              b int
-
-      Locals:
-                  a int
+      a
+      Function ()
+      Params:
                   b int
 
+        Locals:
+                      a int
+                      b int
 
-    Value:
-        int
+
+      Value:
+            int
 
 +------------------------------------------------------------------+
