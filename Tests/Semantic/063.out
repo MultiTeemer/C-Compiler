@@ -13,16 +13,16 @@
       Instructions:
         for (;;) ..
         First action:
-          i
-          ++
+            i
+          =
+            0
         Condition:
             i
           <
             n
         Step:
-            i
-          =
-            0
+          i
+          ++
         Block:
           <empty block>
 

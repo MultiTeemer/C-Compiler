@@ -9,11 +9,23 @@
       Instructions:
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           <empty block>
 
+        for (;;) ..
+        First action:
+          <empty expression>
+        Condition:
+          <empty expression>
+        Step:
+          <empty expression>
+        Block:
+          <empty expression>
 
 
     Value:

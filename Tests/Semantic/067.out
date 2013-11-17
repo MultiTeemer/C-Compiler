@@ -12,30 +12,45 @@
       Instructions:
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           for (;;) ..
           First action:
+            <empty expression>
           Condition:
+            <empty expression>
           Step:
+            <empty expression>
           Block:
             for (;;) ..
             First action:
+              <empty expression>
             Condition:
+              <empty expression>
             Step:
+              <empty expression>
             Block:
               for (;;) ..
               First action:
+                <empty expression>
               Condition:
+                <empty expression>
               Step:
+                <empty expression>
               Block:
                 i
                 ++
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           i
           --

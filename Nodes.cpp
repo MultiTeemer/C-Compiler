@@ -4,7 +4,27 @@
 
 using namespace std;
 
+ScalarSym* intType = new ScalarSym("int");
+ScalarSym* floatType = new ScalarSym("float");
+ScalarSym* charType = new ScalarSym("char");
+ScalarSym* voidType = new ScalarSym("void");
+
+map<TypeSym*, int> typePriority;
+map<OperationsT, TypeSym*> operationTypeOperands;
+map<OperationsT, TypeSym*> operationReturningType;
+
 static const int M = 2;
+
+Node* Node::makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to)
+{
+	if (typePriority[from] > typePriority[to] || dynamic_cast<PointerSym*>(from) || dynamic_cast<PointerSym*>(to))
+		throw exception("Invalid args of function BinaryOpNode::makeTypeCoerce");
+	if (from == to)
+		return expr;
+	if (typePriority[to] - typePriority[from] == 1)
+		return new CoerceNode(0, expr, to);
+	return new CoerceNode(0, makeTypeCoerce(expr, from, intType), floatType); 
+}
 
 void EmptyNode::print(int deep) const
 { 
@@ -25,6 +45,33 @@ BinaryOpNode::BinaryOpNode(Token* op, Node* l, Node* r): OpNode(op), left(l), ri
 		throw ParserException("Lost operand", op->line, op->col);
 }
 
+TypeSym* BinaryOpNode::getType() const
+{
+	TypeSym* leftType = left->getType();
+	TypeSym* rightType = right->getType();
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	TypeSym* maxTypeOfArgs = 0;
+	if (operationTypeOperands.count(op))
+		maxTypeOfArgs = operationTypeOperands[op];
+	else
+		maxTypeOfArgs = typePriority[leftType] > typePriority[rightType] ? leftType : rightType;
+	switch (op)
+	{
+	case DOT:
+	case ARROW:
+		return rightType;
+	default:
+		if (typePriority[maxTypeOfArgs] < max(typePriority[leftType], typePriority[rightType]))
+			throw CompilerException("Invalid type of operands", token->line, token->col);
+		left = makeTypeCoerce(left, leftType, maxTypeOfArgs);
+		right = makeTypeCoerce(right, rightType, maxTypeOfArgs);
+		if (operationReturningType.count(op))
+			return operationReturningType[op];
+		else 
+			return maxTypeOfArgs;
+	}	
+}
+
 void BinaryOpNode::print(int deep) const
 {
 	left->print(deep + 1);
@@ -37,14 +84,29 @@ void IntNode::print(int deep) const
 	cout << string(deep * M, ' ') << dynamic_cast<IntegerToken*>(token)->val << endl;
 }
 
+TypeSym* IntNode::getType() const
+{
+	return intType;
+}
+
 void FloatNode::print(int deep) const
 {
 	cout << string(deep * M, ' ') << dynamic_cast<FloatToken*>(token)->val << endl;
 }
 
+TypeSym* FloatNode::getType() const
+{
+	return floatType;
+}
+
 void IdentifierNode::print(int deep) const
 {
 	cout << string(deep * M, ' ') << sym->name << endl;
+}
+
+TypeSym* IdentifierNode::getType() const
+{
+	return sym->getType();
 }
 
 UnaryOpNode::UnaryOpNode(Token* op, Node* oper): OpNode(op), operand(oper) 
@@ -59,6 +121,22 @@ void UnaryOpNode::print(int deep) const
 	operand->print(deep + 1);
 }
 
+TypeSym* UnaryOpNode::getType() const
+{
+	TypeSym* type = operand->getType();
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	TypeSym* maxType = operationTypeOperands.count(op) ? intType : floatType;
+	if (typePriority[maxType] < typePriority[type])
+		throw CompilerException("Invalid type of unary operation", token->line, token->col);
+	if (op == MULT)
+	{
+		if (!dynamic_cast<PointerSym*>(type))
+			throw CompilerException("Type of unary operation is not a pointer", token->line, token->col);
+		return dynamic_cast<PointerSym*>(type)->type;
+	}
+	return type;	
+}
+
 void PostfixUnaryOpNode::print(int deep) const
 {
 	operand->print(deep);
@@ -71,6 +149,11 @@ void CoerceNode::print(int deep) const
 	cout << string(deep * M, ' ') << "(" << endl;
 	operand->print(deep + 1);
 	cout << string(deep * M, ' ') << ")" << endl;
+}
+
+TypeSym* CoerceNode::getType() const
+{
+	return type;
 }
 
 void FunctionalNode::printArgs(int deep) const
@@ -91,12 +174,35 @@ void FuncCallNode::print(int deep) const
 	cout << string(deep * M, ' ') << ")" << endl;
 }
 
+TypeSym* FuncCallNode::getType() const
+{
+	FuncSym* sym = dynamic_cast<FuncSym*>(symbol);
+	int formalParametersCount = sym->params->size();
+	int realParametersCount = args.size();
+	if (formalParametersCount != realParametersCount)
+		throw CompilerException("Incorrect parameters", token->line, token->col);
+	for (int i = 0; i < formalParametersCount; i++)
+	{
+		TypeSym* realParamType = args[i]->getType();
+		TypeSym* formalParamType = sym->params->symbols[i]->getType();
+		if (typePriority[realParamType] > typePriority[formalParamType])
+			throw CompilerException("Incorrect param", token->line, token->col);
+		args[i] = makeTypeCoerce(args[i], realParamType, formalParamType);
+	}
+	return symbol->getType();
+}
+
 void ArrNode::print(int deep) const 
 {
 	name->print(deep);
 	cout << string(deep * M, ' ') << "[" << endl;
 	printArgs(deep);
 	cout << string(deep * M, ' ') << "]" << endl;
+}
+
+TypeSym* ArrNode::getType() const
+{
+	return 0;
 }
 
 string KeywordNode::KeywordName() const
@@ -126,9 +232,19 @@ void CharNode::print(int deep) const
 	cout << string(deep * M, ' ') << '\'' << dynamic_cast<CharToken*>(token)->val << '\'' << endl; 
 }
 
+TypeSym* CharNode::getType() const
+{
+	return charType;
+}
+
 void StringNode::print(int deep) const 
 { 
 	cout << string(deep * M, ' ') << '"' << dynamic_cast<StringToken*>(token)->val << '"' << endl; 
+}
+
+TypeSym* StringNode::getType() const
+{
+	return new PointerSym(charType);
 }
 
 void TernaryOpNode::print(int deep) const

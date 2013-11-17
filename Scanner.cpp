@@ -60,9 +60,9 @@ Scanner::Scanner(const char* filename): input(filename), filename(filename), lin
 	addDefaultTransition(OR_ASSIGN_OP, &Scanner::OperationDetected);
 
 	// Circumflex
-	addDefaultTransition(XOR_OP, &Scanner::OperationDetected);
-	addTransition(XOR_OP, EQUAL_OP_FOUNDED, XOR_ASSIGN_OP, 0);
-	addDefaultTransition(XOR_ASSIGN_OP, &Scanner::OperationDetected);
+	addDefaultTransition(BITWISE_XOR_OP, &Scanner::OperationDetected);
+	addTransition(BITWISE_XOR_OP, EQUAL_OP_FOUNDED, BITWISE_XOR_ASSIGN_OP, 0);
+	addDefaultTransition(BITWISE_XOR_ASSIGN_OP, &Scanner::OperationDetected);
 
 	// Plus, increment
 	addDefaultTransition(PLUS_OP, &Scanner::OperationDetected);
@@ -333,7 +333,7 @@ void Scanner::addDefaultTransition(LexerStatesT state, LexerActionT action)
 	addTransition(state, GRID_FOUNDED, PREPROC_DIRECTIVE, action);
 	addTransition(state, AMP_FOUNDED, AMP, action);
 	addTransition(state, PIPE_FOUNDED, PIPE, action);
-	addTransition(state, CIRCUMFLEX_FOUNDED, XOR_OP, action);
+	addTransition(state, CIRCUMFLEX_FOUNDED, BITWISE_XOR_OP, action);
 	addTransition(state, PERCENT_FOUNDED, MOD_OP, action);
 	addTransition(state, EOF_FOUNDED, END, action);
 	addTransition(state, OP_FOUNDED, OP, action);

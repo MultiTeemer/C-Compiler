@@ -12,8 +12,11 @@
           0
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           break
         while () do ..

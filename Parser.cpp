@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Parser::Parser(Scanner& scanner): lexer(scanner) 
+Parser::Parser(Scanner& scanner): lexer(scanner), nameCounter(0)
 { 
 	lexer.next(); 
 	
@@ -37,7 +37,7 @@ Parser::Parser(Scanner& scanner): lexer(scanner)
 
 	priorityTable[BITWISE_AND] = 8;
 	
-	priorityTable[XOR] = 7;
+	priorityTable[BITWISE_XOR] = 7;
 
 	priorityTable[BITWISE_OR] = 6;
 
@@ -56,7 +56,7 @@ Parser::Parser(Scanner& scanner): lexer(scanner)
 	priorityTable[MOD_ASSING] = 2;
 	priorityTable[AND_ASSING] = 2;
 	priorityTable[OR_ASSING] = 2;
-	priorityTable[XOR_ASSIGN] = 2;
+	priorityTable[BITWISE_XOR_ASSIGN] = 2;
 	priorityTable[AND_ASSING] = 2;
 	priorityTable[OR_ASSING] = 2;
 	priorityTable[BITWISE_SHIFT_LEFT_ASSIGN] = 2;
@@ -81,7 +81,7 @@ Parser::Parser(Scanner& scanner): lexer(scanner)
 	rightAssocOps[MOD_ASSING] = true;
 	rightAssocOps[AND_ASSING] = true;
 	rightAssocOps[OR_ASSING] = true;
-	rightAssocOps[XOR_ASSIGN] = true;
+	rightAssocOps[BITWISE_XOR_ASSIGN] = true;
 	rightAssocOps[BITWISE_SHIFT_LEFT_ASSIGN] = true;
 	rightAssocOps[BITWISE_SHIFT_RIGHT_ASSIGN] = true;
 	rightAssocOps[LOGICAL_NOT] = true;
@@ -91,13 +91,43 @@ Parser::Parser(Scanner& scanner): lexer(scanner)
 	rightAssocOps[QUESTION] = true;
 
 	SymTable* predefined = new SymTable();
-	predefined->add(new ScalarSym("int"));
-	predefined->add(new ScalarSym("float"));
-	predefined->add(new ScalarSym("char"));
-	predefined->add(new ScalarSym("void"));
+	predefined->add(intType);
+	predefined->add(floatType);
+	predefined->add(charType);
+	predefined->add(voidType);
 	tableStack.push(predefined);
 
 	tableStack.push(new SymTable());
+
+	typePriority[charType] = 1;
+	typePriority[intType] = 2;
+	typePriority[floatType] = 3;
+
+	operationTypeOperands[MOD] = intType;
+	operationTypeOperands[BITWISE_AND] = intType;
+	operationTypeOperands[BITWISE_OR] = intType;
+	operationTypeOperands[BITWISE_XOR] = intType;
+	operationTypeOperands[BITWISE_NOT] = intType;
+	operationTypeOperands[BITWISE_SHIFT_LEFT] = intType;
+	operationTypeOperands[BITWISE_SHIFT_RIGHT] = intType;
+
+	operationReturningType[MOD] = intType;
+	operationReturningType[BITWISE_AND] = intType;
+	operationReturningType[BITWISE_OR] = intType;
+	operationReturningType[BITWISE_NOT] = intType;
+	operationReturningType[BITWISE_SHIFT_LEFT] = intType;
+	operationReturningType[BITWISE_SHIFT_RIGHT] = intType;
+	operationReturningType[LOGICAL_AND] = intType;
+	operationReturningType[LOGICAL_OR] = intType;
+	operationReturningType[BITWISE_XOR] = intType;
+	operationReturningType[LOGICAL_NOT] = intType;
+	operationReturningType[BITWISE_XOR] = intType;
+	operationReturningType[EQUAL] = intType;
+	operationReturningType[NOT_EQUAL] = intType;
+	operationReturningType[LESS] = intType;
+	operationReturningType[LESS_OR_EQUAL] = intType;
+	operationReturningType[GREATER] = intType;
+	operationReturningType[GREATER_OR_EQUAL] = intType;
 }
 
 void Parser::throwException(bool condition, const char* msg)
@@ -112,12 +142,12 @@ void Parser::parseFuncCall(NodeP& root)
 	if (*next == PARENTHESIS_FRONT)
 		{
 			Token* t = lexer.next();
-			root = new FuncCallNode(root, tableStack.find(""));
+			root = new FuncCallNode(root->token, root, root->getType());
 			while (*t != PARENTHESIS_BACK)
 			{
-				dynamic_cast<FuncCallNode*>(root)->addArg(parseExpressionTree(priorityTable[COMMA] + 1));
+				dynamic_cast<FuncCallNode*>(root)->addArg(parseExpression(priorityTable[COMMA] + 1));
 				t = lexer.get();
-					throwException(*t == END_OF_FILE, "Expected parenthesis close after function argument list");
+				throwException(*t == END_OF_FILE, "Expected parenthesis close after function argument list");
 				if (*t == COMMA)
 					t = lexer.next();
 			}
@@ -130,12 +160,12 @@ void Parser::parseArrIndex(NodeP& root)
 	Token* next = lexer.get();
 	if (*next == BRACKET_FRONT)
 		{
-			root = new ArrNode(root);
+			root = new ArrNode(root->token, root);
 			Token* t = lexer.get();
 			while (*t == BRACKET_FRONT)
 			{
 				lexer.next();
-				Node* index = parseExpressionTree();
+				Node* index = parseExpression();
 				dynamic_cast<ArrNode*>(root)->addArg(index);
 				t = lexer.get();
 				throwException(*t != BRACKET_BACK, "Expected bracket close after array index");
@@ -163,7 +193,8 @@ Node* Parser::parseFactor()
 		{
 			Symbol* sym = tableStack.find(token->text);
 			throwException(!sym, "Undefined name");
-			root = new IdentifierNode(sym);
+			root = new IdentifierNode(token, sym);
+			parseFuncCall(root);
 		}
 		break; 
 	case CHARACTER:
@@ -181,7 +212,7 @@ Node* Parser::parseFactor()
 				string typeName = kw == CHAR ? "char" : kw == INT ? "int" : "float";
 				throwException(*lexer.get() != PARENTHESIS_FRONT, "Expected open parenthesis");
 				lexer.next();
-				root = new CoerceNode(token, parseExpressionTree(), tableStack.find(typeName));
+				root = new CoerceNode(token, parseExpression(), dynamic_cast<TypeSym*>(tableStack.find(typeName)));
 				throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 				lexer.next();
 			} else 
@@ -194,13 +225,13 @@ Node* Parser::parseFactor()
 			if (*token == PARENTHESIS_FRONT)
 			{
 				lexer.next();
-				root = parseExpressionTree();
+				root = parseExpression();
 				Token* close = lexer.get();
 				if (!close || *close != PARENTHESIS_BACK)
 					throw ParserException("Expected parenthesis close", root->token->line, root->token->col);
 			} else if (unaryOps[dynamic_cast<OpToken*>(token)->val] == true) {
 				lexer.next();
-				root = new UnaryOpNode(token, parseExpressionTree(priorityTable[DEC]));
+				root = new UnaryOpNode(token, parseExpression(priorityTable[DEC]));
 				nextNeeded = false;
 			} else
 				throwException(true, "Empty expression is not allowed");
@@ -212,16 +243,35 @@ Node* Parser::parseFactor()
 	return root;
 }
 
-Node* Parser::parseExpressionTree(int priority)
+Node* Parser::parseMember(Node* left)
+{
+	StructSym* type = dynamic_cast<StructSym*>(left->getType());
+	throwException(!type, "Left operand of . or -> must be a structure");
+	Token* opTok = lexer.get();
+	Token* token = lexer.next();
+	throwException(!dynamic_cast<IdentifierToken*>(token), "Right operand of . or -> must be a identifier");
+	string fieldName = token->text;
+	if (!type->fields->exists(fieldName))
+		fieldName = '$' + fieldName;
+	throwException(!type->fields->exists(fieldName), "Undefined field in structure");
+	lexer.next();
+	Node* right = new IdentifierNode(token, type->fields->find(fieldName));
+	return new BinaryOpNode(opTok, left, right);
+}
+
+Node* Parser::parseExpression(int priority)
 {
 	if (priority > 15)
 		return parseFactor();
-	Node* left = parseExpressionTree(priority + 1);
+	Node* left = parseExpression(priority + 1);
 	Node* root = left;
 	Token* opTok = lexer.get();
 	if (*opTok == END_OF_FILE || *opTok == PARENTHESIS_BACK || *opTok == BRACKET_BACK
 		|| *opTok == COLON || *opTok == SEPARATOR)
+	{
+		root->getType();
 		return root;
+	}
 	throwException(!dynamic_cast<OpToken*>(opTok), "Invalid expression. Expected operation");
 	if (priorityTable[dynamic_cast<OpToken*>(opTok)->val] < priority)
 		return root;
@@ -237,29 +287,22 @@ Node* Parser::parseExpressionTree(int priority)
 			lexer.next();		
 		} else if (op == QUESTION) {
 			lexer.next();
-			Node* l = parseExpressionTree();
+			Node* l = parseExpression();
 			if (*lexer.get() != COLON)
 				throw ParserException("Missed branch of ternary operator", lexer.line, lexer.col);
 			lexer.next();
-			Node* r = parseExpressionTree();
+			Node* r = parseExpression();
 			root = new TernaryOpNode(opTok, root, l, r);
-		} else {
+		} else if (op == DOT || op == ARROW)
+			root = parseMember(root);		
+		else {
 			lexer.next();
-			root = new BinaryOpNode(opTok, root, parseExpressionTree(priority + (rightAssocOps[op] == true ? 0 : 1)));		
-			Node* bon = dynamic_cast<BinaryOpNode*>(root)->right;
-			IdentifierNode* in = dynamic_cast<IdentifierNode*>(bon);
-			FunctionalNode* fn = dynamic_cast<FunctionalNode*>(bon);
-			if ((op == DOT || op == ARROW) && !in && !fn)
-				throw ParserException("Right operand of . or -> must be a identifier", root->token->line, root->token->col);
+			root = new BinaryOpNode(opTok, root, parseExpression(priority + (rightAssocOps[op] == true ? 0 : 1)));		
 		}
 		opTok = lexer.get();
 	}
+	root->getType();
 	return root;
-}
-
-Expression* Parser::parseExpression(int priority)
-{
-	return new Expression(parseExpressionTree(priority));
 }
 
 StructSym* Parser::parseStruct(bool inParamList)
@@ -271,8 +314,8 @@ StructSym* Parser::parseStruct(bool inParamList)
 		structName = token->text;
 		token = lexer.next();
 	} else 
-		structName = "";	
-	StructSym* structType = structName.length() > 0 ? dynamic_cast<StructSym*>(tableStack.find(structName)) : 0;
+		structName = "$$unnamedStruct" + to_string(nameCounter++);	
+	StructSym* structType = dynamic_cast<StructSym*>(tableStack.find(structName));
 	throwException(inParamList && !structType, "Unknown struct type");
 	if (!structType)	
 	{
@@ -404,8 +447,6 @@ FuncSym* Parser::createFunctionSymbol(const string& name, TypeSym* type)
 Symbol* Parser::parseIdentifier(TypeSym* type)
 {
 	Token* token = lexer.get();
-	if (*token == SEMICOLON)
-		return 0;
 	while (*token == MULT)
 	{
 		type = new PointerSym(type);
@@ -427,8 +468,6 @@ Symbol* Parser::parseIdentifier(TypeSym* type)
 		res = new VarSym(name, type);
 	} else 		
 		res = createFunctionSymbol(name, type);	
-	if (*lexer.get() == COMMA)
-		lexer.next();
 	throwException(tableStack.existsInLastNamespace(name), "Redefinition");
 	return res;
 }
@@ -476,37 +515,42 @@ Symbol* Parser::parseComplexDecl(TypeSym* baseType)
 	else if (*lexer.get() == BRACKET_FRONT)
 		baseType = parseArrayDimensions(baseType, true);
 	hitch(sym, baseType);
-	if (*lexer.get() == COMMA)
-		lexer.next();
 	return sym;
 }
 
 void Parser::parseDeclaration()
 {	
 	TypeSym* type = parseType();
-	while (*lexer.get() != SEMICOLON)
+	Symbol* sym = 0;
+	while (true)
 	{
-		Symbol* sym = *lexer.get() == PARENTHESIS_FRONT ? parseComplexDecl(type) : parseIdentifier(type);		
+		if (type->isStruct() && *lexer.get() == SEMICOLON)
+			break;
+		Token* token = lexer.get();
+		sym = *lexer.get() == PARENTHESIS_FRONT ? parseComplexDecl(type) : parseIdentifier(type);		
 		tableStack.add(sym);
 		if (*lexer.get() == ASSIGN)
 		{
 			Token* assign = lexer.get();
 			lexer.next();
-			Node* assignOperand = parseExpressionTree(priorityTable[COMMA] + 1);
+			Node* assignOperand = parseExpression(priorityTable[COMMA] + 1);
 			throwException(blocks.size() == 0, "Cannot assign out of block");
-			blocks.top()->AddStatement(new SingleStatement(new Expression(new BinaryOpNode(assign, new IdentifierNode(sym), assignOperand))));
-			if (*lexer.get() == COMMA)
-				lexer.next();
+			blocks.top()->AddStatement(new SingleStatement(new BinaryOpNode(assign, new IdentifierNode(token, sym), assignOperand)));
 		}
-		if (*lexer.get() == BRACE_FRONT)
-			if (dynamic_cast<FuncSym*>(sym))
-			{
-				throwException(blocks.size() != 0, "Cannot define function in block");
-				dynamic_cast<FuncSym*>(sym)->body = parseBlock();
-				break;
-			} else 
-				throwException(true, "Unexpected brace");
-	}
+		if (*lexer.get() == SEMICOLON || *lexer.get() == BRACE_FRONT)
+			break;
+		else if (*lexer.get() != COMMA)
+			throwException(true, "Expected comma");
+		else
+			lexer.next();
+	};
+	if (*lexer.get() == BRACE_FRONT)
+		if (dynamic_cast<FuncSym*>(sym))
+		{
+			throwException(blocks.size() != 0, "Cannot define function in block");
+			dynamic_cast<FuncSym*>(sym)->body = parseBlock();
+		} else 
+			throwException(true, "Unexpected brace");
 	lexer.next();
 }
 
@@ -522,7 +566,7 @@ JumpStatement* Parser::parseJumpStatement()
 		stmnt = new BreakStatement();
 		break;
 	case RETURN:
-		Expression* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
+		Node* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
 		stmnt = new ReturnStatement(arg);
 	}
 	if (*lexer.get() != SEMICOLON)
@@ -555,11 +599,11 @@ Statement* Parser::parseStatement()
 	}	
 }
 
-Expression* Parser::fetchCondition()
+Node* Parser::fetchCondition()
 {
 	throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
 	lexer.next();
-	Expression* condition = parseExpression();
+	Node* condition = parseExpression();
 	throwException(!condition, "Loop must have an condition");
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
@@ -583,13 +627,13 @@ ForStatement* Parser::parseFor()
 {
 	throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
 	lexer.next();
-	Expression* initialization = parseExpression();
+	Node* initialization = parseExpression();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
-	Expression* condition = parseExpression();
+	Node* condition = parseExpression();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
-	Expression* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : new Expression(new EmptyNode());
+	Node* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : new EmptyNode();
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
 	initBlock();
@@ -600,7 +644,7 @@ ForStatement* Parser::parseFor()
 
 WhilePreCondStatement* Parser::parseWhile()
 {
-	Expression* condition = fetchCondition();
+	Node* condition = fetchCondition();
 	initBlock();
 	Statement* body = parseStatement();
 	popBlock();
@@ -614,7 +658,7 @@ WhilePostCondStatement* Parser::parseDoWhile()
 	Statement* body = parseStatement();
 	popBlock();
 	throwException(*lexer.get() != WHILE, "Expected 'while'");
-	Expression* condition = fetchCondition();
+	Node* condition = fetchCondition();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
 	return new WhilePostCondStatement(condition, body);
@@ -622,7 +666,7 @@ WhilePostCondStatement* Parser::parseDoWhile()
 
 IfStatement* Parser::parseIf()
 {
-	Expression* condition = fetchCondition();
+	Node* condition = fetchCondition();
 	initBlock();
 	Statement* trueBranch = parseStatement();
 	popBlock();
@@ -646,7 +690,8 @@ Block* Parser::parseBlock()
 	Token* token = lexer.get();
 	while (*token != BRACE_BACK)
 	{
-		if (*token == CONST || *token == STRUCT || dynamic_cast<TypeSym*>(tableStack.find(token->text)))
+		if (*token == CONST || *token == STRUCT || 
+			(dynamic_cast<TypeSym*>(tableStack.find(token->text)) && !dynamic_cast<FuncSym*>(tableStack.find(token->text))))
 			parseDeclaration();
 		else if (*token == TYPEDEF)
 			parseTypeDef();
@@ -684,15 +729,19 @@ void Parser::parseTypeDef()
 void Parser::parse()
 {
 	Token* token = lexer.get();
+	bool printTable = true;
 	while (*token != END_OF_FILE)
 	{
 		if (*token == CONST || *token == STRUCT || dynamic_cast<TypeSym*>(tableStack.find(token->text)))
 			parseDeclaration();
 		else if (*token == TYPEDEF)
 			parseTypeDef();
-		else
-			throwException(true, "???");
+		else {
+			parseExpression()->print();
+			printTable = false;
+		}
 		token = lexer.get();
 	}
-	tableStack.print();
+	if (printTable)
+		tableStack.print();
 }

@@ -98,7 +98,19 @@ string FuncSym::typeName() const
 
 Symbol* SymTable::find(const string& name) const
 {
-	return index.count(name) == 1 ? symbols[index.at(name)] : 0;
+	if (index.count(name))
+		return symbols[index.at(name)];
+	else if (index.count('$' + name))
+		return symbols[index.at('$' + name)];
+	else 
+		for (int i = 0; i < symbols.size(); i++)
+		{
+			StructSym* struc = dynamic_cast<StructSym*>(symbols[i]);
+			Symbol* res = 0;
+			if (struc && (res = struc->fields->find(name)))
+				return res;
+		}
+	return 0;
 }
 
 void SymTable::add(Symbol* symbol)
@@ -168,7 +180,6 @@ bool SymTableStack::existsInLastNamespace(const string& name)
 {
 	return top()->find(name) != 0;
 }
-
 
 void Block::print(int deep) const
 {

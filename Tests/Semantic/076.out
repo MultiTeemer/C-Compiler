@@ -9,8 +9,11 @@
       Instructions:
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           do .. while ()
           Condition:
@@ -18,8 +21,11 @@
           Block:
             for (;;) ..
             First action:
+              <empty expression>
             Condition:
+              <empty expression>
             Step:
+              <empty expression>
             Block:
               1
 

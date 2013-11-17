@@ -3,5 +3,10 @@
       char
       void
 +------------------------------------------------------------------+
-      $b struct 
+      struct $$unnamedStruct0
+              x int
+              y int
+              z int
+              d float
+      $b struct $$unnamedStruct0
 +------------------------------------------------------------------+

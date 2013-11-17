@@ -5,6 +5,7 @@
 #include <vector>
 #include "Tokens.h"
 #include "BaseSymbols.h"
+#include "Exceptions.h"
 
 using namespace std;
 
@@ -17,6 +18,8 @@ public:
 	Node(): token(0) {}
 	Node(Token* t): token(t) {}
 	virtual void print(int deep = 0) const = 0;
+	virtual TypeSym* getType() const { return 0; }
+	static Node* makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to);
 };
 
 class EmptyNode : public Node
@@ -35,17 +38,6 @@ public:
 	virtual void print(int deep) {}
 };
 
-class BinaryOpNode : public OpNode
-{
-protected:
-	Node* left;
-	Node* right;
-public:	
-	friend class Parser;
-	BinaryOpNode(Token* op, Node* l, Node* r);
-	void print(int deep) const;
-};
-
 class UnaryOpNode : public OpNode
 {
 protected:
@@ -53,6 +45,7 @@ protected:
 public:
 	UnaryOpNode(Token* op, Node* oper);
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class PostfixUnaryOpNode : public UnaryOpNode
@@ -65,10 +58,23 @@ public:
 class CoerceNode : public UnaryOpNode
 {
 private:
-	Symbol* type;
+	TypeSym* type;
 public:
-	CoerceNode(Token* op, Node* oper, Symbol* ts): UnaryOpNode(op, oper), type(ts) {}
+	CoerceNode(Token* op, Node* oper, TypeSym* ts): UnaryOpNode(op, oper), type(ts) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
+};
+
+class BinaryOpNode : public OpNode
+{
+protected:
+	mutable Node* left;
+	mutable	Node* right;
+public:	
+	friend class Parser;
+	BinaryOpNode(Token* op, Node* l, Node* r);
+	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class TernaryOpNode : public BinaryOpNode
@@ -85,6 +91,7 @@ class IntNode : public Node
 public:	
 	IntNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class FloatNode : public Node
@@ -92,25 +99,26 @@ class FloatNode : public Node
 public:	
 	FloatNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class IdentifierNode : public Node
 {
-private:
+public:		
 	Symbol* sym;
-public:	
-	IdentifierNode(Symbol* s): Node(0), sym(s) {}
+	IdentifierNode(Token* t, Symbol* s): Node(t), sym(s) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class FunctionalNode : public Node
 {
 protected:
 	Node* name;
-	vector<Node*> args;
+	mutable vector<Node*> args;
 	void printArgs(int deep) const;
 public:
-	FunctionalNode(Node* n): name(n), args(0) {}
+	FunctionalNode(Token* tok, Node* n): Node(tok), name(n), args(0) {}
 	void addArg(Node* arg) { args.push_back(arg); }
 };
 
@@ -119,15 +127,17 @@ class FuncCallNode : public FunctionalNode
 private:
 	Symbol* symbol;
 public:
-	FuncCallNode(Node* func, Symbol* funcsym): FunctionalNode(func), symbol(funcsym) {}
+	FuncCallNode(Token* t, Node* func, Symbol* funcsym): FunctionalNode(t, func), symbol(funcsym) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class ArrNode : public FunctionalNode
 {
 public:
-	ArrNode(Node* arr): FunctionalNode(arr) {}
+	ArrNode(Token* t, Node* arr): FunctionalNode(t, arr) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class KeywordNode : public Node
@@ -144,6 +154,7 @@ class CharNode : public Node
 public:
 	CharNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 class StringNode : public Node
@@ -151,6 +162,7 @@ class StringNode : public Node
 public:
 	StringNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	virtual TypeSym* getType() const;
 };
 
 typedef Node* NodeP;

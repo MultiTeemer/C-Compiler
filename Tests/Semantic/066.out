@@ -12,15 +12,21 @@
       Instructions:
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           i
           ++
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           if
 
@@ -36,8 +42,11 @@
             --
         for (;;) ..
         First action:
+          <empty expression>
         Condition:
+          <empty expression>
         Step:
+          <empty expression>
         Block:
           if
 

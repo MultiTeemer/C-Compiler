@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stack>
+#include <vector>
 #include "Scanner.h"
 #include "Symbols.h"
 
@@ -11,6 +12,7 @@ using namespace std;
 class Parser
 {
 private:
+	int nameCounter;
 	Scanner lexer;	
 	SymTableStack tableStack;
 	stack<Block*> blocks;
@@ -25,10 +27,10 @@ private:
 	StructSym* parseStruct(bool inParamList);
 	FuncSym* createFunctionSymbol(const string& name, TypeSym* type);
 	Node* parseFactor();
-	Node* parseExpressionTree(int priority = 0);
+	Node* parseMember(Node* left);
 	Statement* parseStatement();
 	JumpStatement* parseJumpStatement();
-	Expression* fetchCondition();
+	Node* fetchCondition();
 	ForStatement* parseFor();
 	WhilePreCondStatement* parseWhile();
 	WhilePostCondStatement* parseDoWhile();
@@ -46,7 +48,7 @@ private:
 	void parseParam();
 public:
 	Parser(Scanner& scanner);
-	Expression* parseExpression(int priority = 0);	
+	Node* parseExpression(int priority = 0);	
 	void parse();
 };
 

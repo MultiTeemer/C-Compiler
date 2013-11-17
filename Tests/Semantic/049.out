@@ -1,9 +1,0 @@
-      int
-      float
-      char
-      void
-+------------------------------------------------------------------+
-      struct point
-      sp alias for struct point
-      psp alias for pointer to struct point
-+------------------------------------------------------------------+

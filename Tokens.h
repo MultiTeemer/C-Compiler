@@ -70,10 +70,10 @@ typedef enum {
 	LOGICAL_AND,
 	LOGICAL_OR,
 	LOGICAL_NOT,
-	XOR,
+	BITWISE_XOR,
 	AND_ASSING,
 	OR_ASSING,
-	XOR_ASSIGN,
+	BITWISE_XOR_ASSIGN,
 	ASSIGN,
 	EQUAL,
 	NOT_EQUAL,
@@ -100,11 +100,12 @@ class Token
 {
 protected:	
 	TokenTypesT type;
-	int line;
-	int col;
+
 	string text;	
 	string tokenTypeName(TokenTypesT type);	
-public:
+public:	
+	int line;
+	int col;
 	friend class Parser;	
 	friend class BinaryOpNode;
 	friend class UnaryOpNode;
@@ -193,11 +194,8 @@ public:
 
 class OpToken : public Token
 {
-private:
-	OperationsT val;
 public:
-	friend class Parser;
-	friend class OpNode;
+	OperationsT val;
 	OpToken(int l, int c, const string& str, OperationsT op): Token(OPERATION, l, c, str), val(op) {}
 	bool operator == (OperationsT o) const;
 	bool operator != (OperationsT o) const;
