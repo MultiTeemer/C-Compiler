@@ -1,0 +1,35 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      f1 function(pointer to array[] of int) returning void
+                      f2 function(pointer to function() returning pointer to void) returning void
+                      x pointer to array[] of int
+                      y pointer to function() returning pointer to void
+                      f3 function(function() returning pointer to array[] of array[3] of pointer to array[] of pointer to pointer to int) returning void
+                      z function() returning pointer to array[] of array[3] of pointer to array[] of pointer to pointer to int
+
+        Instructions:
+          f1
+          (
+            x
+          )
+          f2
+          (
+            y
+          )
+          f3
+          (
+            z
+          )
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

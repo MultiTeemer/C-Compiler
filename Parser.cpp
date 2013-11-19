@@ -245,17 +245,22 @@ Node* Parser::parseFactor()
 
 Node* Parser::parseMember(Node* left)
 {
-	StructSym* type = dynamic_cast<StructSym*>(left->getType());
-	throwException(!type, "Left operand of . or -> must be a structure");
+	TypeSym* type = left->getType();
+	StructSym* structType = 0;
+	if (dynamic_cast<PointerSym*>(type)) 
+		structType = dynamic_cast<StructSym*>(dynamic_cast<PointerSym*>(type)->type);
+	else 
+		structType= dynamic_cast<StructSym*>(type);
+	throwException(!structType, "Left operand of . or -> must be a structure");
 	Token* opTok = lexer.get();
 	Token* token = lexer.next();
 	throwException(!dynamic_cast<IdentifierToken*>(token), "Right operand of . or -> must be a identifier");
 	string fieldName = token->text;
-	if (!type->fields->exists(fieldName))
+	if (!structType->fields->exists(fieldName))
 		fieldName = '$' + fieldName;
-	throwException(!type->fields->exists(fieldName), "Undefined field in structure");
+	throwException(!structType->fields->exists(fieldName), "Undefined field in structure");
 	lexer.next();
-	Node* right = new IdentifierNode(token, type->fields->find(fieldName));
+	Node* right = new IdentifierNode(token, structType->fields->find(fieldName));
 	return new BinaryOpNode(opTok, left, right);
 }
 
@@ -493,7 +498,7 @@ VarSym* Parser::parseDirectDecl()
 		sym = parseDirectDecl();
 	else {
 		throwException(!dynamic_cast<IdentifierToken*>(lexer.get()), "Expected identifier");
-		throwException(tableStack.find(lexer.get()->text), "Redefinition");
+		throwException(tableStack.top()->exists(lexer.get()->text), "Redefinition");
 		sym = new VarSym(lexer.get()->text, 0);
 		lexer.next();
 	}
@@ -534,7 +539,9 @@ void Parser::parseDeclaration()
 			lexer.next();
 			Node* assignOperand = parseExpression(priorityTable[COMMA] + 1);
 			throwException(blocks.size() == 0, "Cannot assign out of block");
-			blocks.top()->AddStatement(new SingleStatement(new BinaryOpNode(assign, new IdentifierNode(token, sym), assignOperand)));
+			BinaryOpNode* node = new BinaryOpNode(assign, new IdentifierNode(token, sym), assignOperand);
+			node->getType();
+			blocks.top()->AddStatement(new SingleStatement(node));
 		}
 		if (*lexer.get() == SEMICOLON || *lexer.get() == BRACE_FRONT)
 			break;

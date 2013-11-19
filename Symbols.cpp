@@ -30,6 +30,13 @@ bool TypeSym::operator==(const string& o) const
 	return name == o;
 }
 
+bool ScalarSym::canConvertTo(TypeSym* to) 
+{
+	if (dynamic_cast<PointerSym*>(to) || dynamic_cast<FuncSym*>(to))
+		return false;
+	return typePriority[this] <= typePriority[to]; // how to do it with const-modifier?
+}
+
 string ConstTypeSym::typeName() const
 {
 	return "const " + type->typeName();
@@ -37,12 +44,63 @@ string ConstTypeSym::typeName() const
 
 string ArraySym::typeName() const
 {
-	return "array[" + (size != -1 ? to_string(size): "") + "] of " + type->typeName();
+	return "array[" + (size != -1 ? to_string(size) : "") + "] of " + type->typeName();
+}
+
+bool ArraySym::operator==(TypeSym* o) const
+{
+	ArraySym* arr = dynamic_cast<ArraySym*>(o);
+	if (!arr)
+		return false;
+	return size == arr->size && *type == arr->type;
+}
+
+bool ArraySym::canConvertTo(TypeSym* to)
+{
+	PointerSym* p = dynamic_cast<PointerSym*>(to);
+	if (p && *p->type == type)
+		return true;
+	return false;
 }
 
 string PointerSym::typeName() const
 {
 	return "pointer to " + type->typeName();
+}
+
+bool PointerSym::operator==(TypeSym* o) const
+{
+	PointerSym* p = dynamic_cast<PointerSym*>(o);
+	if (!p)
+		return false;
+	TypeSym* type1 = nextType();
+	TypeSym* type2 = p->nextType();
+	while (true)
+	{
+		if (*type1 != type2)
+			return false;
+		TypeSym* tmp1 = type1->nextType();
+		TypeSym* tmp2 = type2->nextType();
+		if (tmp1 == 0 || tmp2 == 0)
+		{
+			if (tmp1 != 0 || tmp2 != 0)
+				return false;
+			return true;
+		} else {
+			type1 = tmp1;
+			type2 = tmp2;
+		}
+	}
+}
+
+bool PointerSym::canConvertTo(TypeSym* to)
+{
+	if (to == intType)
+		return true;
+	PointerSym* pointer = dynamic_cast<PointerSym*>(to);
+	if (pointer)
+		return *this == pointer;
+	return false;
 }
 
 void AliasSym::print(int deep) const
@@ -65,6 +123,19 @@ void StructSym::print(int deep) const
 string StructSym::typeName() const
 {
 	return "struct " + name;
+}
+
+bool FuncSym::canConvertTo(TypeSym* o) 
+{
+	return *this == o;
+}
+
+bool FuncSym::operator==(TypeSym* o) const
+{
+	FuncSym* func = dynamic_cast<FuncSym*>(o);
+	if (!func)
+		return false;
+	return *params == func->params && *val == func->val;
 }
 
 void FuncSym::print(int deep) const
@@ -96,7 +167,6 @@ string FuncSym::typeName() const
 	str += ") returning " + val->typeName();
 	return str;
 }
-
 
 Symbol* SymTable::find(const string& name) const
 {
@@ -131,6 +201,16 @@ int SymTable::size() const
 bool SymTable::exists(const string& name) 
 {
 	return find(name) != 0;
+}
+
+bool SymTable::operator==(SymTable* o) const
+{
+	if (size() != o->size())
+		return false;
+	for (int i = 0; i < size(); i++)
+		if (*dynamic_cast<VarSym*>(symbols[i])->type != dynamic_cast<VarSym*>(o->symbols[i])->type)
+			return false;
+	return true;
 }
 
 void SymTableStack::push(SymTable* table)

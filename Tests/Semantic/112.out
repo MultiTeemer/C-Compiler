@@ -7,21 +7,14 @@
       Function ()
 
         Locals:
-                      a pointer to int
-                      b pointer to int
+                      f function(pointer to int) returning void
+                      a array[10] of int
 
         Instructions:
-          *
-              a
-            +
-              3
-            3
-          +
-            float            (
-                a
-              -
-                b
-            )
+          f
+          (
+            a
+          )
 
 
       Value:

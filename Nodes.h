@@ -11,9 +11,8 @@ using namespace std;
 
 class Node
 {
-protected:
-	Token* token;
 public:
+	Token* token;
 	friend class Parser;
 	Node(): token(0) {}
 	Node(Token* t): token(t) {}

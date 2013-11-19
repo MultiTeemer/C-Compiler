@@ -7,21 +7,18 @@
       Function ()
 
         Locals:
-                      a pointer to int
-                      b pointer to int
+                      struct point
+                              x int
+                              y int
+                      x pointer to struct point
 
         Instructions:
-          *
-              a
-            +
-              3
-            3
-          +
-            float            (
-                a
-              -
-                b
-            )
+            x
+          ->
+            x
+            x
+          ->
+            y
 
 
       Value:

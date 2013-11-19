@@ -1,4 +1,4 @@
 +------------------------------------------------------------------+
-Type of unary operation is not a pointer
-On line 4 col 1
+Cannot perform conversion
+On line 4 col 5
 +------------------------------------------------------------------+

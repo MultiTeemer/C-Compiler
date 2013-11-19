@@ -17,13 +17,18 @@ static const int M = 2;
 
 Node* Node::makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to)
 {
-	if (typePriority[from] > typePriority[to] || dynamic_cast<PointerSym*>(from) || dynamic_cast<PointerSym*>(to))
-		throw exception("Invalid args of function BinaryOpNode::makeTypeCoerce");
-	if (from == to)
+	if (!from->canConvertTo(to))
+		throw CompilerException("Cannot perform conversion", expr->token->line, expr->token->col);
+	if (from == to || *from == to)
 		return expr;
-	if (typePriority[to] - typePriority[from] == 1)
-		return new CoerceNode(0, expr, to);
-	return new CoerceNode(0, makeTypeCoerce(expr, from, intType), floatType); 
+	if (!dynamic_cast<ScalarSym*>(from) || !dynamic_cast<ScalarSym*>(to))
+	{
+		return expr;
+	} else {
+		if (typePriority[to] - typePriority[from] == 1)
+			return new CoerceNode(0, expr, to);
+		return new CoerceNode(0, makeTypeCoerce(expr, from, intType), floatType); 
+	}
 }
 
 void EmptyNode::print(int deep) const
@@ -55,11 +60,35 @@ TypeSym* BinaryOpNode::getType() const
 		maxTypeOfArgs = operationTypeOperands[op];
 	else
 		maxTypeOfArgs = typePriority[leftType] > typePriority[rightType] ? leftType : rightType;
+	PointerSym* lp = dynamic_cast<PointerSym*>(leftType);
+	PointerSym* rp = dynamic_cast<PointerSym*>(rightType);
 	switch (op)
 	{
+	case ASSIGN:
+	case MULT_ASSING:
+	case PLUS_ASSING:
+	case MINUS_ASSING:
+	case DIV_ASSING:
+		if (!leftType->isLvalue())
+			throw CompilerException("Left argument of assignment must be lvalue", left->token->line, left->token->col);
+		right = makeTypeCoerce(right, rightType, leftType);
+		return leftType;
 	case DOT:
-	case ARROW:
+		if (!dynamic_cast<StructSym*>(leftType))
+			throw CompilerException("Left operand of . must be a structure", left->token->line, left->token->col);
 		return rightType;
+	case ARROW:
+		if (!lp || !dynamic_cast<StructSym*>(lp->type))
+			throw CompilerException("Left operand of -> must be of pointer-to-structure type", left->token->line, left->token->col);
+		return rightType;
+	case MINUS:		
+		if (lp && rp)
+			return intType;
+	case PLUS:
+		if (lp && rp)
+			throw CompilerException("Cannot add two pointers", token->line, token->col);
+		if (lp || rp)
+			return lp == 0 ? rightType : leftType;		
 	default:
 		if (typePriority[maxTypeOfArgs] < max(typePriority[leftType], typePriority[rightType]))
 			throw CompilerException("Invalid type of operands", token->line, token->col);
@@ -180,13 +209,13 @@ TypeSym* FuncCallNode::getType() const
 	int formalParametersCount = sym->params->size();
 	int realParametersCount = args.size();
 	if (formalParametersCount != realParametersCount)
-		throw CompilerException("Incorrect parameters", token->line, token->col);
+		throw CompilerException("Incorrect parameters count", token->line, token->col);
 	for (int i = 0; i < formalParametersCount; i++)
 	{
 		TypeSym* realParamType = args[i]->getType();
 		TypeSym* formalParamType = sym->params->symbols[i]->getType();
-		if (typePriority[realParamType] > typePriority[formalParamType])
-			throw CompilerException("Incorrect param", token->line, token->col);
+		if (!realParamType->canConvertTo(formalParamType))
+			throw CompilerException("Invalid type of parameter", args[i]->token->line, args[i]->token->col);
 		args[i] = makeTypeCoerce(args[i], realParamType, formalParamType);
 	}
 	return symbol->getType();
@@ -202,7 +231,24 @@ void ArrNode::print(int deep) const
 
 TypeSym* ArrNode::getType() const
 {
-	return 0;
+	ArraySym* sym = dynamic_cast<ArraySym*>(name->getType());
+	if (!sym)
+		throw CompilerException("Expression must have a pointer-to-object type", name->token->line, name->token->col);
+	TypeSym* type = sym->nextType();
+	TypeSym* res = 0;
+	for (int i = 0; i < args.size(); i++)
+	{
+		if (type == 0)
+			throw CompilerException("Expression must have a pointer-to-object type", args[i]->token->line, args[i]->token->col);
+		if (!args[i]->getType()->canConvertTo(intType))
+			throw CompilerException("Expression must have integral type", args[i]->token->line, args[i]->token->col);
+		args[i] = makeTypeCoerce(args[i], args[i]->getType(), intType);		
+		if (i == args.size() - 1)
+			res = type;
+		// !!!!
+		type = type->nextType();
+	}
+	return res;
 }
 
 string KeywordNode::KeywordName() const

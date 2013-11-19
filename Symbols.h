@@ -32,19 +32,6 @@ public:
 	bool isStruct() { return type->isStruct(); }
 };
 
-class ArraySym : public TypeSym
-{
-private:
-	int size;
-	TypeSym* type;
-public:
-	friend class Parser;
-	ArraySym(TypeSym* t, int s): TypeSym(""), type(t), size(s) {}
-	string typeName() const;
-	TypeSym* nextType() const { return type; }
-	void setNextType(TypeSym* t) { type = t; }
-};
-
 class VarSym : public Symbol
 {
 public:	
@@ -63,19 +50,6 @@ public:
 	void print(int deep) const;
 	string typeName() const;
 	TypeSym* getType() { return type; }
-};
-
-class StructSym : public TypeSym
-{
-private:
-	SymTable* fields;
-public:
-	friend class Parser;
-	friend class SymTable;
-	StructSym(const string& name, SymTable* f): TypeSym(name), fields(f) {}
-	void print(int deep) const;
-	bool isStruct() { return true; }
-	string typeName() const;
 };
 
 class SingleStatement : public Statement

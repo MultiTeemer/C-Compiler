@@ -1,4 +1,4 @@
 +------------------------------------------------------------------+
-Type of unary operation is not a pointer
+Left operand of . must be a structure
 On line 4 col 1
 +------------------------------------------------------------------+

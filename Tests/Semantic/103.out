@@ -3,4 +3,39 @@
       char
       void
 +------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      f1 function(pointer to int) returning int
+                      f2 function(pointer to char) returning int
+                      f3 function(pointer to float) returning int
+                      f4 function(pointer to void) returning int
+                      a pointer to int
+                      b pointer to char
+                      c pointer to float
+                      d pointer to void
+
+        Instructions:
+          f1
+          (
+            a
+          )
+          f2
+          (
+            b
+          )
+          f3
+          (
+            c
+          )
+          f4
+          (
+            d
+          )
+
+
+      Value:
+            int
+
 +------------------------------------------------------------------+

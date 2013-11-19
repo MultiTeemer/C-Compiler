@@ -27,12 +27,33 @@ public:
 	virtual TypeSym* nextType() const { return 0; }
 	virtual void setNextType(TypeSym* type) {}
 	virtual TypeSym* getType() { return this; }
+	virtual bool isLvalue() const { return false; }
+	virtual bool canConvertTo(TypeSym* to) { return false; }
+	virtual bool operator == (TypeSym* o) const { return this == o; }
+	bool operator != (TypeSym* o) const { return !(*this == o); }
 };
 
 class ScalarSym : public TypeSym
 {
 public:
 	ScalarSym(const string& n): TypeSym(n) {}
+	bool canConvertTo(TypeSym* to);
+	bool isLvalue() const { return true; }
+};
+
+class ArraySym : public TypeSym
+{
+private:
+	int size;
+	TypeSym* type;
+public:
+	friend class Parser;
+	ArraySym(TypeSym* t, int s): TypeSym(""), type(t), size(s) {}
+	string typeName() const;
+	TypeSym* nextType() const { return type; }
+	void setNextType(TypeSym* t) { type = t; }
+	bool operator == (TypeSym* t) const;
+	bool canConvertTo(TypeSym* t);
 };
 
 class PointerSym : public TypeSym 
@@ -43,6 +64,9 @@ public:
 	string typeName() const;
 	TypeSym* nextType() const { return type; }
 	void setNextType(TypeSym* t) { type = t; }
+	bool isLvalue() const { return true; }
+	bool canConvertTo(TypeSym* to);
+	bool operator == (TypeSym* o) const;
 };
 
 class SymInterface
@@ -66,8 +90,9 @@ public:
 	Symbol* find(const string& name) const;
 	void add(Symbol* s);
 	void print(int deep = 0) const;
-	bool exists(const string& name);
 	int size() const;
+	bool exists(const string& name);
+	bool operator == (SymTable* o) const;
 };
 
 class Statement 
@@ -104,6 +129,21 @@ public:
 	void setNextType(TypeSym* t) { val = t; }
 	TypeSym* getType() { return val; } 
 	bool blockDefined() const { return body != 0; }
+	bool canConvertTo(TypeSym* to);
+	bool operator == (TypeSym* o) const;
+};
+
+class StructSym : public TypeSym
+{
+private:
+	SymTable* fields;
+public:
+	friend class Parser;
+	friend class SymTable;
+	StructSym(const string& name, SymTable* f): TypeSym(name), fields(f) {}
+	void print(int deep) const;
+	bool isStruct() { return true; }
+	string typeName() const;
 };
 
 extern ScalarSym* intType;
