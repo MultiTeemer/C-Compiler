@@ -1,7 +1,6 @@
 #include <iostream>
 #include "Symbols.h"
 
-//static const string lineSeparator("+------------------------------------------------------------------+\n");
 static const int M = 2;
 
 void Symbol::print(int deep) const
@@ -18,6 +17,11 @@ void VarSym::print(int deep) const
 		cout << ' ' << type->typeName() << endl;
 	else 
 		type->print(deep + 1);	
+}
+
+void VarSym::generate(AsmCode& code) const
+{
+	code.add(cmdDB, AsmCode::makeArg("var_" + name), AsmCode::makeArg(0));
 }
 
 string TypeSym::typeName() const
@@ -45,6 +49,11 @@ string ConstTypeSym::typeName() const
 string ArraySym::typeName() const
 {
 	return "array[" + (size != -1 ? to_string(size) : "") + "] of " + type->typeName();
+}
+
+void ArraySym::generate(AsmCode& code) const
+{
+
 }
 
 bool ArraySym::operator==(TypeSym* o) const
@@ -168,6 +177,38 @@ string FuncSym::typeName() const
 	return str;
 }
 
+void FuncSym::generate(AsmCode& code) const
+{
+	code.add(dynamic_cast<AsmArgLabel*>(AsmCode::makeArg("f_" + name, true)));
+
+	/*
+	foo:
+		push ebp
+		mov ebp, esp
+		...
+		ebp + 4 - это b
+		ebp + 8 - это а
+		...
+		mov esp, ebp
+		ret 0
+
+	foo:
+		push ebp
+		mov ebp, esp
+		sub esp, sizeoflocalvars
+		ebp - первая локальная переменная
+		ebp - 4 вторая локальная переменная
+		ebp - 8 третья локальная переменная 
+		и тд
+		...
+		ebp + 4 - это b
+		ebp + 8 - это а
+		...
+		mov esp, ebp
+		ret 0
+	*/
+}
+
 Symbol* SymTable::find(const string& name) const
 {
 	if (index.count(name))
@@ -213,6 +254,16 @@ bool SymTable::operator==(SymTable* o) const
 	return true;
 }
 
+void SymTable::generate(AsmCode& code) const
+{
+	for (int i = 0; i < size(); i++)
+	{
+		VarSym* sym = dynamic_cast<VarSym*>(symbols[i]);
+		if (sym && !dynamic_cast<FuncSym*>(sym->type))
+			sym->generate(code);
+	}
+}
+
 void SymTableStack::push(SymTable* table)
 {
 	tables.push_back(table);
@@ -255,6 +306,11 @@ bool SymTableStack::existsInLastNamespace(const string& name)
 	return top()->find(name) != 0;
 }
 
+void SingleStatement::generate(AsmCode& code) const
+{
+
+}
+
 void Block::print(int deep) const
 {
 	if (locals && locals->size() > 0)
@@ -274,6 +330,11 @@ void Block::print(int deep) const
 		cout << string(deep * M, ' ') << "<empty block>" << endl << endl;	
 }
 
+void Block::generate(AsmCode& code) const
+{
+
+}
+
 void CycleStatement::print(int deep) const
 {
 	string tab(deep * M, ' ');
@@ -289,10 +350,20 @@ void WhilePreCondStatement::print(int deep) const
 	CycleStatement::print(deep);
 }
 
+void WhilePreCondStatement::generate(AsmCode& code) const
+{
+
+}
+
 void WhilePostCondStatement::print(int deep) const
 {
 	cout << string(deep * M, ' ') << "do .. while ()" << endl;
 	CycleStatement::print(deep);
+}
+
+void WhilePostCondStatement::generate(AsmCode& code) const
+{
+
 }
 
 void ForStatement::print(int deep) const
@@ -309,6 +380,11 @@ void ForStatement::print(int deep) const
 	body->print(deep + 1);
 }
 
+void ForStatement::generate(AsmCode& code) const
+{
+
+}
+
 void IfStatement::print(int deep) const
 {
 	string tab(deep * M, ' ');
@@ -323,9 +399,19 @@ void IfStatement::print(int deep) const
 	}
 }
 
+void IfStatement::generate(AsmCode& code) const
+{
+
+}
+
 void ContinueStatement::print(int deep) const
 {
 	cout << string(deep * M, ' ') << "continue" << endl;
+}
+
+void ContinueStatement::generate(AsmCode& code) const
+{
+
 }
 
 void BreakStatement::print(int deep) const
@@ -333,9 +419,19 @@ void BreakStatement::print(int deep) const
 	cout << string(deep * M, ' ') << "break" << endl;
 }
 
+void BreakStatement::generate(AsmCode& code) const
+{
+
+}
+
 void ReturnStatement::print(int deep) const
 {
 	cout << string(deep * M, ' ') << "return" << endl;
 	if (arg)
 		arg->print(deep + 1);
+}
+
+void ReturnStatement::generate(AsmCode& code) const
+{
+
 }

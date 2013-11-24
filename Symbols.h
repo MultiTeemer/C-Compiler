@@ -22,25 +22,6 @@ public:
 	void pop();
 };
 
-class ConstTypeSym : public TypeSym
-{
-private:
-	TypeSym* type;
-public:
-	ConstTypeSym(TypeSym* t): TypeSym(""), type(t) {}
-	string typeName() const;
-	bool isStruct() { return type->isStruct(); }
-};
-
-class VarSym : public Symbol
-{
-public:	
-	TypeSym* type;
-	VarSym(const string& n, TypeSym* t): Symbol(n), type(t) {} 
-	void print(int deep) const;
-	TypeSym* getType() { return type; }
-};
-
 class AliasSym : public TypeSym
 {
 private:
@@ -59,6 +40,7 @@ private:
 public:
 	SingleStatement(Node* e): expr(e) {}
 	void print(int deep) const { expr->print(deep); }
+	void generate(AsmCode& code) const;
 };
 
 class CondStatement : public Statement
@@ -78,6 +60,7 @@ public:
 	friend class Parser;
 	IfStatement(Node* cond, Statement* tB, Statement* fB): CondStatement(cond), trueBranch(tB), falseBranch(fB) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class CycleStatement : public CondStatement
@@ -95,6 +78,7 @@ public:
 	friend class Parser;
 	WhilePreCondStatement(Node* cond, Statement* b): CycleStatement(cond, b) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class WhilePostCondStatement : public CycleStatement
@@ -103,6 +87,7 @@ public:
 	friend class Parser;
 	WhilePostCondStatement(Node* cond, Statement* b): CycleStatement(cond, b) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class ForStatement : public CycleStatement
@@ -115,6 +100,7 @@ public:
 	ForStatement(Node* initial, Node* condition, Node* inc, Statement* block): 
 		CycleStatement(condition, block), initialization(initial), increment(inc) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class JumpStatement : public Statement
@@ -124,12 +110,14 @@ class BreakStatement : public JumpStatement
 {
 public:
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class ContinueStatement : public JumpStatement
 {
 public:
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 class ReturnStatement : public JumpStatement
@@ -139,6 +127,7 @@ private:
 public:
 	ReturnStatement(Node* a): arg(a) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 };
 
 

@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Parser::Parser(Scanner& scanner): lexer(scanner), nameCounter(0)
+Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), nameCounter(0)
 { 
 	lexer.next(); 
 	
@@ -734,19 +734,26 @@ void Parser::parseTypeDef()
 void Parser::parse()
 {
 	Token* token = lexer.get();
-	bool printTable = true;
 	while (*token != END_OF_FILE)
 	{
 		if (*token == CONST || *token == STRUCT || dynamic_cast<TypeSym*>(tableStack.find(token->text)))
 			parseDeclaration();
 		else if (*token == TYPEDEF)
 			parseTypeDef();
-		else {
+		else 
 			parseExpression()->print();
-			printTable = false;
-		}
 		token = lexer.get();
 	}
-	if (printTable)
-		tableStack.print();
+}
+
+void Parser::print() const
+{
+	tableStack.print();
+}
+
+
+void Parser::generateCode() 
+{
+	tableStack.top()->generate(generator.data);
+	generator.generate();
 }

@@ -17,6 +17,9 @@ public:
 	Node(): token(0) {}
 	Node(Token* t): token(t) {}
 	virtual void print(int deep = 0) const = 0;
+	virtual void generate(AsmCode& code) const = 0;
+	virtual bool isModifiableLvalue() const { return false; }
+	virtual bool isLvalue() const { return false; }
 	virtual TypeSym* getType() const { return 0; }
 	static Node* makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to);
 };
@@ -26,6 +29,7 @@ class EmptyNode : public Node
 public:
 	EmptyNode(): Node(0) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const {}
 };
 
 class OpNode : public Node
@@ -40,11 +44,14 @@ public:
 class UnaryOpNode : public OpNode
 {
 protected:
-	Node* operand;
+	mutable Node* operand;
 public:
 	UnaryOpNode(Token* op, Node* oper);
 	void print(int deep) const;
-	virtual TypeSym* getType() const;
+	TypeSym* getType() const;
+	bool isModifiableLvalue() const;
+	bool isLvalue() const;
+	virtual void generate(AsmCode& code) const;
 };
 
 class PostfixUnaryOpNode : public UnaryOpNode
@@ -52,6 +59,9 @@ class PostfixUnaryOpNode : public UnaryOpNode
 public:
 	PostfixUnaryOpNode(Token* op, Node* oper): UnaryOpNode(op, oper) {}
 	void print(int deep) const;
+	bool isLvalue() const { return false; }
+	bool isModifiableLvalue() const { return false; }
+	void generate(AsmCode& code) const;
 };
 
 class CoerceNode : public UnaryOpNode
@@ -62,6 +72,7 @@ public:
 	CoerceNode(Token* op, Node* oper, TypeSym* ts): UnaryOpNode(op, oper), type(ts) {}
 	void print(int deep) const;
 	virtual TypeSym* getType() const;
+	void generate(AsmCode& code) const;
 };
 
 class BinaryOpNode : public OpNode
@@ -72,8 +83,11 @@ protected:
 public:	
 	friend class Parser;
 	BinaryOpNode(Token* op, Node* l, Node* r);
+	bool isModifiableLvalue() const;
+	bool isLvalue() const;
 	void print(int deep) const;
-	virtual TypeSym* getType() const;
+	void generate(AsmCode& code) const;
+	virtual TypeSym* getType() const;	
 };
 
 class TernaryOpNode : public BinaryOpNode
@@ -90,7 +104,8 @@ class IntNode : public Node
 public:	
 	IntNode(Token* t): Node(t) {}
 	void print(int deep) const;
-	virtual TypeSym* getType() const;
+	void generate(AsmCode& code) const;
+	virtual TypeSym* getType() const;	
 };
 
 class FloatNode : public Node
@@ -98,6 +113,7 @@ class FloatNode : public Node
 public:	
 	FloatNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 	virtual TypeSym* getType() const;
 };
 
@@ -107,6 +123,9 @@ public:
 	Symbol* sym;
 	IdentifierNode(Token* t, Symbol* s): Node(t), sym(s) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
+	bool isModifiableLvalue() const;
+	bool isLvalue() const { return true; }
 	virtual TypeSym* getType() const;
 };
 
@@ -128,7 +147,8 @@ private:
 public:
 	FuncCallNode(Token* t, Node* func, Symbol* funcsym): FunctionalNode(t, func), symbol(funcsym) {}
 	void print(int deep) const;
-	virtual TypeSym* getType() const;
+	void generate(AsmCode& code) const;
+	virtual TypeSym* getType() const;	
 };
 
 class ArrNode : public FunctionalNode
@@ -136,7 +156,10 @@ class ArrNode : public FunctionalNode
 public:
 	ArrNode(Token* t, Node* arr): FunctionalNode(t, arr) {}
 	void print(int deep) const;
-	virtual TypeSym* getType() const;
+	void generate(AsmCode& code) const;
+	bool isModifiableLvalue() const;
+	bool isLvalue() const { return true; }
+	TypeSym* getType() const;	
 };
 
 class KeywordNode : public Node
@@ -146,6 +169,7 @@ private:
 public:
 	KeywordNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const {}
 };
 
 class CharNode : public Node
@@ -153,6 +177,7 @@ class CharNode : public Node
 public:
 	CharNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 	virtual TypeSym* getType() const;
 };
 
@@ -161,6 +186,7 @@ class StringNode : public Node
 public:
 	StringNode(Token* t): Node(t) {}
 	void print(int deep) const;
+	void generate(AsmCode& code) const;
 	virtual TypeSym* getType() const;
 };
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include "Scanner.h"
 #include "Symbols.h"
+#include "CodeGenerator.h"
 
 using namespace std;
 
@@ -13,12 +14,13 @@ class Parser
 {
 private:
 	int nameCounter;
-	Scanner lexer;	
+	Scanner lexer;		
+	CodeGenerator generator;
 	SymTableStack tableStack;
 	stack<Block*> blocks;
 	map<OperationsT, int> priorityTable;
 	map<OperationsT, bool> unaryOps;
-	map<OperationsT, bool> rightAssocOps;		
+	map<OperationsT, bool> rightAssocOps;
 	VarSym* parseComplexDecl(TypeSym* baseType);
 	VarSym* parseIdentifier(TypeSym* baseType);
 	VarSym* parseDirectDecl();
@@ -47,9 +49,11 @@ private:
 	void parseArgList();
 	void parseParam();
 public:
-	Parser(Scanner& scanner);
+	Parser(Scanner& scanner, CodeGenerator& codeGen);
 	Node* parseExpression(int priority = 0);	
 	void parse();
+	void print() const;
+	void generateCode();
 };
 
 #endif

@@ -1,0 +1,25 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      struct point
+                              x int
+                              y int
+                      $a struct point
+
+        Instructions:
+          &
+            *
+              &
+                $a
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

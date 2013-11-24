@@ -1,0 +1,28 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      f function(pointer to int, pointer to char) returning int
+                      a int
+                      c char
+
+        Instructions:
+          f
+          (
+            &
+              a
+          ,
+            &
+              c
+          )
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

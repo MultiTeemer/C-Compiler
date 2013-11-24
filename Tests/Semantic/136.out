@@ -1,0 +1,27 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      a array[10] of array[30] of pointer to int
+                      b pointer to int
+
+        Instructions:
+            a
+            [
+              0
+            ,
+              0
+            ]
+          =
+            b
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

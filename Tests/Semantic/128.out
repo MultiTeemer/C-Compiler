@@ -1,0 +1,27 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      a pointer to int
+                      b pointer to int
+
+        Instructions:
+            a
+          =
+            b
+            *
+              a
+          =
+            *
+              b
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

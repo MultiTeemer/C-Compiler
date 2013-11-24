@@ -64,13 +64,22 @@ TypeSym* BinaryOpNode::getType() const
 	PointerSym* rp = dynamic_cast<PointerSym*>(rightType);
 	switch (op)
 	{
+	case MOD_ASSING:
+	case AND_ASSING:
+	case OR_ASSING:
+	case BITWISE_XOR_ASSIGN:
+	case BITWISE_SHIFT_LEFT_ASSIGN:
+	case BITWISE_SHIFT_RIGHT_ASSIGN:	
+		if (!leftType->canConvertTo(intType) || !rightType->canConvertTo(intType))
+			throw CompilerException("Invalid operator arguments type (required int in both sides)", token->line, token->col);
+		// fallthrough
 	case ASSIGN:
 	case MULT_ASSING:
 	case PLUS_ASSING:
 	case MINUS_ASSING:
 	case DIV_ASSING:
-		if (!leftType->isLvalue())
-			throw CompilerException("Left argument of assignment must be lvalue", left->token->line, left->token->col);
+		if (!left->isModifiableLvalue())
+			throw CompilerException("Left argument of assignment must be modifiable lvalue", left->token->line, left->token->col);
 		right = makeTypeCoerce(right, rightType, leftType);
 		return leftType;
 	case DOT:
@@ -101,6 +110,41 @@ TypeSym* BinaryOpNode::getType() const
 	}	
 }
 
+bool BinaryOpNode::isModifiableLvalue() const
+{
+	switch (dynamic_cast<OpToken*>(token)->val)
+	{
+	case ASSIGN:
+	case PLUS_ASSING:
+	case MINUS_ASSING:
+	case MULT_ASSING:
+	case DIV_ASSING:
+	case MOD_ASSING:
+	case BITWISE_SHIFT_LEFT_ASSIGN:
+	case BITWISE_SHIFT_RIGHT_ASSIGN:
+	case BITWISE_XOR_ASSIGN:
+	case AND_ASSING:
+	case OR_ASSING:
+		return left->isModifiableLvalue();
+	case DOT:
+		return right->isModifiableLvalue();
+	default:
+		return false;
+	}
+}
+
+bool BinaryOpNode::isLvalue() const
+{
+	switch (dynamic_cast<OpToken*>(token)->val)
+	{
+	case DOT:
+	case ARROW:
+		return right->isLvalue();
+	default:
+		return isModifiableLvalue();
+	}
+}
+
 void BinaryOpNode::print(int deep) const
 {
 	left->print(deep + 1);
@@ -108,9 +152,19 @@ void BinaryOpNode::print(int deep) const
 	right->print(deep + 1);
 }
 
+void BinaryOpNode::generate(AsmCode& code) const
+{
+
+}
+
 void IntNode::print(int deep) const
 {
 	cout << string(deep * M, ' ') << dynamic_cast<IntegerToken*>(token)->val << endl;
+}
+
+void IntNode::generate(AsmCode& code) const
+{
+
 }
 
 TypeSym* IntNode::getType() const
@@ -123,6 +177,11 @@ void FloatNode::print(int deep) const
 	cout << string(deep * M, ' ') << dynamic_cast<FloatToken*>(token)->val << endl;
 }
 
+void FloatNode::generate(AsmCode& code) const
+{
+
+}
+
 TypeSym* FloatNode::getType() const
 {
 	return floatType;
@@ -133,9 +192,21 @@ void IdentifierNode::print(int deep) const
 	cout << string(deep * M, ' ') << sym->name << endl;
 }
 
+void IdentifierNode::generate(AsmCode& code) const
+{
+
+}
+
 TypeSym* IdentifierNode::getType() const
 {
 	return sym->getType();
+}
+
+bool IdentifierNode::isModifiableLvalue() const 
+{
+	TypeSym* type = dynamic_cast<VarSym*>(sym)->type;
+	return !dynamic_cast<ConstTypeSym*>(type) && !dynamic_cast<FuncSym*>(type) 
+		&& !dynamic_cast<StructSym*>(type) && !dynamic_cast<ArraySym*>(type);
 }
 
 UnaryOpNode::UnaryOpNode(Token* op, Node* oper): OpNode(op), operand(oper) 
@@ -154,16 +225,51 @@ TypeSym* UnaryOpNode::getType() const
 {
 	TypeSym* type = operand->getType();
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
-	TypeSym* maxType = operationTypeOperands.count(op) ? intType : floatType;
-	if (typePriority[maxType] < typePriority[type])
-		throw CompilerException("Invalid type of unary operation", token->line, token->col);
-	if (op == MULT)
+	switch (op)
 	{
+	case MULT:
 		if (!dynamic_cast<PointerSym*>(type))
 			throw CompilerException("Type of unary operation is not a pointer", token->line, token->col);
 		return dynamic_cast<PointerSym*>(type)->type;
+	case BITWISE_AND:
+		if (!operand->isLvalue())
+			throw CompilerException("Expression must have lvalue", token->line, token->col);
+		return new PointerSym(type);
+		break;
+	case BITWISE_NOT:
+		operand = makeTypeCoerce(operand, type, intType);
+		break;
+	case LOGICAL_NOT:
+		if (dynamic_cast<StructSym*>(type))
+			throw CompilerException("Cannot perform logical not operation over structure", token->line, token->col);
+		break;
+	case DEC:
+	case INC:
+		if (!operand->isModifiableLvalue())
+			throw CompilerException("Expression must have modifiable lvalue", token->line, token->col);
+		break;
+	case MINUS:
+		if (!type->canConvertTo(floatType))
+			throw CompilerException("Expression must have arithmetic type", token->line, token->col);
 	}
 	return type;	
+}
+
+bool UnaryOpNode::isModifiableLvalue() const
+{
+	OperationsT op = dynamic_cast<OpToken*>(token)->val; 
+	return (op == MULT || op == DEC || op == INC) && getType()->isModifiableLvalue();
+}
+
+bool UnaryOpNode::isLvalue() const 
+{
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	return op == MULT || ((op == DEC || op == INC) && operand->isLvalue());
+}
+
+void UnaryOpNode::generate(AsmCode& code) const
+{
+
 }
 
 void PostfixUnaryOpNode::print(int deep) const
@@ -172,12 +278,22 @@ void PostfixUnaryOpNode::print(int deep) const
 	cout << string(deep * M, ' ') << opName() << endl;
 }
 
+void PostfixUnaryOpNode::generate(AsmCode& code) const
+{
+
+}
+
 void CoerceNode::print(int deep) const
 {
 	cout << string(deep * M, ' ') << type->name;
 	cout << string(deep * M, ' ') << "(" << endl;
 	operand->print(deep + 1);
 	cout << string(deep * M, ' ') << ")" << endl;
+}
+
+void CoerceNode::generate(AsmCode& code) const
+{
+
 }
 
 TypeSym* CoerceNode::getType() const
@@ -201,6 +317,11 @@ void FuncCallNode::print(int deep) const
 	cout << string(deep * M, ' ') << "(" << endl;
 	printArgs(deep);
 	cout << string(deep * M, ' ') << ")" << endl;
+}
+
+void FuncCallNode::generate(AsmCode& code) const
+{
+
 }
 
 TypeSym* FuncCallNode::getType() const
@@ -229,26 +350,35 @@ void ArrNode::print(int deep) const
 	cout << string(deep * M, ' ') << "]" << endl;
 }
 
+void ArrNode::generate(AsmCode& code) const
+{
+
+}
+
 TypeSym* ArrNode::getType() const
 {
 	ArraySym* sym = dynamic_cast<ArraySym*>(name->getType());
 	if (!sym)
 		throw CompilerException("Expression must have a pointer-to-object type", name->token->line, name->token->col);
-	TypeSym* type = sym->nextType();
-	TypeSym* res = 0;
+	TypeSym* type = sym;
 	for (int i = 0; i < args.size(); i++)
 	{
+		type = type->nextType();
 		if (type == 0)
 			throw CompilerException("Expression must have a pointer-to-object type", args[i]->token->line, args[i]->token->col);
 		if (!args[i]->getType()->canConvertTo(intType))
 			throw CompilerException("Expression must have integral type", args[i]->token->line, args[i]->token->col);
-		args[i] = makeTypeCoerce(args[i], args[i]->getType(), intType);		
-		if (i == args.size() - 1)
-			res = type;
-		// !!!!
-		type = type->nextType();
+		args[i] = makeTypeCoerce(args[i], args[i]->getType(), intType);			
 	}
-	return res;
+	return type;
+}
+
+bool ArrNode::isModifiableLvalue() const
+{
+	TypeSym* type = name->getType();
+	for (int i = 0; i < args.size(); i++)
+		type = type->nextType();
+	return type->isModifiableLvalue();
 }
 
 string KeywordNode::KeywordName() const
@@ -278,6 +408,11 @@ void CharNode::print(int deep) const
 	cout << string(deep * M, ' ') << '\'' << dynamic_cast<CharToken*>(token)->val << '\'' << endl; 
 }
 
+void CharNode::generate(AsmCode& code) const
+{
+
+}
+
 TypeSym* CharNode::getType() const
 {
 	return charType;
@@ -286,6 +421,11 @@ TypeSym* CharNode::getType() const
 void StringNode::print(int deep) const 
 { 
 	cout << string(deep * M, ' ') << '"' << dynamic_cast<StringToken*>(token)->val << '"' << endl; 
+}
+
+void StringNode::generate(AsmCode& code) const
+{
+
 }
 
 TypeSym* StringNode::getType() const

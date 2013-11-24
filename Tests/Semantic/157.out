@@ -1,0 +1,24 @@
+      int
+      float
+      char
+      void
++------------------------------------------------------------------+
+      main
+      Function ()
+
+        Locals:
+                      x function() returning int
+                      y function() returning int
+
+        Instructions:
+            &
+              y
+          -
+            &
+              x
+
+
+      Value:
+            int
+
++------------------------------------------------------------------+

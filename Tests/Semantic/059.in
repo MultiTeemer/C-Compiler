@@ -3,7 +3,7 @@ int main()
 	int a, b;
 	if (a)
 		a++;
-	--a++;	
+	--a;	
 	if (b > a)
 		a = max(a, b);
 	 else 
