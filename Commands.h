@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "Tokens.h"
 
 using namespace std;
 
@@ -16,11 +17,21 @@ typedef enum {
 	cmdMUL,
 	cmdIMUL,
 	cmdDIV,
+	cmdIDIV,
 	cmdADD,
 	cmdSUB,
 	cmdINC,
 	cmdDEC,
-	
+	cmdRET,
+	cmdNEG,
+	cmdCDQ,
+	cmdINVOKE,
+	cmdSHR,
+	cmdSHL,
+	cmdAND,
+	cmdOR,
+	cmdXOR,
+	cmdNOT,
 } AsmCommandsT;
 
 typedef enum {
@@ -30,6 +41,7 @@ typedef enum {
 	EDX,
 	EBP,
 	ESP,
+	CL,
 } AsmRegistersT;
 
 class AsmArg
@@ -47,6 +59,15 @@ public:
 	string generate() const { return to_string(value); }
 };
 
+class AsmArgString : public AsmArg
+{
+private:
+	string value;
+public:
+	AsmArgString(const string& str): value(str) {}
+	string generate() const { return value; }
+};
+
 class AsmArgRegister : public AsmArg
 {
 protected:
@@ -59,9 +80,11 @@ public:
 
 class AsmArgIndirect : public AsmArgRegister
 {
+private:
+	int offset;
 public:
-	AsmArgIndirect(AsmRegistersT r): AsmArgRegister(r) {}
-	string generate() const { return "[" + regName() + "]"; }
+	AsmArgIndirect(AsmRegistersT r, int shift = 0): AsmArgRegister(r), offset(shift) {}
+	string generate() const { return "[" + regName() + " + " + to_string(offset) + "]"; }
 };
 
 class AsmArgMemory : public AsmArg
@@ -97,13 +120,6 @@ public:
 	virtual string generate() const { return label->generate() + ":"; }
 };
 
-class AsmLabelEnd : public AsmLabel
-{
-public:
-	AsmLabelEnd(AsmArgLabel* l): AsmLabel(l) {}
-	string generate() const { return "end " + label->generate(); }
-};
-
 class AsmCmd : public AsmInstruction
 {
 protected:
@@ -133,21 +149,40 @@ public:
 	inline string generate() const;
 };
 
+class AsmIOCmd : public AsmCmd
+{
+private:
+	OperationsT mode;
+	AsmArgMemory* format;
+	AsmArg* arg;
+public:
+	AsmIOCmd(OperationsT m, AsmArgMemory* f, AsmArg* a): AsmCmd(cmdINVOKE), mode(m), format(f), arg(a) {}
+	string generate() const;
+};
+
+AsmArgRegister* makeArg(AsmRegistersT reg);
+AsmArgImmediate* makeArg(int val);
+AsmArgMemory* makeArgMemory(const string& varName);
+AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset);
+AsmArgLabel* makeLabel(const string& name);
+AsmArgString* makeString(const string& name);
+
 class AsmCode
 {
 private:
 	vector<AsmInstruction*> commands;
 public:
-	static AsmArg* makeArg(const string& varName, bool isLabel = false);
-	static AsmArg* makeArg(AsmRegistersT reg, bool indirect = false);
-	static AsmArg* makeArg(int val);
 	AsmCode(): commands(0) {}
 	void fflush(ofstream& out) const;
 	AsmCode& operator << (AsmCmd* command);
 	AsmCode& add(AsmCommandsT cmd);
 	AsmCode& add(AsmCommandsT cmd, AsmArg* arg);
 	AsmCode& add(AsmCommandsT cmd, AsmArg* arg1, AsmArg* arg2);
-	AsmCode& add(AsmArgLabel* label, bool end = false);
+	AsmCode& add(AsmCommandsT cmd, AsmRegistersT reg);
+	AsmCode& add(AsmCommandsT cmd, AsmRegistersT reg1, AsmRegistersT reg2);
+	AsmCode& add(AsmCommandsT cmd, AsmRegistersT reg, int val);
+	AsmCode& add(AsmArgLabel* label);
+	AsmCode& add(OperationsT func, AsmArgMemory* format, AsmArg* arg = 0);
 };
 
 #endif

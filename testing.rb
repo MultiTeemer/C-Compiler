@@ -4,6 +4,7 @@ place = "d:/Works/C++/Compiler/"
 dirs = ["Tests/Lexer/", "Tests/Parser/", "Tests/Semantic/", "Tests/CodeGenerate/"]
 keys = {dirs[1] => "-e", dirs[2] => "-table", dirs[3] => "-code"}
 count, passed = 0, 0
+tmpfiles = []
 dirs.each do |dir|
 	i = 1
 	index = sprintf("%03d", i)
@@ -19,12 +20,13 @@ dirs.each do |dir|
 					mainDir = 'd:/works/c++/compiler/'
 					path = mainDir + filename + '.asm'
 					%x['ml', "#{path}"]
+					tmpfiles << path
 					path = mainDir + "#{index}.in" + '.obj'
-					%x['c:/masm32/bin/link.exe', "#{path}"]
+					%x['c:/masm32/bin/link.exe', "/subsystem:console" "#{path}"]
 					path[/(obj)$/] = 'exe'
 					tmp = %x["#{path}"]
-					File::delete(path)
-					File::delete(path.sub(/(exe)$/, 'obj'))
+					tmpfiles << path
+					tmpfiles << path.sub(/(exe)$/, 'obj')
 					tmp
 			end
 		#File.open(dir + "#{index}.out", "w"){|f| f.write res}
@@ -41,4 +43,5 @@ dirs.each do |dir|
 	end
 	puts "+" + "-" * 25 + "+"
 end
+tmpfiles.each {|file| File::delete(file) }
 puts "Result: #{passed}/#{count}"

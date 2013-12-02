@@ -8,6 +8,7 @@ ScalarSym* intType = new ScalarSym("int");
 ScalarSym* floatType = new ScalarSym("float");
 ScalarSym* charType = new ScalarSym("char");
 ScalarSym* voidType = new ScalarSym("void");
+PointerSym* stringType = new PointerSym(charType);
 
 map<TypeSym*, int> typePriority;
 map<OperationsT, TypeSym*> operationTypeOperands;
@@ -64,20 +65,20 @@ TypeSym* BinaryOpNode::getType() const
 	PointerSym* rp = dynamic_cast<PointerSym*>(rightType);
 	switch (op)
 	{
-	case MOD_ASSING:
-	case AND_ASSING:
-	case OR_ASSING:
-	case BITWISE_XOR_ASSIGN:
+	case MOD_ASSIGN:
+	case AND_ASSIGN:
+	case OR_ASSIGN:
+	case XOR_ASSIGN:
 	case BITWISE_SHIFT_LEFT_ASSIGN:
 	case BITWISE_SHIFT_RIGHT_ASSIGN:	
 		if (!leftType->canConvertTo(intType) || !rightType->canConvertTo(intType))
 			throw CompilerException("Invalid operator arguments type (required int in both sides)", token->line, token->col);
 		// fallthrough
 	case ASSIGN:
-	case MULT_ASSING:
-	case PLUS_ASSING:
-	case MINUS_ASSING:
-	case DIV_ASSING:
+	case MULT_ASSIGN:
+	case PLUS_ASSIGN:
+	case MINUS_ASSIGN:
+	case DIV_ASSIGN:
 		if (!left->isModifiableLvalue())
 			throw CompilerException("Left argument of assignment must be modifiable lvalue", left->token->line, left->token->col);
 		right = makeTypeCoerce(right, rightType, leftType);
@@ -115,16 +116,16 @@ bool BinaryOpNode::isModifiableLvalue() const
 	switch (dynamic_cast<OpToken*>(token)->val)
 	{
 	case ASSIGN:
-	case PLUS_ASSING:
-	case MINUS_ASSING:
-	case MULT_ASSING:
-	case DIV_ASSING:
-	case MOD_ASSING:
+	case PLUS_ASSIGN:
+	case MINUS_ASSIGN:
+	case MULT_ASSIGN:
+	case DIV_ASSIGN:
+	case MOD_ASSIGN:
 	case BITWISE_SHIFT_LEFT_ASSIGN:
 	case BITWISE_SHIFT_RIGHT_ASSIGN:
-	case BITWISE_XOR_ASSIGN:
-	case AND_ASSING:
-	case OR_ASSING:
+	case XOR_ASSIGN:
+	case AND_ASSIGN:
+	case OR_ASSIGN:
 		return left->isModifiableLvalue();
 	case DOT:
 		return right->isModifiableLvalue();
@@ -152,9 +153,89 @@ void BinaryOpNode::print(int deep) const
 	right->print(deep + 1);
 }
 
+bool BinaryOpNode::isAssignment(OperationsT op) 
+{
+	return op == ASSIGN || op == PLUS_ASSIGN || op == MINUS_ASSIGN 
+		|| op == MULT_ASSIGN || op == DIV_ASSIGN || op == MOD_ASSIGN 
+		|| op == AND_ASSIGN || op == XOR_ASSIGN || op == OR_ASSIGN
+		|| op == BITWISE_SHIFT_LEFT_ASSIGN || op == BITWISE_SHIFT_RIGHT_ASSIGN;
+}
+
 void BinaryOpNode::generate(AsmCode& code) const
 {
-
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	right->generate(code);
+	if (op == ASSIGN)
+	{
+		code.add(cmdPOP, EAX);
+		if (!dynamic_cast<IdentifierNode*>(left))
+			throw CompilerException("Cannot perform assign into non-variable", left->token->line, left->token->col);
+		code.add(cmdMOV, makeArgMemory("var_" + left->token->text), makeArg(EAX));
+	} else {
+		AsmArg *l, *r;
+		if (isAssignment(op))
+		{
+			l = makeArgMemory("var_" + left->token->text);
+			r = makeArg(EBX);
+			code.add(cmdPOP, EBX);
+		} else {
+			l = makeArg(EAX);
+			r = makeArg(EBX);
+			left->generate(code);	
+			code.add(cmdPOP, EAX)
+				.add(cmdPOP, EBX);
+		} 
+		if (op == COMMA) 
+			code.add(cmdMOV, EAX, EBX);			
+		else if (op == DIV || op == DIV_ASSIGN || op == MOD || op == MOD_ASSIGN) {
+			code.add(cmdCDQ);
+			if (!isAssignment(op))
+			{
+				code.add(cmdIDIV, EBX);
+				if (op == MOD)
+					code.add(cmdMOV, EAX, EDX);
+			} else
+				code.add(cmdMOV, makeArg(EAX), l)
+					.add(cmdIDIV, r)
+					.add(cmdMOV, l, makeArg(op == MOD_ASSIGN ? EDX : EAX));
+		} else if (op == MULT_ASSIGN)
+			code.add(cmdIMUL, r, l)
+				.add(cmdMOV, l, r);
+		else if (op == BITWISE_SHIFT_LEFT || op == BITWISE_SHIFT_RIGHT) 
+			code.add(cmdMOV, makeArg(ECX), r)
+				.add(op == BITWISE_SHIFT_LEFT ? cmdSHL : cmdSHR, l, makeArg(CL));
+		else {
+			AsmCommandsT cmd;
+			switch (op)
+			{
+			case PLUS:
+			case PLUS_ASSIGN:
+				cmd = cmdADD;
+				break;
+			case MINUS:
+			case MINUS_ASSIGN:
+				cmd = cmdSUB;
+				break;
+			case MULT:
+				cmd = cmdIMUL;
+				break;
+			case BITWISE_AND:
+			case AND_ASSIGN:
+				cmd = cmdAND;
+				break;
+			case BITWISE_OR:
+			case OR_ASSIGN:
+				cmd = cmdOR;
+				break;
+			case BITWISE_XOR:
+			case XOR_ASSIGN:
+				cmd = cmdXOR;
+				break;
+			} 			
+			code.add(cmd, l, r);
+		}
+	}
+	code.add(cmdPUSH, EAX);
 }
 
 void IntNode::print(int deep) const
@@ -164,7 +245,7 @@ void IntNode::print(int deep) const
 
 void IntNode::generate(AsmCode& code) const
 {
-
+	code.add(cmdPUSH, makeArg(dynamic_cast<IntegerToken*>(token)->val));
 }
 
 TypeSym* IntNode::getType() const
@@ -194,7 +275,10 @@ void IdentifierNode::print(int deep) const
 
 void IdentifierNode::generate(AsmCode& code) const
 {
-
+	if (sym->global)
+		code.add(cmdPUSH, makeArgMemory("dword ptr [var_" + dynamic_cast<IdentifierToken*>(token)->val+ "]"));
+	else
+		code.add(cmdPUSH, makeIndirectArg(EBP, sym->offset));
 }
 
 TypeSym* IdentifierNode::getType() const
@@ -269,7 +353,20 @@ bool UnaryOpNode::isLvalue() const
 
 void UnaryOpNode::generate(AsmCode& code) const
 {
-
+	operand->generate(code);
+	code.add(cmdPOP, EAX);
+	switch (dynamic_cast<OpToken*>(token)->val)
+	{
+	case MINUS:
+		code.add(cmdNEG, EAX);
+		break;
+	case BITWISE_NOT:
+		code.add(cmdNOT, EAX);
+		break;
+	default:
+		break;
+	}
+	code.add(cmdPUSH, EAX);
 }
 
 void PostfixUnaryOpNode::print(int deep) const
@@ -381,21 +478,31 @@ bool ArrNode::isModifiableLvalue() const
 	return type->isModifiableLvalue();
 }
 
+void IOOperatorNode::generate(AsmCode& code) const
+{
+	for (int i = args.size() - 1; i > -1; i--)
+		args[i]->generate(code);
+	code.add(token->val, makeArgMemory("str" + to_string(format->index)));
+	for (int i = 0; i < args.size(); i++)
+		code.add(cmdPOP, EAX);
+}
+
+void IOOperatorNode::print(int deep) const
+{
+	string tab(deep * M, ' ');
+	cout << tab << token->text << "(" << endl;
+	format->print(deep + 1);
+	if (args.size() > 0)
+	{
+		cout << tab << ',' << endl;
+		printArgs(deep + 1);
+	}	
+	cout << tab << ")" << endl;
+}
+
 string KeywordNode::KeywordName() const
 {
-	switch (dynamic_cast<KeywordToken*>(token)->val)
-	{
-	case CHAR:
-		return string("char");
-	case INT:
-		return string("int");
-	case FLOAT:
-		return string("float");
-	case SIZEOF:
-		return string("sizeof");
-	default:
-		throw ParserException("unknown function", token->line, token->col);
-	}
+	return token->text;
 }
 
 void KeywordNode::print(int deep) const
@@ -425,12 +532,12 @@ void StringNode::print(int deep) const
 
 void StringNode::generate(AsmCode& code) const
 {
-
+	code.add(cmdDB, makeArgMemory("str" + to_string(index)), makeString(token->text));
 }
 
 TypeSym* StringNode::getType() const
 {
-	return new PointerSym(charType);
+	return stringType;
 }
 
 void TernaryOpNode::print(int deep) const

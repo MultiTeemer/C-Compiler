@@ -12,8 +12,9 @@ class TypeSym;
 class Symbol
 {
 public:
+	int offset;
 	string name;
-	Symbol(const string& n): name(n) {}	
+	Symbol(const string& n): name(n), offset(0) {}	
 	virtual int byteSize() const { return 0; }
 	virtual TypeSym* getType() { return 0; }
 	virtual void print(int deep) const;
@@ -83,8 +84,9 @@ public:
 class VarSym : public Symbol
 {
 public:	
+	bool global;
 	TypeSym* type;
-	VarSym(const string& n, TypeSym* t): Symbol(n), type(t) {} 
+	VarSym(const string& n, TypeSym* t): Symbol(n), type(t), global(true) {} 
 	void print(int deep) const;
 	TypeSym* getType() { return type; }
 	void generate(AsmCode& code) const;
@@ -112,21 +114,30 @@ public:
 
 class SymTable : public SymInterface
 {
-private:
+protected:
 	vector<string> names;
 	vector<Symbol*> symbols;
 	map<string, int> index;
+	int offset;
 public:
 	friend class FuncSym;
 	friend class FuncCallNode;
-	SymTable(): names(0), symbols(0) {}
+	SymTable(): names(0), symbols(0), offset(0) {}
 	Symbol* find(const string& name) const;
-	void add(Symbol* s);
+	virtual void add(Symbol* s);
 	void print(int deep = 0) const;
-	void generate(AsmCode& code) const;	
+	void generateGlobals(AsmCode& code) const;
+	void generateCode(AsmCode& code) const;
 	bool exists(const string& name);
 	bool operator == (SymTable* o) const;
 	int size() const;
+	int byteSize() const;
+};
+
+class SymTableForLocals : public SymTable
+{
+public:
+	void add(Symbol* s);
 };
 
 class Statement 
@@ -139,14 +150,16 @@ public:
 class Block : public Statement
 {
 private:
-	SymTable* locals;
+	SymTableForLocals* locals;
 	vector<Statement*> statements;
 public:
 	friend class Parser;
-	Block(SymTable* l): locals(l), statements(0) {}
+	friend class FuncSym;
+	Block(SymTableForLocals* l): locals(l), statements(0) {}
 	void AddStatement(Statement* stmt) { statements.push_back(stmt); }
 	void print(int deep) const; 
 	void generate(AsmCode& code) const;
+	int size() const { return statements.size(); }
 };
 
 class FuncSym : public TypeSym
@@ -160,14 +173,15 @@ public:
 	friend class FuncCallNode;
 	FuncSym(TypeSym* v): TypeSym(""), val(v), params(0), body(0) {} 
 	string typeName() const;
-	void print(int deep) const;
+	void print(int deep) const;	
+	void setNextType(TypeSym* t) { val = t; }	
+	void generate(AsmCode& code, const string& name) const;
 	TypeSym* nextType() const { return val; }
-	void setNextType(TypeSym* t) { val = t; }
 	TypeSym* getType() { return val; } 
 	bool blockDefined() const { return body != 0; }
 	bool canConvertTo(TypeSym* to);
 	bool operator == (TypeSym* o) const;
-	void generate(AsmCode& code) const;
+
 };
 
 class StructSym : public TypeSym
@@ -187,6 +201,7 @@ extern ScalarSym* intType;
 extern ScalarSym* floatType;
 extern ScalarSym* charType;
 extern ScalarSym* voidType;
+extern PointerSym* stringType;
 extern map<TypeSym*, int> typePriority;
 extern map<OperationsT, TypeSym*> operationTypeOperands;
 extern map<OperationsT, TypeSym*> operationReturningType;

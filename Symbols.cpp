@@ -21,7 +21,7 @@ void VarSym::print(int deep) const
 
 void VarSym::generate(AsmCode& code) const
 {
-	code.add(cmdDB, AsmCode::makeArg("var_" + name), AsmCode::makeArg(0));
+	code.add(cmdDD, makeArgMemory("var_" + name), makeArg(0));
 }
 
 string TypeSym::typeName() const
@@ -177,36 +177,15 @@ string FuncSym::typeName() const
 	return str;
 }
 
-void FuncSym::generate(AsmCode& code) const
+void FuncSym::generate(AsmCode& code, const string& name) const
 {
-	code.add(dynamic_cast<AsmArgLabel*>(AsmCode::makeArg("f_" + name, true)));
-
-	/*
-	foo:
-		push ebp
-		mov ebp, esp
-		...
-		ebp + 4 - это b
-		ebp + 8 - это а
-		...
-		mov esp, ebp
-		ret 0
-
-	foo:
-		push ebp
-		mov ebp, esp
-		sub esp, sizeoflocalvars
-		ebp - первая локальная переменная
-		ebp - 4 вторая локальная переменная
-		ebp - 8 третья локальная переменная 
-		и тд
-		...
-		ebp + 4 - это b
-		ebp + 8 - это а
-		...
-		mov esp, ebp
-		ret 0
-	*/
+	code.add(makeLabel("f_" + name))
+		.add(cmdPUSH, EBP)
+		.add(cmdMOV, EBP, ESP);
+	body->generate(code);
+	code.add(cmdMOV, ESP, EBP)
+		.add(cmdPOP, EBP)
+		.add(cmdRET, makeArg(params->byteSize()));
 }
 
 Symbol* SymTable::find(const string& name) const
@@ -223,6 +202,16 @@ void SymTable::add(Symbol* symbol)
 	symbols.push_back(symbol);
 	names.push_back(symbol->name);
 	index[symbol->name] = symbols.size() - 1;
+	symbol->offset = offset;
+	offset += symbol->byteSize();
+}
+
+void SymTableForLocals::add(Symbol* symbol)
+{
+	SymTable::add(symbol);
+	offset -= 2 * symbol->byteSize();
+	if (dynamic_cast<VarSym*>(symbol))
+		dynamic_cast<VarSym*>(symbol)->global = false;
 }
 
 void SymTable::print(int deep) const
@@ -237,6 +226,14 @@ void SymTable::print(int deep) const
 int SymTable::size() const
 {
 	return symbols.size();
+}
+
+int SymTable::byteSize() const
+{
+	int bytes = 0;
+	for (int i = 0; i < size(); i++)
+		bytes += symbols[i]->byteSize();
+	return bytes;
 }
 
 bool SymTable::exists(const string& name) 
@@ -254,13 +251,23 @@ bool SymTable::operator==(SymTable* o) const
 	return true;
 }
 
-void SymTable::generate(AsmCode& code) const
+void SymTable::generateGlobals(AsmCode& code) const
 {
 	for (int i = 0; i < size(); i++)
 	{
 		VarSym* sym = dynamic_cast<VarSym*>(symbols[i]);
 		if (sym && !dynamic_cast<FuncSym*>(sym->type))
 			sym->generate(code);
+	}
+}
+
+void SymTable::generateCode(AsmCode& code) const
+{
+	for (int i = 0; i < size(); i++)
+	{
+		VarSym* sym = dynamic_cast<VarSym*>(symbols[i]);
+		if (sym && dynamic_cast<FuncSym*>(sym->type))
+			dynamic_cast<FuncSym*>(sym->type)->generate(code, sym->name);
 	}
 }
 
@@ -308,7 +315,9 @@ bool SymTableStack::existsInLastNamespace(const string& name)
 
 void SingleStatement::generate(AsmCode& code) const
 {
-
+	expr->generate(code);
+	if (expr->getType())
+		code.add(cmdPOP, makeArg(EAX));
 }
 
 void Block::print(int deep) const
@@ -332,7 +341,9 @@ void Block::print(int deep) const
 
 void Block::generate(AsmCode& code) const
 {
-
+	code.add(cmdSUB, ESP, locals->byteSize());
+	for (int i = 0; i < size(); i++)
+		statements[i]->generate(code);
 }
 
 void CycleStatement::print(int deep) const

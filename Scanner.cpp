@@ -61,8 +61,8 @@ Scanner::Scanner(const char* filename): input(filename), filename(filename), lin
 
 	// Circumflex
 	addDefaultTransition(BITWISE_XOR_OP, &Scanner::OperationDetected);
-	addTransition(BITWISE_XOR_OP, EQUAL_OP_FOUNDED, BITWISE_XOR_ASSIGN_OP, 0);
-	addDefaultTransition(BITWISE_XOR_ASSIGN_OP, &Scanner::OperationDetected);
+	addTransition(BITWISE_XOR_OP, EQUAL_OP_FOUNDED, XOR_ASSIGN_OP, 0);
+	addDefaultTransition(XOR_ASSIGN_OP, &Scanner::OperationDetected);
 
 	// Plus, increment
 	addDefaultTransition(PLUS_OP, &Scanner::OperationDetected);
@@ -463,6 +463,10 @@ void Scanner::IdentifierDetected()
 		}
 	if (isKeyword)
 		cur_tok = new KeywordToken(line, col, buffer, (KeywordsT) keyword);
+	else if (buffer == "scanf")
+		cur_tok = new OpToken(line, col, buffer, SCANF);
+	else if (buffer == "printf")
+		cur_tok = new OpToken(line, col, buffer, PRINTF);
 	else 
 		cur_tok = new IdentifierToken(line, col, buffer);
 	buffer.clear();
@@ -532,9 +536,8 @@ void Scanner::CharDetected()
 {
 	char val;
 	if (buffer.length() == 3)
-	{
 		val = buffer[1];
-	} else {
+	 else {
 		string key;
 		key.push_back(buffer[1]);
 		key.push_back(buffer[2]);

@@ -21,6 +21,7 @@ private:
 	map<OperationsT, int> priorityTable;
 	map<OperationsT, bool> unaryOps;
 	map<OperationsT, bool> rightAssocOps;
+	vector<StringNode*> stringConsts;
 	VarSym* parseComplexDecl(TypeSym* baseType);
 	VarSym* parseIdentifier(TypeSym* baseType);
 	VarSym* parseDirectDecl();

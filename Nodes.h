@@ -17,7 +17,7 @@ public:
 	Node(): token(0) {}
 	Node(Token* t): token(t) {}
 	virtual void print(int deep = 0) const = 0;
-	virtual void generate(AsmCode& code) const = 0;
+	virtual void generate(AsmCode& code) const {};
 	virtual bool isModifiableLvalue() const { return false; }
 	virtual bool isLvalue() const { return false; }
 	virtual TypeSym* getType() const { return 0; }
@@ -80,6 +80,7 @@ class BinaryOpNode : public OpNode
 protected:
 	mutable Node* left;
 	mutable	Node* right;
+	static bool isAssignment(OperationsT op);
 public:	
 	friend class Parser;
 	BinaryOpNode(Token* op, Node* l, Node* r);
@@ -120,8 +121,8 @@ public:
 class IdentifierNode : public Node
 {
 public:		
-	Symbol* sym;
-	IdentifierNode(Token* t, Symbol* s): Node(t), sym(s) {}
+	VarSym* sym;
+	IdentifierNode(Token* t, VarSym* s): Node(t), sym(s) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	bool isModifiableLvalue() const;
@@ -162,6 +163,18 @@ public:
 	TypeSym* getType() const;	
 };
 
+class IOOperatorNode : public FunctionalNode
+{
+private:
+	OpToken* token;
+	StringNode* format;
+public:
+	friend class Parser;
+	IOOperatorNode(OpToken* tok, StringNode* f): token(tok), format(f), FunctionalNode(0, 0) {}
+	void generate(AsmCode& code) const;
+	void print(int deep) const;
+};
+
 class KeywordNode : public Node
 {
 private:
@@ -182,9 +195,10 @@ public:
 };
 
 class StringNode : public Node
-{
+{	
 public:
-	StringNode(Token* t): Node(t) {}
+	int index;
+	StringNode(Token* t, int idx): Node(t), index(idx) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	virtual TypeSym* getType() const;

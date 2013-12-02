@@ -58,11 +58,11 @@ typedef enum {
 	MOD,
 	INC,
 	DEC,
-	PLUS_ASSING,
-	MINUS_ASSING,
-	MULT_ASSING,
-	DIV_ASSING,
-	MOD_ASSING,
+	PLUS_ASSIGN,
+	MINUS_ASSIGN,
+	MULT_ASSIGN,
+	DIV_ASSIGN,
+	MOD_ASSIGN,
 	QUESTION,
 	COLON,
 	BITWISE_AND,
@@ -71,9 +71,9 @@ typedef enum {
 	LOGICAL_OR,
 	LOGICAL_NOT,
 	BITWISE_XOR,
-	AND_ASSING,
-	OR_ASSING,
-	BITWISE_XOR_ASSIGN,
+	AND_ASSIGN,
+	OR_ASSIGN,
+	XOR_ASSIGN,
 	ASSIGN,
 	EQUAL,
 	NOT_EQUAL,
@@ -93,19 +93,20 @@ typedef enum {
 	BRACKET_BACK,
 	COMMA,
 	BITWISE_NOT,
-	OPERATIONS_COUNT
+	OPERATIONS_COUNT,
+	PRINTF,
+	SCANF
 } OperationsT;
 
 class Token
 {
 protected:	
-	TokenTypesT type;
-
-	string text;	
+	TokenTypesT type;	
 	string tokenTypeName(TokenTypesT type);	
 public:	
 	int line;
 	int col;
+	string text;
 	friend class Parser;	
 	friend class BinaryOpNode;
 	friend class UnaryOpNode;
@@ -195,6 +196,7 @@ public:
 class OpToken : public Token
 {
 public:
+	friend class IOOperatorNode;
 	OperationsT val;
 	OpToken(int l, int c, const string& str, OperationsT op): Token(OPERATION, l, c, str), val(op) {}
 	bool operator == (OperationsT o) const;

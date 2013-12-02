@@ -5,6 +5,46 @@
 
 using namespace std;
 
+AsmArgMemory* makeArgMemory(const string& varName)
+{
+	return new AsmArgMemory(varName);
+}
+
+AsmArgRegister* makeArg(AsmRegistersT reg)
+{
+	return new AsmArgRegister(reg);
+}
+
+AsmArgImmediate* makeArg(int val)
+{
+	return new AsmArgImmediate(val);
+}
+
+AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset)
+{
+	return new AsmArgIndirect(reg, offset);
+}
+
+AsmArgLabel* makeLabel(const string& name)
+{
+	return new AsmArgLabel(name);
+}
+
+AsmArgString* makeString(const string& val)
+{
+	string str(val);
+	for (int i = 0; i < str.length() - 2; i++)
+		if (str.substr(i, 2) == "\\n")
+		{
+			string str1(str.substr(0, i)), str2(str.substr(i + 2));
+			str = str1 + "\", 0dh, 0ah";
+			if (str2.length() > 1)
+				str += ", \"" + str2;
+		}
+	str += ", 0";
+	return new AsmArgString(str);
+}
+
 string AsmArgRegister::regName() const
 {
 	switch (reg)
@@ -21,6 +61,8 @@ string AsmArgRegister::regName() const
 		return "ebp";
 	case ESP:
 		return "esp";
+	case CL:
+		return "cl";
 	default:
 		throw exception("Illegal register value");
 	}
@@ -42,6 +84,8 @@ string AsmCmd::cmdName() const
 		return "imul";
 	case cmdDIV:
 		return "div";
+	case cmdIDIV:
+		return "idiv";
 	case cmdADD:
 		return "add";
 	case cmdSUB:
@@ -50,12 +94,32 @@ string AsmCmd::cmdName() const
 		return "inc";
 	case cmdDEC:
 		return "dec";
+	case cmdRET:
+		return "ret";
 	case cmdDB:
 		return "db";
 	case cmdDD:
 		return "dd";
 	case cmdDQ:
 		return "dq";
+	case cmdINVOKE:
+		return "invoke";
+	case cmdXOR:
+		return "xor";
+	case cmdNEG:
+		return "neg";
+	case cmdCDQ:
+		return "cdq";
+	case cmdSHL:
+		return "shl";
+	case cmdSHR:
+		return "shr";
+	case cmdAND:
+		return "and";
+	case cmdOR:
+		return "or";
+	case cmdNOT:
+		return "not";
 	default:
 		throw exception("Illegal command");
 	}
@@ -68,7 +132,9 @@ string AsmCmd::generate() const
 
 string AsmCmd1::generate() const
 {
-	return cmdName() + " " + arg->generate();
+	return cmdName() + 
+		(opCode == cmdPUSH && (dynamic_cast<AsmArgIndirect*>(arg) || dynamic_cast<AsmArgImmediate*>(arg)) ? " dword ptr " : " ") 
+		+ arg->generate();
 }
 
 string AsmCmd2::generate() const
@@ -78,22 +144,14 @@ string AsmCmd2::generate() const
 		: arg1->generate() + " " + cmdName() + " " + arg2->generate();
 }
 
-AsmArg* AsmCode::makeArg(const string& varName, bool isLabel)
+string AsmIOCmd::generate() const
 {
-	if (isLabel)
-		return new AsmArgLabel(varName);
+	string common = cmdName() + " crt_" + (mode == PRINTF ? "printf" : "scanf") + ", " + "addr " + format->generate();
+	if (arg)
+		return  common + ", " + arg->generate();
 	else
-		return new AsmArgMemory(varName);
-}
-
-AsmArg* AsmCode::makeArg(AsmRegistersT reg, bool indirect)
-{
-	return indirect ? new AsmArgIndirect(reg) : new AsmArgRegister(reg);
-}
-
-AsmArg* AsmCode::makeArg(int val)
-{
-	return new AsmArgImmediate(val);
+		return common;
+	
 }
 
 AsmCode& AsmCode::operator<<(AsmCmd* cmd)
@@ -120,9 +178,33 @@ AsmCode& AsmCode::add(AsmCommandsT cmd, AsmArg* arg1, AsmArg* arg2)
 	return *this;
 }
 
-AsmCode& AsmCode::add(AsmArgLabel* label, bool end)
+AsmCode& AsmCode::add(AsmCommandsT cmd, AsmRegistersT reg)
 {
-	commands.push_back(end ? new AsmLabelEnd(label) : new AsmLabel(label));
+	commands.push_back(new AsmCmd1(cmd, new AsmArgRegister(reg)));
+	return *this;
+}
+
+AsmCode& AsmCode::add(AsmCommandsT cmd, AsmRegistersT reg1, AsmRegistersT reg2)
+{
+	commands.push_back(new AsmCmd2(cmd, new AsmArgRegister(reg1), new AsmArgRegister(reg2)));
+	return *this;
+}
+
+AsmCode& AsmCode::add(AsmCommandsT cmd, AsmRegistersT reg, int val)
+{
+	commands.push_back(new AsmCmd2(cmd, new AsmArgRegister(reg), new AsmArgImmediate(val)));
+	return *this;
+}
+
+AsmCode& AsmCode::add(AsmArgLabel* label)
+{
+	commands.push_back(new AsmLabel(label));
+	return *this;
+}
+
+AsmCode& AsmCode::add(OperationsT func, AsmArgMemory* format, AsmArg* arg)
+{
+	commands.push_back(new AsmIOCmd(func, format, arg));
 	return *this;
 }
 
@@ -143,7 +225,7 @@ void CodeGenerator::generate() const
 		   "includelib c:\\masm32\\lib\\msvcrt.lib\n"
 		   ".data\n";
 	data.fflush(out);
-	out << ".code\nmain:\n";
+	out << ".code\n";
 	code.fflush(out);
-	out << "ret 0\nend main";
+	out << "start:\n\tcall f_main\n\tret 0\nend start";
 }

@@ -3,7 +3,8 @@
 
 using namespace std;
 
-Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), nameCounter(0)
+Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), nameCounter(0),
+	stringConsts(0)
 { 
 	lexer.next(); 
 	
@@ -49,16 +50,16 @@ Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), genera
 	priorityTable[COLON] = 0; 
 
 	priorityTable[ASSIGN] = 2;
-	priorityTable[PLUS_ASSING] = 2;
-	priorityTable[MINUS_ASSING] = 2;
-	priorityTable[MULT_ASSING] = 2;
-	priorityTable[DIV_ASSING] = 2;
-	priorityTable[MOD_ASSING] = 2;
-	priorityTable[AND_ASSING] = 2;
-	priorityTable[OR_ASSING] = 2;
-	priorityTable[BITWISE_XOR_ASSIGN] = 2;
-	priorityTable[AND_ASSING] = 2;
-	priorityTable[OR_ASSING] = 2;
+	priorityTable[PLUS_ASSIGN] = 2;
+	priorityTable[MINUS_ASSIGN] = 2;
+	priorityTable[MULT_ASSIGN] = 2;
+	priorityTable[DIV_ASSIGN] = 2;
+	priorityTable[MOD_ASSIGN] = 2;
+	priorityTable[AND_ASSIGN] = 2;
+	priorityTable[OR_ASSIGN] = 2;
+	priorityTable[XOR_ASSIGN] = 2;
+	priorityTable[AND_ASSIGN] = 2;
+	priorityTable[OR_ASSIGN] = 2;
 	priorityTable[BITWISE_SHIFT_LEFT_ASSIGN] = 2;
 	priorityTable[BITWISE_SHIFT_RIGHT_ASSIGN] = 2;
 
@@ -74,14 +75,14 @@ Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), genera
 	unaryOps[BITWISE_NOT] = true;
 
 	rightAssocOps[ASSIGN] = true;
-	rightAssocOps[PLUS_ASSING] = true;
-	rightAssocOps[MINUS_ASSING] = true;
-	rightAssocOps[MULT_ASSING] = true;
-	rightAssocOps[DIV_ASSING] = true;
-	rightAssocOps[MOD_ASSING] = true;
-	rightAssocOps[AND_ASSING] = true;
-	rightAssocOps[OR_ASSING] = true;
-	rightAssocOps[BITWISE_XOR_ASSIGN] = true;
+	rightAssocOps[PLUS_ASSIGN] = true;
+	rightAssocOps[MINUS_ASSIGN] = true;
+	rightAssocOps[MULT_ASSIGN] = true;
+	rightAssocOps[DIV_ASSIGN] = true;
+	rightAssocOps[MOD_ASSIGN] = true;
+	rightAssocOps[AND_ASSIGN] = true;
+	rightAssocOps[OR_ASSIGN] = true;
+	rightAssocOps[XOR_ASSIGN] = true;
 	rightAssocOps[BITWISE_SHIFT_LEFT_ASSIGN] = true;
 	rightAssocOps[BITWISE_SHIFT_RIGHT_ASSIGN] = true;
 	rightAssocOps[LOGICAL_NOT] = true;
@@ -193,7 +194,8 @@ Node* Parser::parseFactor()
 		{
 			Symbol* sym = tableStack.find(token->text);
 			throwException(!sym, "Undefined name");
-			root = new IdentifierNode(token, sym);
+			throwException(!dynamic_cast<VarSym*>(sym), "???");
+			root = new IdentifierNode(token, dynamic_cast<VarSym*>(sym));
 			parseFuncCall(root);
 		}
 		break; 
@@ -201,8 +203,12 @@ Node* Parser::parseFactor()
 		root = new CharNode(token);
 		break;
 	case STRING:
-		root = new StringNode(token);
-		break;
+		{
+			StringNode* string = new StringNode(token, stringConsts.size());
+			stringConsts.push_back(string);
+			root = string;
+			break;
+		}
 	case KEYWORD:
 		{
 			KeywordsT kw = dynamic_cast<KeywordToken*>(token)->val;
@@ -222,8 +228,31 @@ Node* Parser::parseFactor()
 		}
 	case OPERATION:
 		{
-			if (*token == PARENTHESIS_FRONT)
+			if (*token == PRINTF || *token == SCANF)
 			{
+				throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
+				lexer.next();
+				StringNode* format = dynamic_cast<StringNode*>(parseExpression(priorityTable[COMMA] + 1));
+				throwException(!format, "Expected format string");
+				IOOperatorNode* node = new IOOperatorNode(dynamic_cast<OpToken*>(token), format);
+				if (*lexer.get() == COMMA)
+				{
+					lexer.next();
+					while (1)
+					{
+						Node* arg = parseExpression(priorityTable[COMMA] + 1);
+						throwException(!arg, "Expected argument");
+						node->addArg(arg);
+						if (*lexer.get() == PARENTHESIS_BACK)
+							break;
+						if (*lexer.get() == COMMA)
+							lexer.next();
+					}
+				}
+				*lexer.next();
+				nextNeeded = false;
+				root = node;
+			} else if (*token == PARENTHESIS_FRONT)	{
 				lexer.next();
 				root = parseExpression();
 				Token* close = lexer.get();
@@ -260,7 +289,7 @@ Node* Parser::parseMember(Node* left)
 		fieldName = '$' + fieldName;
 	throwException(!structType->fields->exists(fieldName), "Undefined field in structure");
 	lexer.next();
-	Node* right = new IdentifierNode(token, structType->fields->find(fieldName));
+	Node* right = new IdentifierNode(token, dynamic_cast<VarSym*>(structType->fields->find(fieldName)));
 	return new BinaryOpNode(opTok, left, right);
 }
 
@@ -618,7 +647,7 @@ Node* Parser::fetchCondition()
 
 void Parser::initBlock()
 {
-	Block* block = new Block(new SymTable());
+	Block* block = new Block(new SymTableForLocals());
 	blocks.push(block);
 	tableStack.push(block->locals);
 }
@@ -690,7 +719,7 @@ IfStatement* Parser::parseIf()
 Block* Parser::parseBlock()
 {
 	lexer.next();
-	Block* block = new Block(new SymTable);
+	Block* block = new Block(new SymTableForLocals());
 	blocks.push(block);
 	tableStack.push(block->locals);
 	Token* token = lexer.get();
@@ -754,6 +783,9 @@ void Parser::print() const
 
 void Parser::generateCode() 
 {
-	tableStack.top()->generate(generator.data);
+	for (int i = 0; i < stringConsts.size(); i++)
+		stringConsts[i]->generate(generator.data);
+	tableStack.top()->generateGlobals(generator.data);
+	tableStack.top()->generateCode(generator.code);
 	generator.generate();
 }
