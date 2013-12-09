@@ -292,6 +292,8 @@ Token* Scanner::next()
 			shift = 0;
 			nl = false;
 		}
+		if (dynamic_cast<CommentToken*>(cur_tok))
+			loop = true;
 	}
 	col += shift;
 	return cur_tok;
@@ -528,7 +530,7 @@ void Scanner::OperationDetected()
 
 void Scanner::CommentDetected()
 {
-	cur_tok = new StringValToken(COMMENT, line, col, buffer);
+	cur_tok = new CommentToken(line, col, buffer);
 	buffer.clear();
 }
 

@@ -45,25 +45,7 @@ public:
 	bool canConvertTo(TypeSym* to);
 	bool isLvalue() const { return true; }
 	bool isModifiableLvalue() const { return true; }
-	int byteSize() const { return name == "char" ? 1 : 4; }
-};
-
-class ArraySym : public TypeSym
-{
-private:
-	int size;
-	TypeSym* type;
-public:
-	friend class Parser;
-	ArraySym(TypeSym* t, int s): TypeSym(""), type(t), size(s) {}
-	string typeName() const;
-	TypeSym* nextType() const { return type; }
-	void setNextType(TypeSym* t) { type = t; }
-	bool isLvalue() const { return true; }
-	bool operator == (TypeSym* t) const;
-	bool canConvertTo(TypeSym* t);
-	void generate(AsmCode& code) const;
-	int byteSize() const { return type->byteSize() * size; }
+	int byteSize() const { return name == "char" ? 1 : name == "void" ? 0 : 4; }
 };
 
 class PointerSym : public TypeSym 
@@ -79,6 +61,27 @@ public:
 	bool canConvertTo(TypeSym* to);
 	bool operator == (TypeSym* o) const;
 	int byteSize() const { return 4; }
+};
+
+class ArraySym : public TypeSym
+{
+private:
+	int size;
+	TypeSym* type;
+public:
+	friend class Parser;
+	friend class VarSym;
+	friend class BinaryOpNode;
+	ArraySym(TypeSym* t, int s): TypeSym(""), type(t), size(s) {}
+	string typeName() const;
+	TypeSym* nextType() const { return type; }
+	void setNextType(TypeSym* t) { type = t; }
+	bool isLvalue() const { return true; }
+	bool operator == (TypeSym* t) const;
+	bool canConvertTo(TypeSym* t);
+	void generate(AsmCode& code) const;
+	int byteSize() const { return type->byteSize() * size; }
+	PointerSym* convertToPointer() const { return new PointerSym(type); }
 };
 
 class VarSym : public Symbol
@@ -128,8 +131,10 @@ public:
 	void print(int deep = 0) const;
 	void generateGlobals(AsmCode& code) const;
 	void generateCode(AsmCode& code) const;
+	void calculateSize();
 	bool exists(const string& name);
 	bool operator == (SymTable* o) const;
+	bool operator != (SymTable* o) const { return !(*this == o); }
 	int size() const;
 	int byteSize() const;
 };
@@ -193,7 +198,9 @@ public:
 	friend class SymTable;
 	StructSym(const string& name, SymTable* f): TypeSym(name), fields(f) {}
 	void print(int deep) const;
-	bool isStruct() { return true; }
+	bool isStruct() { return true; }	
+	bool canConvertTo(TypeSym* to);
+	int byteSize() const { return fields ? fields->byteSize() : 0; }
 	string typeName() const;
 };
 

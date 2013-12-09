@@ -142,6 +142,12 @@ public:
 	string info();
 };
 
+class CommentToken : public StringValToken
+{
+public:
+	CommentToken(int l, int c, const string& str): StringValToken(COMMENT, l, c, str) {}
+};
+
 class StringToken : public StringValToken
 {
 public:

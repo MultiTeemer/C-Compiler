@@ -21,7 +21,9 @@ void VarSym::print(int deep) const
 
 void VarSym::generate(AsmCode& code) const
 {
-	code.add(cmdDD, makeArgMemory("var_" + name), makeArg(0));
+	int size = type->byteSize();
+	int dwords = size / 4 + (size % 4 != 0);
+	code.add(cmdDD, makeArgMemory("var_" + name), makeArgDup(dwords));
 }
 
 string TypeSym::typeName() const
@@ -66,6 +68,8 @@ bool ArraySym::operator==(TypeSym* o) const
 
 bool ArraySym::canConvertTo(TypeSym* to)
 {
+	if (to == intType)
+		return true;
 	PointerSym* p = dynamic_cast<PointerSym*>(to);
 	if (p && *p->type == type)
 		return true;
@@ -127,6 +131,14 @@ void StructSym::print(int deep) const
 	cout << string(M * deep, ' ') << "struct " << name << endl;
 	if (fields)
 		fields->print(deep + 1);
+}
+
+bool StructSym::canConvertTo(TypeSym* to) 
+{
+	StructSym* struc = dynamic_cast<StructSym*>(to);
+	if (!struc || *fields != struc->fields)
+		return false;
+	return true;
 }
 
 string StructSym::typeName() const

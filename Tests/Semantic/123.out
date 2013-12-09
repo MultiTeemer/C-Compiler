@@ -1,4 +1,21 @@
+      int
+      float
+      char
+      void
 +------------------------------------------------------------------+
-Cannot perform conversion
-On line 4 col 5
+      main
+      Function ()
+
+        Locals:
+                      a array[10] of int
+
+        Instructions:
+            3
+          +
+            a
+
+
+      Value:
+            int
+
 +------------------------------------------------------------------+

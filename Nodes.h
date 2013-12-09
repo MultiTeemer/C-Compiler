@@ -17,7 +17,8 @@ public:
 	Node(): token(0) {}
 	Node(Token* t): token(t) {}
 	virtual void print(int deep = 0) const = 0;
-	virtual void generate(AsmCode& code) const {};
+	virtual void generate(AsmCode& code) const {}
+	virtual void generateLvalue(AsmCode& code) const {}
 	virtual bool isModifiableLvalue() const { return false; }
 	virtual bool isLvalue() const { return false; }
 	virtual TypeSym* getType() const { return 0; }
@@ -88,6 +89,7 @@ public:
 	bool isLvalue() const;
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
+	void generateLvalue(AsmCode& code) const;
 	virtual TypeSym* getType() const;	
 };
 
@@ -125,6 +127,7 @@ public:
 	IdentifierNode(Token* t, VarSym* s): Node(t), sym(s) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
+	void generateLvalue(AsmCode& code) const;
 	bool isModifiableLvalue() const;
 	bool isLvalue() const { return true; }
 	virtual TypeSym* getType() const;
@@ -158,6 +161,7 @@ public:
 	ArrNode(Token* t, Node* arr): FunctionalNode(t, arr) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
+	void generateLvalue(AsmCode& code) const;
 	bool isModifiableLvalue() const;
 	bool isLvalue() const { return true; }
 	TypeSym* getType() const;	

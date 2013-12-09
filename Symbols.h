@@ -15,9 +15,9 @@ private:
 public:
 	Symbol* find(const string& name) const;
 	SymTable* top();
+	bool existsInLastNamespace(const string& name);	
 	void add(Symbol* s);
 	void print(int deep = 0) const;
-	bool existsInLastNamespace(const string& name);	
 	void push(SymTable* table);
 	void pop();
 };

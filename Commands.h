@@ -105,6 +105,15 @@ public:
 	string generate() const { return name; }
 };
 
+class AsmArgDup : public AsmArg
+{
+private:
+	int count;
+public:
+	AsmArgDup(int c): count(c) {}
+	string generate() const { return to_string(count) + " dup(0)"; }
+};
+
 class AsmInstruction 
 {
 public:
@@ -162,8 +171,9 @@ public:
 
 AsmArgRegister* makeArg(AsmRegistersT reg);
 AsmArgImmediate* makeArg(int val);
+AsmArgDup* makeArgDup(int count);
 AsmArgMemory* makeArgMemory(const string& varName);
-AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset);
+AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset = 0);
 AsmArgLabel* makeLabel(const string& name);
 AsmArgString* makeString(const string& name);
 

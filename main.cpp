@@ -43,6 +43,6 @@ int main(int argc, char* argv[])
 		//parser.print();
 	} catch (exception &e) {
 		cout << lineSeparator << e.what() << endl << lineSeparator;
-	}	
+	}
 	return 0;
 }

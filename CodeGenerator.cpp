@@ -20,6 +20,11 @@ AsmArgImmediate* makeArg(int val)
 	return new AsmArgImmediate(val);
 }
 
+AsmArgDup* makeArgDup(int count)
+{
+	return new AsmArgDup(count);
+}
+
 AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset)
 {
 	return new AsmArgIndirect(reg, offset);
