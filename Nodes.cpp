@@ -544,7 +544,10 @@ void FuncCallNode::print(int deep) const
 
 void FuncCallNode::generate(AsmCode& code) const
 {
-
+	code.add(cmdSUB, ESP, symbol->val->byteSize());	
+	for (int i = args.size() - 1; i > -1; i--)
+		args[i]->generate(code);
+	code.add(cmdCALL, makeLabel("f_" + symbol->name));
 }
 
 TypeSym* FuncCallNode::getType() const

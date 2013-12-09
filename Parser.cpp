@@ -143,7 +143,7 @@ void Parser::parseFuncCall(NodeP& root)
 	if (*next == PARENTHESIS_FRONT)
 		{
 			Token* t = lexer.next();
-			root = new FuncCallNode(root->token, root, root->getType());
+			root = new FuncCallNode(root->token, root, dynamic_cast<FuncSym*>(root->getType()));
 			while (*t != PARENTHESIS_BACK)
 			{
 				dynamic_cast<FuncCallNode*>(root)->addArg(parseExpression(priorityTable[COMMA] + 1));

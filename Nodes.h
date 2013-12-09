@@ -147,9 +147,9 @@ public:
 class FuncCallNode : public FunctionalNode
 {
 private:
-	Symbol* symbol;
+	FuncSym* symbol;
 public:
-	FuncCallNode(Token* t, Node* func, Symbol* funcsym): FunctionalNode(t, func), symbol(funcsym) {}
+	FuncCallNode(Token* t, Node* func, FuncSym* funcsym): FunctionalNode(t, func), symbol(funcsym) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	virtual TypeSym* getType() const;	

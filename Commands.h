@@ -32,6 +32,7 @@ typedef enum {
 	cmdOR,
 	cmdXOR,
 	cmdNOT,
+	cmdCALL,
 } AsmCommandsT;
 
 typedef enum {
