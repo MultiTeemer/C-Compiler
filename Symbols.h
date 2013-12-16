@@ -124,8 +124,9 @@ class ReturnStatement : public JumpStatement
 {
 private:
 	Node* arg;
+	FuncSym* owner;
 public:
-	ReturnStatement(Node* a): arg(a) {}
+	ReturnStatement(Node* a, FuncSym* o): arg(a), owner(o) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 };

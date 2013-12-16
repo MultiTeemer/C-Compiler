@@ -127,6 +127,8 @@ string AsmCmd::cmdName() const
 		return "not";
 	case cmdCALL:
 		return "call";
+	case cmdJMP:
+		return "jmp";
 	default:
 		throw exception("Illegal command");
 	}

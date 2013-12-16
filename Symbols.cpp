@@ -195,7 +195,8 @@ void FuncSym::generate(AsmCode& code, const string& name) const
 		.add(cmdPUSH, EBP)
 		.add(cmdMOV, EBP, ESP);
 	body->generate(code);
-	code.add(cmdMOV, ESP, EBP)
+	code.add(endLabel)
+		.add(cmdMOV, ESP, EBP)
 		.add(cmdPOP, EBP)
 		.add(cmdRET, makeArg(params->byteSize()));
 }
@@ -456,5 +457,11 @@ void ReturnStatement::print(int deep) const
 
 void ReturnStatement::generate(AsmCode& code) const
 {
-
+	if (arg)
+	{
+		arg->generate(code);
+		code.add(cmdPOP, EAX)
+			.add(cmdMOV, makeIndirectArg(EBP, 4 + owner->params->byteSize() + owner->val->byteSize()), makeArg(EAX));
+	}
+	code.add(cmdJMP, owner->endLabel);
 }

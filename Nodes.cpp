@@ -495,6 +495,19 @@ void UnaryOpNode::generate(AsmCode& code) const
 	}
 }
 
+void UnaryOpNode::generateLvalue(AsmCode& code) const
+{
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	switch (op)
+	{
+	case MULT:
+		operand->generate(code);
+		break;
+	default:
+		throw CompilerException("u must write function for this", 0, 0);
+	}
+}
+
 void PostfixUnaryOpNode::print(int deep) const
 {
 	operand->print(deep);
@@ -547,7 +560,8 @@ void FuncCallNode::generate(AsmCode& code) const
 	code.add(cmdSUB, ESP, symbol->val->byteSize());	
 	for (int i = args.size() - 1; i > -1; i--)
 		args[i]->generate(code);
-	code.add(cmdCALL, makeLabel("f_" + symbol->name));
+	code.add(cmdCALL, makeLabel("f_" + name->token->text)) // fix it!
+		.add(cmdADD, ESP, symbol->params->byteSize());
 }
 
 TypeSym* FuncCallNode::getType() const

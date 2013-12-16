@@ -33,6 +33,7 @@ typedef enum {
 	cmdXOR,
 	cmdNOT,
 	cmdCALL,
+	cmdJMP,
 } AsmCommandsT;
 
 typedef enum {

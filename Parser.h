@@ -17,6 +17,7 @@ private:
 	Scanner lexer;		
 	CodeGenerator generator;
 	SymTableStack tableStack;
+	FuncSym* parsingFunc;
 	stack<Block*> blocks;
 	map<OperationsT, int> priorityTable;
 	map<OperationsT, bool> unaryOps;

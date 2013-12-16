@@ -4,7 +4,7 @@
 using namespace std;
 
 Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), nameCounter(0),
-	stringConsts(0)
+	stringConsts(0), parsingFunc(0)
 { 
 	lexer.next(); 
 	
@@ -193,6 +193,8 @@ Node* Parser::parseFactor()
 	case IDENTIFIER:
 		{
 			Symbol* sym = tableStack.find(token->text);
+			if (!sym && parsingFunc)
+				sym = parsingFunc->params->find(token->text);
 			throwException(!sym, "Undefined name");
 			throwException(!dynamic_cast<VarSym*>(sym), "???");
 			root = new IdentifierNode(token, dynamic_cast<VarSym*>(sym));
@@ -580,13 +582,19 @@ void Parser::parseDeclaration()
 			lexer.next();
 	};
 	if (*lexer.get() == BRACE_FRONT)
-		if (dynamic_cast<FuncSym*>(sym->type))
+	{
+		FuncSym* func = dynamic_cast<FuncSym*>(sym->type);
+		if (func)
 		{
 			throwException(blocks.size() != 0, "Cannot define function in block");
-			dynamic_cast<FuncSym*>(sym->type)->body = parseBlock();
+			parsingFunc = func;
+			func->body = parseBlock();
+			parsingFunc = 0;
+			func->endLabel = makeLabel("f_" + sym->name + "_end");
 		} else 
 			throwException(true, "Unexpected brace");
-	lexer.next();
+	} else
+		lexer.next();
 }
 
 JumpStatement* Parser::parseJumpStatement()
@@ -602,7 +610,8 @@ JumpStatement* Parser::parseJumpStatement()
 		break;
 	case RETURN:
 		Node* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
-		stmnt = new ReturnStatement(arg);
+		throwException(!parsingFunc, "Unexpected return statement");
+		stmnt = new ReturnStatement(arg, parsingFunc);
 	}
 	if (*lexer.get() != SEMICOLON)
 		if (*lexer.next() != SEMICOLON)

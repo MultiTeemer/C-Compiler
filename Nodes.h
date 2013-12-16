@@ -53,6 +53,7 @@ public:
 	bool isModifiableLvalue() const;
 	bool isLvalue() const;
 	virtual void generate(AsmCode& code) const;
+	void generateLvalue(AsmCode& code) const;
 };
 
 class PostfixUnaryOpNode : public UnaryOpNode

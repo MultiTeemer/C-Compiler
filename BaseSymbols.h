@@ -173,10 +173,12 @@ private:
 	SymTable* params;
 	Block* body;
 	TypeSym* val;
+	AsmArgLabel* endLabel;
 public:
 	friend class Parser;
 	friend class FuncCallNode;
-	FuncSym(TypeSym* v): TypeSym(""), val(v), params(0), body(0) {} 
+	friend class ReturnStatement;
+	FuncSym(TypeSym* v): TypeSym(""), val(v), params(0), body(0), endLabel(0) {} 
 	string typeName() const;
 	void print(int deep) const;	
 	void setNextType(TypeSym* t) { val = t; }	
