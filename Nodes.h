@@ -83,6 +83,7 @@ protected:
 	mutable Node* left;
 	mutable	Node* right;
 	static bool isAssignment(OperationsT op);
+	static bool isComparison(OperationsT op);
 public:	
 	friend class Parser;
 	BinaryOpNode(Token* op, Node* l, Node* r);

@@ -1,0 +1,9 @@
+int kvadrat(int a)
+{
+	return a * a;
+}
+
+int main()
+{
+	printf("%d", kvadrat(3));
+}

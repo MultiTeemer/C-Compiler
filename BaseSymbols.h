@@ -121,11 +121,12 @@ protected:
 	vector<string> names;
 	vector<Symbol*> symbols;
 	map<string, int> index;
+public:	
 	int offset;
-public:
+	int innerOffset;
 	friend class FuncSym;
 	friend class FuncCallNode;
-	SymTable(): names(0), symbols(0), offset(0) {}
+	SymTable(int off = 0): names(0), symbols(0), offset(0), innerOffset(off) {}
 	Symbol* find(const string& name) const;
 	virtual void add(Symbol* s);
 	void print(int deep = 0) const;
@@ -142,6 +143,14 @@ public:
 class SymTableForLocals : public SymTable
 {
 public:
+	SymTableForLocals(int off = 0): SymTable(off) {}
+	void add(Symbol* s);
+};
+
+class SymTableForParams : public SymTable
+{
+public:
+	SymTableForParams(int off = 0): SymTable(off) {}
 	void add(Symbol* s);
 };
 

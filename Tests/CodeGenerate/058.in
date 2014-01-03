@@ -1,0 +1,12 @@
+int main()
+{
+	int a = 0, b = 10;
+	while (a - b)
+	{
+		++a;
+		if (a & 1)
+			printf("%d is odd\n", a);
+		else 
+			printf("%d is even\n", a);
+	}
+}

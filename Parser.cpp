@@ -3,8 +3,8 @@
 
 using namespace std;
 
-Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), nameCounter(0),
-	stringConsts(0), parsingFunc(0)
+Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), optimizer(), 
+	nameCounter(0), stringConsts(0), parsingFunc(0), operatorCounter (0)
 { 
 	lexer.next(); 
 	
@@ -452,6 +452,7 @@ void Parser::parseParam()
 		if (*token == BRACKET_FRONT)
 			type = parseArrayDimensions(type, true);
 		param = new VarSym(name, type);
+		dynamic_cast<VarSym*>(param)->global = false;
 	}
 	tableStack.add(param);
 }
@@ -473,7 +474,7 @@ void Parser::parseArgList()
 FuncSym* Parser::createFunctionSymbol(TypeSym* type)
 {
 	FuncSym* function = new FuncSym(type);
-	function->params = new SymTable();
+	function->params = new SymTableForParams();
 	tableStack.push(function->params);
 	parseArgList();
 	tableStack.pop();
@@ -656,7 +657,8 @@ Node* Parser::fetchCondition()
 
 void Parser::initBlock()
 {
-	Block* block = new Block(new SymTableForLocals());
+	SymTable* prev = blocks.top()->locals;
+	Block* block = new Block(new SymTableForLocals(prev->innerOffset + prev->byteSize()));
 	blocks.push(block);
 	tableStack.push(block->locals);
 }
@@ -728,7 +730,7 @@ IfStatement* Parser::parseIf()
 Block* Parser::parseBlock()
 {
 	lexer.next();
-	Block* block = new Block(new SymTableForLocals());
+	Block* block = new Block(new SymTableForLocals(tableStack.top()->innerOffset + tableStack.top()->byteSize()));
 	blocks.push(block);
 	tableStack.push(block->locals);
 	Token* token = lexer.get();
@@ -789,12 +791,20 @@ void Parser::print() const
 	tableStack.print();
 }
 
-
 void Parser::generateCode() 
 {
 	for (int i = 0; i < stringConsts.size(); i++)
 		stringConsts[i]->generate(generator.data);
 	tableStack.top()->generateGlobals(generator.data);
 	tableStack.top()->generateCode(generator.code);
+}
+
+void Parser::optimize()
+{
+	optimizer.optimize(generator.code);
+}
+
+void Parser::fflush()
+{
 	generator.generate();
 }

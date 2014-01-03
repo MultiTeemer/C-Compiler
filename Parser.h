@@ -7,6 +7,7 @@
 #include "Scanner.h"
 #include "Symbols.h"
 #include "CodeGenerator.h"
+#include "Optimizer.h"
 
 using namespace std;
 
@@ -14,8 +15,10 @@ class Parser
 {
 private:
 	int nameCounter;
+	int operatorCounter;
 	Scanner lexer;		
 	CodeGenerator generator;
+	Optimizer optimizer;
 	SymTableStack tableStack;
 	FuncSym* parsingFunc;
 	stack<Block*> blocks;
@@ -56,6 +59,8 @@ public:
 	void parse();
 	void print() const;
 	void generateCode();
+	void optimize();
+	void fflush();
 };
 
 #endif

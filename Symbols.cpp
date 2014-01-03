@@ -215,7 +215,7 @@ void SymTable::add(Symbol* symbol)
 	symbols.push_back(symbol);
 	names.push_back(symbol->name);
 	index[symbol->name] = symbols.size() - 1;
-	symbol->offset = offset;
+	symbol->offset = offset - innerOffset;
 	offset += symbol->byteSize();
 }
 
@@ -225,6 +225,12 @@ void SymTableForLocals::add(Symbol* symbol)
 	offset -= 2 * symbol->byteSize();
 	if (dynamic_cast<VarSym*>(symbol))
 		dynamic_cast<VarSym*>(symbol)->global = false;
+}
+
+void SymTableForParams::add(Symbol* symbol)
+{
+	SymTable::add(symbol);
+	symbol->offset = 4 + offset;
 }
 
 void SymTable::print(int deep) const
@@ -376,7 +382,17 @@ void WhilePreCondStatement::print(int deep) const
 
 void WhilePreCondStatement::generate(AsmCode& code) const
 {
-
+	string key = to_string(rand());
+	AsmArgLabel* cond = makeLabel("prewhile" + key + "_cond");
+	AsmArgLabel* end = makeLabel("prewhile" + key + "_end");
+	code.add(cond);
+	condition->generate(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdCMP, EAX, 0)
+		.add(cmdJE, end);
+	body->generate(code);
+	code.add(cmdJMP, cond)
+		.add(end);
 }
 
 void WhilePostCondStatement::print(int deep) const
@@ -387,7 +403,14 @@ void WhilePostCondStatement::print(int deep) const
 
 void WhilePostCondStatement::generate(AsmCode& code) const
 {
-
+	string key = to_string(rand());
+	AsmArgLabel* start = makeLabel("postwhile" + key + "_start");
+	code.add(start);
+	body->generate(code);
+	condition->generate(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdCMP, EAX, 0)
+		.add(cmdJNE, start);
 }
 
 void ForStatement::print(int deep) const
@@ -406,7 +429,19 @@ void ForStatement::print(int deep) const
 
 void ForStatement::generate(AsmCode& code) const
 {
-
+	string key = to_string(rand());
+	AsmArgLabel* cond = makeLabel("for" + key + "_cond");
+	AsmArgLabel* end = makeLabel("for" + key + "_end");
+	initialization->generate(code);
+	code.add(cond);
+	condition->generate(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdCMP, EAX, 0)
+		.add(cmdJE, end);
+	body->generate(code);
+	increment->generate(code);
+	code.add(cmdJMP, cond)
+		.add(end);
 }
 
 void IfStatement::print(int deep) const
@@ -425,7 +460,22 @@ void IfStatement::print(int deep) const
 
 void IfStatement::generate(AsmCode& code) const
 {
-
+	string key = to_string(rand());
+	AsmArgLabel* trueLabel = makeLabel("if" + key + "_true");
+	AsmArgLabel* falseLabel = makeLabel("if" + key + "_false");
+	AsmArgLabel* endLabel = makeLabel("if" + key + "_end");
+	condition->generate(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdCMP, EAX, 0)
+		.add(cmdJNE, trueLabel)
+		.add(cmdJE, falseLabel)
+		.add(trueLabel);
+	trueBranch->generate(code);
+	code.add(cmdJMP, endLabel)
+		.add(falseLabel);
+	if (falseBranch)
+		falseBranch->generate(code);
+	code.add(endLabel);
 }
 
 void ContinueStatement::print(int deep) const

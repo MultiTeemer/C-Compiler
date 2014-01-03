@@ -34,6 +34,15 @@ typedef enum {
 	cmdNOT,
 	cmdCALL,
 	cmdJMP,
+	cmdCMP,
+	cmdJE,
+	cmdJNE,
+	cmdSETG,
+	cmdSETL,
+	cmdSETGE,
+	cmdSETLE,
+	cmdSETE,
+	cmdSETNE,
 } AsmCommandsT;
 
 typedef enum {
@@ -44,12 +53,19 @@ typedef enum {
 	EBP,
 	ESP,
 	CL,
+	AL,
 } AsmRegistersT;
 
 class AsmArg
 {
 public:
 	virtual string generate() const = 0;
+	virtual bool operator == (int val) const { return false; }
+	virtual bool operator == (AsmRegistersT reg) const { return false; }
+	virtual bool operator == (AsmArg* o) const { return false; }
+	virtual bool isRegister() const { return false; }
+	virtual bool isMemoryLocation() const { return false; }
+	bool operator != (AsmArg* o) const { return !(*this == o); }
 };
 
 class AsmArgImmediate : public AsmArg
@@ -59,6 +75,7 @@ private:
 public:
 	AsmArgImmediate(int v): value(v) {}
 	string generate() const { return to_string(value); }
+	bool operator == (int val) { return value == val; }
 };
 
 class AsmArgString : public AsmArg
@@ -78,6 +95,9 @@ protected:
 public:
 	AsmArgRegister(AsmRegistersT r): reg(r) {}
 	string generate() const { return regName(); }
+	bool operator == (AsmArg* o) const;
+	bool operator == (AsmRegistersT r) const { return r == reg; }
+	bool isRegister() const { return true; }
 };
 
 class AsmArgIndirect : public AsmArgRegister
@@ -86,7 +106,8 @@ private:
 	int offset;
 public:
 	AsmArgIndirect(AsmRegistersT r, int shift = 0): AsmArgRegister(r), offset(shift) {}
-	string generate() const { return "[" + regName() + " + " + to_string(offset) + "]"; }
+	string generate() const { return "dword ptr [" + regName() + " + " + to_string(offset) + "]"; }
+	bool operator == (AsmArg* o) const;
 };
 
 class AsmArgMemory : public AsmArg
@@ -96,6 +117,8 @@ private:
 public:
 	AsmArgMemory(const string& name): varName(name) {}
 	string generate() const { return varName; }
+	bool operator == (AsmArg* o) const;
+	bool isMemoryLocation() const { return true; }
 };
 
 class AsmArgLabel : public AsmArg
@@ -105,6 +128,7 @@ private:
 public:
 	AsmArgLabel(const string& n): name(n) {}
 	string generate() const { return name; }
+	bool operator == (AsmArg* o) const;
 };
 
 class AsmArgDup : public AsmArg
@@ -120,6 +144,8 @@ class AsmInstruction
 {
 public:
 	virtual string generate() const = 0;
+	virtual bool changeStack() const { return false; }
+	virtual bool operateWith(AsmArg* arg) const { return false; }
 };
 
 class AsmLabel : public AsmInstruction
@@ -139,16 +165,20 @@ protected:
 public:
 	AsmCmd() {}
 	AsmCmd(AsmCommandsT opcode): opCode(opcode) {}
-	inline virtual string generate() const;
+	virtual string generate() const;
+	AsmCommandsT code() const { return opCode; }
 };
 
 class AsmCmd1 : public AsmCmd
 {
 private:
-	AsmArg* arg;
+	AsmArg *arg;
 public:
 	AsmCmd1(AsmCommandsT opcode, AsmArg* a): AsmCmd(opcode), arg(a) {}
-	inline string generate() const;
+	string generate() const;
+	AsmArg* argument() { return arg; }
+	bool changeStack() const { return opCode == cmdPUSH || opCode == cmdPOP || opCode == cmdRET || opCode == cmdCALL; }
+	bool operateWith(AsmArg* a) const { return *arg == a; }
 };
 
 class AsmCmd2 : public AsmCmd
@@ -157,7 +187,11 @@ private:
 	AsmArg *arg1, *arg2;
 public:
 	AsmCmd2(AsmCommandsT opcode, AsmArg* a1, AsmArg* a2): AsmCmd(opcode), arg1(a1), arg2(a2) {}
-	inline string generate() const;
+	string generate() const;
+	AsmArg* firstArg() { return arg1; }
+	AsmArg* secondArg() { return arg2; }
+	bool changeStack() const;
+	bool operateWith(AsmArg* a) const { return *arg1 == a || *arg2 == a; }
 };
 
 class AsmIOCmd : public AsmCmd
@@ -169,6 +203,7 @@ private:
 public:
 	AsmIOCmd(OperationsT m, AsmArgMemory* f, AsmArg* a): AsmCmd(cmdINVOKE), mode(m), format(f), arg(a) {}
 	string generate() const;
+	bool changeStack() const { return true; }
 };
 
 AsmArgRegister* makeArg(AsmRegistersT reg);
@@ -185,7 +220,13 @@ private:
 	vector<AsmInstruction*> commands;
 public:
 	AsmCode(): commands(0) {}
+	int size() const { return commands.size(); }
 	void fflush(ofstream& out) const;
+	void replace(int index, AsmCmd* cmd) { delete commands[index]; commands[index] = cmd; }
+	void deleteRange(int l, int r);
+	void insertBefore(AsmCmd* cmd, int idx);
+	void move(int from, int to);
+	AsmInstruction* operator [] (int idx) { return commands[idx]; }
 	AsmCode& operator << (AsmCmd* command);
 	AsmCode& add(AsmCommandsT cmd);
 	AsmCode& add(AsmCommandsT cmd, AsmArg* arg);

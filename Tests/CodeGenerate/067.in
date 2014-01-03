@@ -1,0 +1,17 @@
+int main()
+{
+	int a = 1, b = 2, z = 0;
+	printf("%d", a && b);
+	printf("%d", a && z);
+	printf("%d", 0 && z);
+	printf("%d", a && b && 3);
+	printf("%d", a && z && 3);
+	printf("%d", a || z);
+	printf("%d", z || z);
+	printf("%d", a || a);
+	printf("%d", a || b || 3);
+	printf("%d", a || b || z);
+	printf("%d", a && z || z && a);
+	printf("%d", a && a || z && a);
+	printf("%d", (a || z) && (0 || a));
+}

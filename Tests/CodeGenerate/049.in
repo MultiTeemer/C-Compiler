@@ -1,0 +1,11 @@
+struct A {
+  struct { int y; } a[10];
+};
+
+A a;
+
+int main() {
+  a.a[2].y = 5;
+  printf("%d\n", a.a[2].y);
+}
+

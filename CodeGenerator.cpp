@@ -5,6 +5,30 @@
 
 using namespace std;
 
+bool AsmArgRegister::operator==(AsmArg* o) const
+{
+	AsmArgRegister* tmp = dynamic_cast<AsmArgRegister*>(o);
+	return tmp && tmp->reg == reg;
+}
+
+bool AsmArgIndirect::operator==(AsmArg* o) const
+{
+	AsmArgIndirect* tmp = dynamic_cast<AsmArgIndirect*>(o);
+	return tmp && tmp->reg == reg && tmp->offset == offset;
+}
+
+bool AsmArgMemory::operator==(AsmArg* o) const
+{
+	AsmArgMemory* tmp = dynamic_cast<AsmArgMemory*>(o);
+	return tmp && tmp->varName == varName;
+}
+
+bool AsmArgLabel::operator==(AsmArg* o) const
+{
+	AsmArgLabel* tmp = dynamic_cast<AsmArgLabel*>(o);
+	return tmp && tmp->name == name;
+}
+
 AsmArgMemory* makeArgMemory(const string& varName)
 {
 	return new AsmArgMemory(varName);
@@ -68,6 +92,8 @@ string AsmArgRegister::regName() const
 		return "esp";
 	case CL:
 		return "cl";
+	case AL:
+		return "al";
 	default:
 		throw exception("Illegal register value");
 	}
@@ -129,6 +155,24 @@ string AsmCmd::cmdName() const
 		return "call";
 	case cmdJMP:
 		return "jmp";
+	case cmdCMP:
+		return "cmp";
+	case cmdJE:
+		return "je";
+	case cmdJNE:
+		return "jne";
+	case cmdSETE:
+		return "sete";
+	case cmdSETNE:
+		return "setne";
+	case cmdSETG:
+		return "setg";
+	case cmdSETGE:
+		return "setge";
+	case cmdSETL:
+		return "setl";
+	case cmdSETLE:
+		return "setle";
 	default:
 		throw exception("Illegal command");
 	}
@@ -142,7 +186,7 @@ string AsmCmd::generate() const
 string AsmCmd1::generate() const
 {
 	return cmdName() + 
-		(opCode == cmdPUSH && (dynamic_cast<AsmArgIndirect*>(arg) || dynamic_cast<AsmArgImmediate*>(arg)) ? " dword ptr " : " ") 
+		(dynamic_cast<AsmArgImmediate*>(arg) && opCode != cmdRET ? " dword ptr " : " ") 
 		+ arg->generate();
 }
 
@@ -151,6 +195,11 @@ string AsmCmd2::generate() const
 	return opCode > cmdDQ 
 		? cmdName() + " " + arg1->generate() + ", " + arg2->generate() 
 		: arg1->generate() + " " + cmdName() + " " + arg2->generate();
+}
+
+bool AsmCmd2::changeStack() const 
+{
+	return *arg1 == EBP || *arg1 == ESP || *arg2 == EBP || *arg2 == ESP;
 }
 
 string AsmIOCmd::generate() const
@@ -221,6 +270,25 @@ void AsmCode::fflush(ofstream& out) const
 {
 	for (int i = 0; i < commands.size(); i++)
 		out << "\t" << commands[i]->generate() << endl;
+}
+
+void AsmCode::deleteRange(int l, int r) 
+{
+	for (int i = l; i <= r; i++)
+		delete commands[i];
+	commands.erase(commands.begin() + l, commands.begin() + r + 1);
+}
+
+void AsmCode::insertBefore(AsmCmd* cmd, int idx)
+{
+	commands.insert(commands.begin() + idx, cmd);
+}
+
+void AsmCode::move(int from, int to)
+{
+	AsmInstruction* tmp = commands[from];
+	commands.erase(commands.begin() + from);
+	commands.insert(commands.begin() + to, tmp);
 }
 
 void CodeGenerator::generate() const

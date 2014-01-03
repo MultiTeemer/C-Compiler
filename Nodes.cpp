@@ -175,6 +175,13 @@ bool BinaryOpNode::isAssignment(OperationsT op)
 		|| op == BITWISE_SHIFT_LEFT_ASSIGN || op == BITWISE_SHIFT_RIGHT_ASSIGN;
 }
 
+bool BinaryOpNode::isComparison(OperationsT op)
+{
+	return op == EQUAL || op == LESS || op == GREATER
+		|| op == LESS_OR_EQUAL || op == GREATER_OR_EQUAL 
+		|| op == NOT_EQUAL;
+}
+
 void BinaryOpNode::generate(AsmCode& code) const
 {
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
@@ -275,7 +282,35 @@ void BinaryOpNode::generate(AsmCode& code) const
 				|| op == BITWISE_SHIFT_LEFT_ASSIGN || op == BITWISE_SHIFT_RIGHT_ASSIGN) {
 				code.add(cmdMOV, makeArg(ECX), r)
 					.add(op == BITWISE_SHIFT_LEFT || op == BITWISE_SHIFT_LEFT_ASSIGN ? cmdSHL : cmdSHR, l, makeArg(CL));
-			} else {
+			} else if (isComparison(op)) {
+				code.add(cmdCMP, l, r);
+				AsmCommandsT cmd;
+				switch (op)
+				{
+				case LESS:
+					cmd = cmdSETL;
+					break;
+				case LESS_OR_EQUAL:
+					cmd = cmdSETLE;
+					break;
+				case GREATER:
+					cmd = cmdSETG;
+					break;
+				case GREATER_OR_EQUAL:
+					cmd = cmdSETGE;
+					break;
+				case EQUAL:
+					cmd = cmdSETE;
+					break;
+				case NOT_EQUAL:
+					cmd = cmdSETNE;;
+				}
+				code.add(cmd, AL);
+			} else if (op == LOGICAL_AND || op == LOGICAL_OR) 
+				code.add(op == LOGICAL_AND ? cmdIMUL : cmdADD, EAX, EBX)
+					.add(cmdCMP, EAX, 0)
+					.add(cmdSETNE, AL);
+			else {
 				AsmCommandsT cmd;
 				switch (op)
 				{
@@ -328,7 +363,6 @@ void BinaryOpNode::generateLvalue(AsmCode& code) const
 		code.add(cmdPOP, EAX);
 		left->generateLvalue(code);
 	}
-
 }
 
 void IntNode::print(int deep) const
@@ -465,7 +499,28 @@ void UnaryOpNode::generate(AsmCode& code) const
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
 	if (op == BITWISE_AND)
 		operand->generateLvalue(code);
-	else {
+	else if (op == INC || op == DEC) {
+		operand->generate(code);
+		code.add(cmdPOP, EAX);
+		PointerSym* pointer = dynamic_cast<PointerSym*>(operand->getType()); 
+		if (pointer)
+			code.add(cmdMOV, EBX, pointer->type->byteSize())
+				.add(op == INC ? cmdADD : cmdSUB, EAX, EBX);
+		else 
+			code.add(op == INC ? cmdINC : cmdDEC, EAX);
+		code.add(cmdPUSH, EAX);
+		operand->generateLvalue(code);
+		code.add(cmdPOP, EBX)
+			.add(cmdPOP, EAX)
+			.add(cmdMOV, makeIndirectArg(EBX), makeArg(EAX))
+			.add(cmdPUSH, EAX);
+	} if (op == LOGICAL_NOT) {
+		operand->generate(code);
+		code.add(cmdPOP, EAX)
+			.add(cmdCMP, EAX, 0)
+			.add(cmdSETE, AL)
+			.add(cmdPUSH, EAX);
+	} else {
 		operand->generate(code);
 		code.add(cmdPOP, EAX);
 		switch (op)
@@ -480,16 +535,6 @@ void UnaryOpNode::generate(AsmCode& code) const
 			code.add(cmdMOV, EBX, EAX)
 				.add(cmdMOV, makeArg(EAX), makeIndirectArg(EBX));
 			break;
-		case INC:
-		case DEC:
-			{
-				PointerSym* pointer = dynamic_cast<PointerSym*>(operand->getType()); 
-				if (pointer)
-					code.add(cmdMOV, EBX, pointer->type->byteSize())
-						.add(op == INC ? cmdADD : cmdSUB, EAX, EBX);
-				else 
-					code.add(op == INC ? cmdINC : cmdDEC, EAX);
-			}
 		}	
 		code.add(cmdPUSH, EAX);
 	}
@@ -560,8 +605,7 @@ void FuncCallNode::generate(AsmCode& code) const
 	code.add(cmdSUB, ESP, symbol->val->byteSize());	
 	for (int i = args.size() - 1; i > -1; i--)
 		args[i]->generate(code);
-	code.add(cmdCALL, makeLabel("f_" + name->token->text)) // fix it!
-		.add(cmdADD, ESP, symbol->params->byteSize());
+	code.add(cmdCALL, makeLabel("f_" + name->token->text)); // fix it!
 }
 
 TypeSym* FuncCallNode::getType() const

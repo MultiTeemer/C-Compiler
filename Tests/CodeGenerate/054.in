@@ -1,0 +1,11 @@
+int main()
+{
+	int a = 0, b = 0;
+	if (a)
+		a -= 3;
+	else if (b)
+		a += 7;
+	else
+		a -= 6;
+	printf("%d", a);
+}

@@ -1,9 +1,17 @@
-int one()
-{
-	return 1;
-}
-
 int main()
 {
-	printf("%d", one());	
+	int a = 0;
+	{
+		int a = 1;
+		{
+			int a = 2;
+			{
+				int a = 3;
+				printf("%d\n", a);
+			}
+			printf("%d\n", a);
+		}
+		printf("%d\n", a);
+	}
+	printf("%d\n", a);
 }
