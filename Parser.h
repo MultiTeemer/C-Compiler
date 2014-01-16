@@ -42,7 +42,7 @@ private:
 	WhilePreCondStatement* parseWhile();
 	WhilePostCondStatement* parseDoWhile();
 	IfStatement* parseIf();
-	Block* parseBlock();		
+	Block* parseBlock(bool function = false);		
 	void hitch(VarSym* start, TypeSym* type);
 	void parseFuncCall(NodeP& root);
 	void parseArrIndex(NodeP& root);

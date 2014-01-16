@@ -121,12 +121,12 @@ protected:
 	vector<string> names;
 	vector<Symbol*> symbols;
 	map<string, int> index;
-public:	
+public:		
 	int offset;
-	int innerOffset;
+	int shift;
 	friend class FuncSym;
 	friend class FuncCallNode;
-	SymTable(int off = 0): names(0), symbols(0), offset(0), innerOffset(off) {}
+	SymTable(int tableShift = 0): names(0), symbols(0), offset(0), shift(tableShift) {}
 	Symbol* find(const string& name) const;
 	virtual void add(Symbol* s);
 	void print(int deep = 0) const;
@@ -150,7 +150,14 @@ public:
 class SymTableForParams : public SymTable
 {
 public:
-	SymTableForParams(int off = 0): SymTable(off) {}
+	SymTableForParams(): SymTable() { offset = 4; }
+	void add(Symbol* s);
+};
+
+class SymTableForFields : public SymTable
+{
+public:
+	SymTableForFields(): SymTable() {}
 	void add(Symbol* s);
 };
 
@@ -213,6 +220,17 @@ public:
 	bool canConvertTo(TypeSym* to);
 	int byteSize() const { return fields ? fields->byteSize() : 0; }
 	string typeName() const;
+};
+
+class AliasSym : public TypeSym
+{
+public:
+	TypeSym* type;
+	AliasSym(const string& name, TypeSym* t): TypeSym(name), type(t) {}
+	void print(int deep) const;
+	string typeName() const;
+	TypeSym* getType() { return type; }
+	int byteSize() const { return type->byteSize(); }
 };
 
 extern ScalarSym* intType;

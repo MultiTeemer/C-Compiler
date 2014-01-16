@@ -278,9 +278,16 @@ Node* Parser::parseMember(Node* left)
 {
 	TypeSym* type = left->getType();
 	StructSym* structType = 0;
-	if (dynamic_cast<PointerSym*>(type)) 
-		structType = dynamic_cast<StructSym*>(dynamic_cast<PointerSym*>(type)->type);
-	else 
+	PointerSym* sp = dynamic_cast<PointerSym*>(type);
+	if (sp) 
+	{
+		if (dynamic_cast<AliasSym*>(sp->type))
+			structType = dynamic_cast<StructSym*>(dynamic_cast<AliasSym*>(sp->type)->type);
+		else
+			structType = dynamic_cast<StructSym*>(sp->type);		
+	} else if (dynamic_cast<AliasSym*>(type))
+		structType = dynamic_cast<StructSym*>(type->getType());
+	else
 		structType= dynamic_cast<StructSym*>(type);
 	throwException(!structType, "Left operand of . or -> must be a structure");
 	Token* opTok = lexer.get();
@@ -363,7 +370,7 @@ StructSym* Parser::parseStruct(bool inParamList)
 	{
 		throwException(inParamList, "Type definition is not allowed");
 		throwException(structType->fields, "Struct redefinition");
-		structType->fields = new SymTable();
+		structType->fields = new SymTableForFields();
 		tableStack.push(structType->fields);
 		token = lexer.next();
 		while (*token != BRACE_BACK)
@@ -589,7 +596,7 @@ void Parser::parseDeclaration()
 		{
 			throwException(blocks.size() != 0, "Cannot define function in block");
 			parsingFunc = func;
-			func->body = parseBlock();
+			func->body = parseBlock(true);
 			parsingFunc = 0;
 			func->endLabel = makeLabel("f_" + sym->name + "_end");
 		} else 
@@ -658,7 +665,7 @@ Node* Parser::fetchCondition()
 void Parser::initBlock()
 {
 	SymTable* prev = blocks.top()->locals;
-	Block* block = new Block(new SymTableForLocals(prev->innerOffset + prev->byteSize()));
+	Block* block = new Block(new SymTableForLocals(prev->byteSize() + prev->offset));
 	blocks.push(block);
 	tableStack.push(block->locals);
 }
@@ -727,10 +734,11 @@ IfStatement* Parser::parseIf()
 	return new IfStatement(condition, trueBranch, falseBranch);
 }
 
-Block* Parser::parseBlock()
+Block* Parser::parseBlock(bool function)
 {
 	lexer.next();
-	Block* block = new Block(new SymTableForLocals(tableStack.top()->innerOffset + tableStack.top()->byteSize()));
+	SymTable* top = tableStack.top();
+	Block* block = new Block(new SymTableForLocals(function ? 4 : top->shift + top->byteSize()));
 	blocks.push(block);
 	tableStack.push(block->locals);
 	Token* token = lexer.get();

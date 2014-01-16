@@ -55,6 +55,10 @@ TypeSym* BinaryOpNode::getType() const
 {
 	TypeSym* leftType = left->getType();
 	TypeSym* rightType = right->getType();
+	if (dynamic_cast<AliasSym*>(leftType))
+		leftType = leftType->getType();
+	if (dynamic_cast<AliasSym*>(rightType))
+		rightType = rightType->getType();
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
 	TypeSym* maxTypeOfArgs = 0;
 	if (operationTypeOperands.count(op))
@@ -93,9 +97,9 @@ TypeSym* BinaryOpNode::getType() const
 			throw CompilerException("Left operand of . must be a structure", left->token->line, left->token->col);
 		return rightType;
 	case ARROW:
-		if (!lp || !dynamic_cast<StructSym*>(lp->type))
+		if (!lp || (!dynamic_cast<StructSym*>(lp->type) && !dynamic_cast<StructSym*>(dynamic_cast<AliasSym*>(lp->type)->type)))
 			throw CompilerException("Left operand of -> must be of pointer-to-structure type", left->token->line, left->token->col);
-		return rightType;
+		return rightType;		
 	case MINUS:		
 		if (lp && rp || la && ra)
 		{
@@ -142,6 +146,7 @@ bool BinaryOpNode::isModifiableLvalue() const
 	case OR_ASSIGN:
 		return left->isModifiableLvalue();
 	case DOT:
+	case ARROW:
 		return right->isModifiableLvalue();
 	default:
 		return false;
@@ -157,6 +162,18 @@ bool BinaryOpNode::isLvalue() const
 		return right->isLvalue();
 	default:
 		return isModifiableLvalue();
+	}
+}
+
+bool BinaryOpNode::isLocal() const
+{
+	switch (dynamic_cast<OpToken*>(token)->val)
+	{
+	case DOT:
+	case ARROW:
+		return left->isLocal();
+	default:
+		return false;
 	}
 }
 
@@ -223,7 +240,7 @@ void BinaryOpNode::generate(AsmCode& code) const
 			.add(cmdPUSH, EAX);
 		return;
 	}
-	if (op == DOT) {
+	if (op == DOT || op == ARROW) {
 			generateLvalue(code);
 			code.add(cmdPOP, EAX)
 				.add(cmdPUSH, makeIndirectArg(EAX));
@@ -232,17 +249,14 @@ void BinaryOpNode::generate(AsmCode& code) const
 		if (op == ASSIGN)
 		{
 			left->generateLvalue(code);
-			//code.add(cmdPOP, EAX);
-			//int size = right->getType()->byteSize();
-			//int steps = size / 4 + (size % 4 != 0);
-			//for (int i = 1; i <= steps; i++)
-			//	code.add(cmdPOP, EBX)
-			//		.add(cmdMOV, makeIndirectArg(EAX, i * 4 - size), makeArg(EBX));
-			//code.add(cmdMOV, EAX, EBX);
-			code.add(cmdPOP, EAX)
-				.add(cmdPOP, EBX)
-				.add(cmdMOV, makeIndirectArg(EAX), makeArg(EBX))
-				.add(cmdMOV, EAX, EBX);
+			code.add(cmdPOP, EAX);
+			int memoryMult = left->isLocal() ? -1 : 1;
+			int size = right->getType()->byteSize();
+			int steps = size / 4 + (size % 4 != 0);
+			for (int i = 0; i < steps; i++)
+				code.add(cmdPOP, EBX)
+					.add(cmdMOV, makeIndirectArg(EAX, (steps - i - 1) * 4 * memoryMult), makeArg(EBX)); // reverse order
+			code.add(cmdMOV, EAX, EBX);
 		} else {
 			AsmArg *l, *r;
 			if (isAssignment(op))
@@ -283,7 +297,8 @@ void BinaryOpNode::generate(AsmCode& code) const
 				code.add(cmdMOV, makeArg(ECX), r)
 					.add(op == BITWISE_SHIFT_LEFT || op == BITWISE_SHIFT_LEFT_ASSIGN ? cmdSHL : cmdSHR, l, makeArg(CL));
 			} else if (isComparison(op)) {
-				code.add(cmdCMP, l, r);
+				code.add(cmdCMP, l, r)
+					.add(cmdMOV, EAX, 0);
 				AsmCommandsT cmd;
 				switch (op)
 				{
@@ -307,8 +322,15 @@ void BinaryOpNode::generate(AsmCode& code) const
 				}
 				code.add(cmd, AL);
 			} else if (op == LOGICAL_AND || op == LOGICAL_OR) 
-				code.add(op == LOGICAL_AND ? cmdIMUL : cmdADD, EAX, EBX)
+				code.add(cmdCMP, EAX, 0)
+					.add(cmdMOV, EAX, 0)
+					.add(cmdSETNE, AL) 
+					.add(cmdCMP, EBX, 0)
+					.add(cmdMOV, EBX, 0)
+					.add(cmdSETNE, BL)
+					.add(op == LOGICAL_AND ? cmdIMUL : cmdADD, EAX, EBX)
 					.add(cmdCMP, EAX, 0)
+					.add(cmdMOV, EAX, 0)
 					.add(cmdSETNE, AL);
 			else {
 				AsmCommandsT cmd;
@@ -351,18 +373,23 @@ void BinaryOpNode::generate(AsmCode& code) const
 void BinaryOpNode::generateLvalue(AsmCode& code) const
 {
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
-	if (op == DOT)
+	if (op == DOT || op == ARROW) 
 	{
-		left->generateLvalue(code);
+		int memoryMult = left->isLocal() ? -1 : 1;
+		if (op == DOT)
+			left->generateLvalue(code);
+		else
+			left->generate(code);
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, dynamic_cast<IdentifierNode*>(right)->sym->offset)
+			.add(cmdMOV, EBX, dynamic_cast<IdentifierNode*>(right)->sym->offset * (op == DOT ? memoryMult : 1))
 			.add(cmdADD, EAX, EBX)
 			.add(cmdPUSH, EAX);
 	} else if (isAssignment(op)) {
 		generate(code);
 		code.add(cmdPOP, EAX);
 		left->generateLvalue(code);
-	}
+	} else 
+		throw CompilerException("not implemented", token->line, token->col);
 }
 
 void IntNode::print(int deep) const
@@ -400,16 +427,16 @@ void IdentifierNode::print(int deep) const
 	cout << string(deep * M, ' ') << sym->name << endl;
 }
 
-void IdentifierNode::generate(AsmCode& code) const
+void IdentifierNode::generate(AsmCode& code) const 
 {
 	int size = sym->byteSize();
 	int steps = size / 4 + (size % 4 != 0);
 	if (sym->global)
 		for (int i = 0; i < steps; i++)
-			code.add(cmdPUSH, makeArgMemory("dword ptr [var_" + sym->name + " + " + to_string(i * 4) +"]"));
+			code.add(cmdPUSH, makeArgMemory("dword ptr [var_" + sym->name + " + " + to_string(4 * i) +"]"));
 	else
 		for (int i = 0; i < steps; i++)
-			code.add(cmdPUSH, makeIndirectArg(EBP, sym->offset - i * 4));
+			code.add(cmdPUSH, makeIndirectArg(EBP, sym->offset - 4 * i));
 }
 
 void IdentifierNode::generateLvalue(AsmCode& code) const
@@ -514,7 +541,7 @@ void UnaryOpNode::generate(AsmCode& code) const
 			.add(cmdPOP, EAX)
 			.add(cmdMOV, makeIndirectArg(EBX), makeArg(EAX))
 			.add(cmdPUSH, EAX);
-	} if (op == LOGICAL_NOT) {
+	} else if (op == LOGICAL_NOT) {
 		operand->generate(code);
 		code.add(cmdPOP, EAX)
 			.add(cmdCMP, EAX, 0)
@@ -549,7 +576,7 @@ void UnaryOpNode::generateLvalue(AsmCode& code) const
 		operand->generate(code);
 		break;
 	default:
-		throw CompilerException("u must write function for this", 0, 0);
+		throw CompilerException("not implemented", 0, 0);
 	}
 }
 
@@ -605,7 +632,8 @@ void FuncCallNode::generate(AsmCode& code) const
 	code.add(cmdSUB, ESP, symbol->val->byteSize());	
 	for (int i = args.size() - 1; i > -1; i--)
 		args[i]->generate(code);
-	code.add(cmdCALL, makeLabel("f_" + name->token->text)); // fix it!
+	code.add(cmdCALL, makeLabel("f_" + name->token->text))
+		.add(cmdADD, ESP, symbol->params->byteSize());
 }
 
 TypeSym* FuncCallNode::getType() const
@@ -619,6 +647,10 @@ TypeSym* FuncCallNode::getType() const
 	{
 		TypeSym* realParamType = args[i]->getType();
 		TypeSym* formalParamType = sym->params->symbols[i]->getType();
+		if (dynamic_cast<AliasSym*>(realParamType))
+			realParamType = realParamType->getType();
+		if (dynamic_cast<AliasSym*>(formalParamType))
+			formalParamType = formalParamType->getType();
 		if (!realParamType->canConvertTo(formalParamType))
 			throw CompilerException("Invalid type of parameter", args[i]->token->line, args[i]->token->col);
 		args[i] = makeTypeCoerce(args[i], realParamType, formalParamType);
@@ -648,6 +680,7 @@ void ArrNode::generateLvalue(AsmCode& code) const
 	for (int i = 0; i < args.size(); i++)
 	{
 		args[i]->generate(code);
+		int bytes = type->byteSize();
 		code.add(cmdPOP, EAX)
 			.add(cmdMOV, EBX, type->byteSize())
 			.add(cmdIMUL, EAX, EBX)

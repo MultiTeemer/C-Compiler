@@ -54,6 +54,7 @@ typedef enum {
 	ESP,
 	CL,
 	AL,
+	BL,
 } AsmRegistersT;
 
 class AsmArg

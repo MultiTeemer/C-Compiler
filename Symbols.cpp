@@ -198,7 +198,7 @@ void FuncSym::generate(AsmCode& code, const string& name) const
 	code.add(endLabel)
 		.add(cmdMOV, ESP, EBP)
 		.add(cmdPOP, EBP)
-		.add(cmdRET, makeArg(params->byteSize()));
+		.add(cmdRET, makeArg(0));
 }
 
 Symbol* SymTable::find(const string& name) const
@@ -215,22 +215,32 @@ void SymTable::add(Symbol* symbol)
 	symbols.push_back(symbol);
 	names.push_back(symbol->name);
 	index[symbol->name] = symbols.size() - 1;
-	symbol->offset = offset - innerOffset;
-	offset += symbol->byteSize();
 }
 
 void SymTableForLocals::add(Symbol* symbol)
 {
 	SymTable::add(symbol);
-	offset -= 2 * symbol->byteSize();
-	if (dynamic_cast<VarSym*>(symbol))
-		dynamic_cast<VarSym*>(symbol)->global = false;
+	VarSym* vp = dynamic_cast<VarSym*>(symbol);
+	if (vp)
+	{
+		symbol->offset = - (shift + offset);
+		offset += symbol->byteSize();
+		vp->global = false;
+	}
 }
 
 void SymTableForParams::add(Symbol* symbol)
 {
 	SymTable::add(symbol);
-	symbol->offset = 4 + offset;
+	offset += symbol->byteSize();
+	symbol->offset = offset;	
+}
+
+void SymTableForFields::add(Symbol* symbol)
+{
+	SymTable::add(symbol);
+	symbol->offset = offset;
+	offset += symbol->byteSize();
 }
 
 void SymTable::print(int deep) const
@@ -335,7 +345,7 @@ bool SymTableStack::existsInLastNamespace(const string& name)
 void SingleStatement::generate(AsmCode& code) const
 {
 	expr->generate(code);
-	if (expr->getType())
+	if (expr->getType() && expr->getType()->byteSize())
 		code.add(cmdPOP, makeArg(EAX));
 }
 
@@ -510,8 +520,11 @@ void ReturnStatement::generate(AsmCode& code) const
 	if (arg)
 	{
 		arg->generate(code);
-		code.add(cmdPOP, EAX)
-			.add(cmdMOV, makeIndirectArg(EBP, 4 + owner->params->byteSize() + owner->val->byteSize()), makeArg(EAX));
+		int size = owner->val->byteSize();
+		int steps = size / 4 + (size % 4 != 0);
+		for (int i = 0; i < steps; i++)
+			code.add(cmdPOP, EAX)
+				.add(cmdMOV, makeIndirectArg(EBP, 4 + owner->params->byteSize() + size - 4 * (steps - i - 1)), makeArg(EAX));
 	}
 	code.add(cmdJMP, owner->endLabel);
 }

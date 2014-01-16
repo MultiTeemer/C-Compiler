@@ -22,17 +22,6 @@ public:
 	void pop();
 };
 
-class AliasSym : public TypeSym
-{
-private:
-	TypeSym* type;
-public:
-	AliasSym(const string& name, TypeSym* t): TypeSym(name), type(t) {}
-	void print(int deep) const;
-	string typeName() const;
-	TypeSym* getType() { return type; }
-};
-
 class SingleStatement : public Statement
 {
 private:

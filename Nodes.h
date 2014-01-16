@@ -19,8 +19,10 @@ public:
 	virtual void print(int deep = 0) const = 0;
 	virtual void generate(AsmCode& code) const {}
 	virtual void generateLvalue(AsmCode& code) const {}
+	virtual void setType(PointerSym* type) {}
 	virtual bool isModifiableLvalue() const { return false; }
 	virtual bool isLvalue() const { return false; }
+	virtual bool isLocal() const { return false; }
 	virtual TypeSym* getType() const { return 0; }
 	static Node* makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to);
 };
@@ -89,6 +91,7 @@ public:
 	BinaryOpNode(Token* op, Node* l, Node* r);
 	bool isModifiableLvalue() const;
 	bool isLvalue() const;
+	bool isLocal() const;
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
@@ -132,6 +135,7 @@ public:
 	void generateLvalue(AsmCode& code) const;
 	bool isModifiableLvalue() const;
 	bool isLvalue() const { return true; }
+	bool isLocal() const { return !sym->global; }
 	virtual TypeSym* getType() const;
 };
 
@@ -166,6 +170,7 @@ public:
 	void generateLvalue(AsmCode& code) const;
 	bool isModifiableLvalue() const;
 	bool isLvalue() const { return true; }
+	bool isLocal() const { return name->isLocal(); }
 	TypeSym* getType() const;	
 };
 

@@ -1,0 +1,12 @@
+typedef struct {
+	int x, y, z;
+} point;
+
+point a;
+
+int main()
+{	
+	point *p = &a;
+	p->x = p->y = p->z = 256;
+	printf("%d %d %d", a.x, a.y, a.z);
+}

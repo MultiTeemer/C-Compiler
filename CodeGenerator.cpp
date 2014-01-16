@@ -94,6 +94,8 @@ string AsmArgRegister::regName() const
 		return "cl";
 	case AL:
 		return "al";
+	case BL:
+		return "bl";
 	default:
 		throw exception("Illegal register value");
 	}

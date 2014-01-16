@@ -1,0 +1,25 @@
+int loop(int a)
+{
+	return a;
+}
+
+int equal(int a, int b)
+{
+	return a == b;
+}
+
+int inc(int a)
+{
+	return ++a;
+}
+
+int main()
+{	
+	printf("%d\n", 1 == loop(1));
+	printf("%d\n", -1 == loop(10));
+	printf("%d\n", equal(1, 1));
+	printf("%d\n", equal(1, -1));
+	printf("%d\n", equal(0, inc(-1)));
+	printf("%d\n", equal(loop(1), loop(1)));
+	printf("%d\n", equal(inc(loop(0)), 1));
+}

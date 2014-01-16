@@ -1,0 +1,15 @@
+typedef struct {
+	int x, y, z;
+	int arr[10];
+} point;
+	
+point a, b;
+
+int main()
+{
+	b.x = b.y = b.z = -30;
+	b.arr[0] = -15;
+	b.arr[9] = 15;
+	a = b;
+	printf("%d %d %d %d %d", a.x, a.y, a.z, a.arr[0], a.arr[9]);
+}
