@@ -1,0 +1,41 @@
+typedef struct {
+	int x, y, z;
+} point;
+
+void print(point a)
+{
+	printf("%d %d %d\n", a.x, a.y, a.z);
+}
+
+point mult(point a, point b)
+{
+	a.x *= b.x;
+	a.y *= b.y;
+	a.z *= b.z;
+	return a;
+}
+
+point div(point a, point b)
+{
+	a.x /= b.x;
+	a.y /= b.y;
+	a.z /= b.z;
+	return a;
+}
+
+int main()
+{	
+	point a, b;
+	a.x = 1;
+	a.y = -1;
+	a.z = -2;
+	b.x = 2;
+	b.y = -2;
+	b.z = -1;
+	print(a);
+	print(b);
+	print(mult(a, b));
+	print(mult(b, a));
+	print(div(a, b));
+	print(div(b, a));
+}

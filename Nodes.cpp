@@ -550,20 +550,20 @@ void UnaryOpNode::generate(AsmCode& code) const
 	} else {
 		operand->generate(code);
 		code.add(cmdPOP, EAX);
-		switch (op)
-		{
-		case MINUS:
-			code.add(cmdNEG, EAX);
-			break;
-		case BITWISE_NOT:
-			code.add(cmdNOT, EAX);
-			break;
-		case MULT:
-			code.add(cmdMOV, EBX, EAX)
-				.add(cmdMOV, makeArg(EAX), makeIndirectArg(EBX));
-			break;
-		}	
-		code.add(cmdPUSH, EAX);
+		if (op == MINUS)
+			code.add(cmdNEG, EAX)
+				.add(cmdPUSH, EAX);
+		else if (op == BITWISE_NOT)
+			code.add(cmdNOT, EAX)
+				.add(cmdPUSH, EAX);
+		else if (op == MULT) {
+			int size = operand->getType()->nextType()->byteSize();
+			int steps = size / 4 + (size % 4 != 0);
+			code.add(cmdMOV, EBX, EAX);
+			for (int i = 0; i < steps; i++)
+				code.add(cmdMOV, makeArg(EAX), makeIndirectArg(EBX, (steps - i - 1) * 4))
+					.add(cmdPUSH, EAX);
+		}
 	}
 }
 

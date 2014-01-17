@@ -1,0 +1,28 @@
+typedef struct {
+	int a[10];
+	int x, y;
+} foo;
+
+typedef struct {
+	int x, y;
+	struct {
+		int ro, fi;
+		foo field[300];
+	} polar;
+} point;
+
+void print(int* p)
+{
+	printf("%d\n", *p);
+}
+
+point a[100], b;
+
+int main()
+{	
+	a[50].polar.field[299].a[0] = 15;
+	int* p = &a[50].polar.field[299].a[0];
+	print(p);
+	print(--p);
+	print(--p);
+}
