@@ -57,7 +57,9 @@ class CycleStatement : public CondStatement
 protected:
 	Statement* body;
 public:
-	CycleStatement(Node* cond, Statement* b): CondStatement(cond), body(b) {}
+	mutable AsmArgLabel* startLabel;
+	mutable AsmArgLabel* endLabel;
+	CycleStatement(Node* cond, Statement* b): CondStatement(cond), body(b), startLabel(0), endLabel(0) {}
 	virtual void print(int deep) const;
 };
 
@@ -86,8 +88,9 @@ private:
 	Node* increment;
 public:
 	friend class Parser;
+	mutable AsmArgLabel* incrementLabel;
 	ForStatement(Node* initial, Node* condition, Node* inc, Statement* block): 
-		CycleStatement(condition, block), initialization(initial), increment(inc) {}
+		CycleStatement(condition, block), initialization(initial), increment(inc), incrementLabel(0) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 };
@@ -95,16 +98,26 @@ public:
 class JumpStatement : public Statement
 {};
 
-class BreakStatement : public JumpStatement
+class CycleJumpStatement : public JumpStatement
+{
+protected:
+	CycleStatement* owner;
+public:
+	CycleJumpStatement(CycleStatement* cycle): owner(cycle) {}
+};
+
+class BreakStatement : public CycleJumpStatement
 {
 public:
+	BreakStatement(CycleStatement* cycle): CycleJumpStatement(cycle) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 };
 
-class ContinueStatement : public JumpStatement
+class ContinueStatement : public CycleJumpStatement
 {
 public:
+	ContinueStatement(CycleStatement* cycle): CycleJumpStatement(cycle) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 };

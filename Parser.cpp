@@ -4,7 +4,7 @@
 using namespace std;
 
 Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), optimizer(), 
-	nameCounter(0), stringConsts(0), parsingFunc(0), operatorCounter (0)
+	nameCounter(0), stringConsts(0), parsingFunc(0), parsingCycle(0), operatorCounter (0)
 { 
 	lexer.next(); 
 	
@@ -611,10 +611,12 @@ JumpStatement* Parser::parseJumpStatement()
 	switch (dynamic_cast<KeywordToken*>(lexer.get())->val) 
 	{
 	case CONTINUE:
-		stmnt = new ContinueStatement();
+		throwException(!parsingCycle, "There is no cycle to jump");
+		stmnt = new ContinueStatement(parsingCycle);
 		break;
 	case BREAK:
-		stmnt = new BreakStatement();
+		throwException(!parsingCycle, "There is no cycle to jump");
+		stmnt = new BreakStatement(parsingCycle);
 		break;
 	case RETURN:
 		Node* arg = *lexer.next() != SEMICOLON ? parseExpression() : 0;
@@ -675,26 +677,42 @@ ForStatement* Parser::parseFor()
 	Node* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : new EmptyNode();
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
+	ForStatement* stmnt = new ForStatement(initialization, condition, increment, 0);
+	CycleStatement* tmp = parsingCycle;
+	parsingCycle = stmnt;
 	Statement* body = parseStatement();
-	return new ForStatement(initialization, condition, increment, body);
+	parsingCycle = tmp;
+	stmnt->body = body;
+	return stmnt;
 }
 
 WhilePreCondStatement* Parser::parseWhile()
 {
 	Node* condition = fetchCondition();
+	WhilePreCondStatement* stmnt = new WhilePreCondStatement(condition, 0);
+	CycleStatement* tmp = parsingCycle;
+	parsingCycle = stmnt;
 	Statement* body = parseStatement();
-	return new WhilePreCondStatement(condition, body);
+	parsingCycle = tmp;
+	stmnt->body = body;
+	return stmnt;
 }
 
 WhilePostCondStatement* Parser::parseDoWhile()
 {
 	lexer.next();
+	WhilePostCondStatement* stmnt = new WhilePostCondStatement(0, 0);
+	CycleStatement* tmp = parsingCycle;
+	parsingCycle = stmnt;
 	Statement* body = parseStatement();
+	parsingCycle = tmp;
 	throwException(*lexer.get() != WHILE, "Expected 'while'");
 	Node* condition = fetchCondition();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
 	lexer.next();
-	return new WhilePostCondStatement(condition, body);
+	stmnt->condition = condition;
+	stmnt->body = body;
+	return stmnt;
 }
 
 IfStatement* Parser::parseIf()

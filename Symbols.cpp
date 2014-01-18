@@ -393,16 +393,18 @@ void WhilePreCondStatement::print(int deep) const
 void WhilePreCondStatement::generate(AsmCode& code) const
 {
 	string key = to_string(rand());
+	startLabel = makeLabel("prewhile" + key + "_start");
+	endLabel = makeLabel("prewhile" + key + "_end");
 	AsmArgLabel* cond = makeLabel("prewhile" + key + "_cond");
-	AsmArgLabel* end = makeLabel("prewhile" + key + "_end");
-	code.add(cond);
+	code.add(startLabel).
+		add(cond);
 	condition->generate(code);
 	code.add(cmdPOP, EAX)
 		.add(cmdCMP, EAX, 0)
-		.add(cmdJE, end);
+		.add(cmdJE, endLabel);
 	body->generate(code);
 	code.add(cmdJMP, cond)
-		.add(end);
+		.add(endLabel);
 }
 
 void WhilePostCondStatement::print(int deep) const
@@ -414,13 +416,15 @@ void WhilePostCondStatement::print(int deep) const
 void WhilePostCondStatement::generate(AsmCode& code) const
 {
 	string key = to_string(rand());
-	AsmArgLabel* start = makeLabel("postwhile" + key + "_start");
-	code.add(start);
+	startLabel = makeLabel("postwhile" + key + "_start");
+	endLabel = makeLabel("postwhile" + key + "_end");
+	code.add(startLabel);
 	body->generate(code);
 	condition->generate(code);
 	code.add(cmdPOP, EAX)
 		.add(cmdCMP, EAX, 0)
-		.add(cmdJNE, start);
+		.add(cmdJNE, startLabel)
+		.add(endLabel);
 }
 
 void ForStatement::print(int deep) const
@@ -440,18 +444,22 @@ void ForStatement::print(int deep) const
 void ForStatement::generate(AsmCode& code) const
 {
 	string key = to_string(rand());
-	AsmArgLabel* cond = makeLabel("for" + key + "_cond");
-	AsmArgLabel* end = makeLabel("for" + key + "_end");
+	startLabel = makeLabel("for" + key + "_start");
+	endLabel = makeLabel("for" + key + "_end");
+	incrementLabel = makeLabel("for" + key + "_inc");
+	AsmArgLabel* conditionLabel = makeLabel("for" + key + "_cond");
 	initialization->generate(code);
-	code.add(cond);
+	code.add(startLabel)
+		.add(conditionLabel);
 	condition->generate(code);
 	code.add(cmdPOP, EAX)
 		.add(cmdCMP, EAX, 0)
-		.add(cmdJE, end);
+		.add(cmdJE, endLabel);
 	body->generate(code);
+	code.add(incrementLabel);
 	increment->generate(code);
-	code.add(cmdJMP, cond)
-		.add(end);
+	code.add(cmdJMP, conditionLabel)
+		.add(endLabel);
 }
 
 void IfStatement::print(int deep) const
@@ -495,7 +503,11 @@ void ContinueStatement::print(int deep) const
 
 void ContinueStatement::generate(AsmCode& code) const
 {
-
+	ForStatement* forCycle = dynamic_cast<ForStatement*>(owner);
+	if (forCycle)
+		code.add(cmdJMP, forCycle->incrementLabel);
+	else
+		code.add(cmdJMP, owner->startLabel);
 }
 
 void BreakStatement::print(int deep) const
@@ -505,7 +517,7 @@ void BreakStatement::print(int deep) const
 
 void BreakStatement::generate(AsmCode& code) const
 {
-
+	code.add(cmdJMP, owner->endLabel);
 }
 
 void ReturnStatement::print(int deep) const

@@ -21,6 +21,7 @@ private:
 	Optimizer optimizer;
 	SymTableStack tableStack;
 	FuncSym* parsingFunc;
+	CycleStatement* parsingCycle;
 	stack<Block*> blocks;
 	map<OperationsT, int> priorityTable;
 	map<OperationsT, bool> unaryOps;
