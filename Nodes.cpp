@@ -676,13 +676,14 @@ void ArrNode::generate(AsmCode& code) const
 void ArrNode::generateLvalue(AsmCode& code) const
 {
 	name->generateLvalue(code);
+	int memoryMult = name->isLocal() ? -1 : 1;
 	TypeSym* type = name->getType()->nextType();
 	for (int i = 0; i < args.size(); i++)
 	{
 		args[i]->generate(code);
 		int bytes = type->byteSize();
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, type->byteSize())
+			.add(cmdMOV, EBX, type->byteSize() * memoryMult)
 			.add(cmdIMUL, EAX, EBX)
 			.add(cmdPOP, EBX)
 			.add(cmdADD, EAX, EBX)
