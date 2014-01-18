@@ -662,20 +662,6 @@ Node* Parser::fetchCondition()
 	return condition;
 }
 
-void Parser::initBlock()
-{
-	SymTable* prev = blocks.top()->locals;
-	Block* block = new Block(new SymTableForLocals(prev->byteSize() + prev->offset));
-	blocks.push(block);
-	tableStack.push(block->locals);
-}
-
-void Parser::popBlock()
-{
-	blocks.pop();
-	tableStack.pop();
-}
-
 ForStatement* Parser::parseFor()
 {
 	throwException(*lexer.next() != PARENTHESIS_FRONT, "Expected open parenthesis");
@@ -689,27 +675,21 @@ ForStatement* Parser::parseFor()
 	Node* increment = *lexer.get() != PARENTHESIS_BACK ? parseExpression() : new EmptyNode();
 	throwException(*lexer.get() != PARENTHESIS_BACK, "Expected close parenthesis");
 	lexer.next();
-	initBlock();
 	Statement* body = parseStatement();
-	popBlock();
 	return new ForStatement(initialization, condition, increment, body);
 }
 
 WhilePreCondStatement* Parser::parseWhile()
 {
 	Node* condition = fetchCondition();
-	initBlock();
 	Statement* body = parseStatement();
-	popBlock();
 	return new WhilePreCondStatement(condition, body);
 }
 
 WhilePostCondStatement* Parser::parseDoWhile()
 {
 	lexer.next();
-	initBlock();
 	Statement* body = parseStatement();
-	popBlock();
 	throwException(*lexer.get() != WHILE, "Expected 'while'");
 	Node* condition = fetchCondition();
 	throwException(*lexer.get() != SEMICOLON, "Expected semicolon");
@@ -720,16 +700,12 @@ WhilePostCondStatement* Parser::parseDoWhile()
 IfStatement* Parser::parseIf()
 {
 	Node* condition = fetchCondition();
-	initBlock();
 	Statement* trueBranch = parseStatement();
-	popBlock();
 	Statement* falseBranch = 0;
 	if (*lexer.get() == ELSE)
 	{
 		lexer.next();
-		initBlock();
 		falseBranch = parseStatement();
-		popBlock();
 	}
 	return new IfStatement(condition, trueBranch, falseBranch);
 }
