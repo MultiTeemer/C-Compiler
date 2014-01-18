@@ -212,6 +212,7 @@ void BinaryOpNode::generate(AsmCode& code) const
 		rp = dynamic_cast<ArraySym*>(rightType)->convertToPointer();
 	if ((op == PLUS || op == MINUS) && (lp || rp) && !(lp && rp))
 	{
+		int memoryMult = (lp ? left->isLocal() : right->isLocal()) ? -1 : 0;
 		if (!lp)
 		{
 			swap(left, right);
@@ -220,7 +221,7 @@ void BinaryOpNode::generate(AsmCode& code) const
 		left->generateLvalue(code);
 		right->generate(code);
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, lp->type->byteSize())
+			.add(cmdMOV, EBX, lp->type->byteSize() * memoryMult)
 			.add(cmdIMUL, EBX, EAX)
 			.add(cmdPOP, EAX)
 			.add(op == PLUS ? cmdADD : cmdSUB, EAX, EBX)
@@ -675,13 +676,16 @@ void ArrNode::generate(AsmCode& code) const
 
 void ArrNode::generateLvalue(AsmCode& code) const
 {
-	name->generateLvalue(code);
+	TypeSym* nameType = name->getType();
+	if (dynamic_cast<ArraySym*>(nameType))
+		name->generateLvalue(code);
+	else if (dynamic_cast<PointerSym*>(nameType))
+		name->generate(code);
 	int memoryMult = name->isLocal() ? -1 : 1;
-	TypeSym* type = name->getType()->nextType();
+	TypeSym* type = nameType->nextType();
 	for (int i = 0; i < args.size(); i++)
 	{
 		args[i]->generate(code);
-		int bytes = type->byteSize();
 		code.add(cmdPOP, EAX)
 			.add(cmdMOV, EBX, type->byteSize() * memoryMult)
 			.add(cmdIMUL, EAX, EBX)
@@ -694,7 +698,9 @@ void ArrNode::generateLvalue(AsmCode& code) const
 
 TypeSym* ArrNode::getType() const
 {
-	ArraySym* sym = dynamic_cast<ArraySym*>(name->getType());
+	TypeSym* sym = dynamic_cast<ArraySym*>(name->getType());
+	if (!sym)
+		sym = dynamic_cast<PointerSym*>(name->getType());
 	if (!sym)
 		throw CompilerException("Expression must have a pointer-to-object type", name->token->line, name->token->col);
 	TypeSym* type = sym;
