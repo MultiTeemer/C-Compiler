@@ -138,6 +138,7 @@ public:
 	bool operator != (SymTable* o) const { return !(*this == o); }
 	int size() const;
 	int byteSize() const;
+	Symbol* operator[] (int idx) { return symbols[idx]; }
 };
 
 class SymTableForLocals : public SymTable
@@ -219,7 +220,9 @@ public:
 	bool isStruct() { return true; }	
 	bool canConvertTo(TypeSym* to);
 	int byteSize() const { return fields ? fields->byteSize() : 0; }
+	int getShiftForBase() const;
 	string typeName() const;
+	TypeSym* nextType() const { return (*fields)[0]->getType(); }
 };
 
 class AliasSym : public TypeSym

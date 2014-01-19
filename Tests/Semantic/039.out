@@ -1,8 +1,0 @@
-      int
-      float
-      char
-      void
-+------------------------------------------------------------------+
-      struct point
-      foo function(struct point, struct point) returning struct point
-+------------------------------------------------------------------+

@@ -407,7 +407,9 @@ TypeSym* Parser::parseType(bool inParamList)
 		type = dynamic_cast<TypeSym*>(tableStack.find(token->text));
 		lexer.next();
 	}
-	throwException(!type, "Unknown type");		
+	throwException(!type, "Unknown type");	
+	while (dynamic_cast<AliasSym*>(type))
+		type = type->getType();
 	if (isConst)
 		type = new ConstTypeSym(type);
 	return type;

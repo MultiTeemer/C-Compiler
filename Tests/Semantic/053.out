@@ -6,6 +6,6 @@
       struct point
       sp alias for struct point
       spp alias for pointer to struct point
-      a const struct point
+      $a const struct point
       ap const pointer to struct point
 +------------------------------------------------------------------+

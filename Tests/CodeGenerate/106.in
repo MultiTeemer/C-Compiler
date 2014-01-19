@@ -1,0 +1,22 @@
+typedef struct {
+	int x, y;
+} point;
+
+typedef struct {
+	point a, b;
+} vector;
+
+vector global;
+
+int main()
+{	
+	vector local;
+	vector *pg = &global, *pl = &local;
+	global.a.x = -1;
+	global.a.y = 1;
+	global.b.x = 1;
+	global.b.y = -1;
+	local = global;
+	printf("(%d, %d) -> (%d, %d)\n", pg->a.x, pg->a.y, pg->b.x, pg->b.y);
+	printf("(%d, %d) -> (%d, %d)\n", pl->a.x, pl->a.y, pl->b.x, pl->b.y);	
+}

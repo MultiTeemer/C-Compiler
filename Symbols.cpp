@@ -141,6 +141,14 @@ bool StructSym::canConvertTo(TypeSym* to)
 	return true;
 }
 
+int StructSym::getShiftForBase() const
+{
+	TypeSym* type = (*fields)[0]->getType();
+	while (!dynamic_cast<ScalarSym*>(type))
+		type = type->nextType();
+	return type->byteSize();
+}
+
 string StructSym::typeName() const
 {
 	return "struct " + name;
@@ -223,7 +231,13 @@ void SymTableForLocals::add(Symbol* symbol)
 	VarSym* vp = dynamic_cast<VarSym*>(symbol);
 	if (vp)
 	{
-		symbol->offset = - (shift + offset);
+		TypeSym* type = vp->getType();
+		if (dynamic_cast<ArraySym*>(type))
+			symbol->offset = -(shift + offset + type->byteSize() - type->nextType()->byteSize());
+		else if (dynamic_cast<StructSym*>(type))
+			symbol->offset = -(shift + offset + type->byteSize() - dynamic_cast<StructSym*>(type)->getShiftForBase());
+		else
+			symbol->offset = -(shift + offset);
 		offset += symbol->byteSize();
 		vp->global = false;
 	}
@@ -232,8 +246,11 @@ void SymTableForLocals::add(Symbol* symbol)
 void SymTableForParams::add(Symbol* symbol)
 {
 	SymTable::add(symbol);
+	if (dynamic_cast<StructSym*>(symbol->getType()))
+		symbol->offset = offset + dynamic_cast<StructSym*>(symbol->getType())->getShiftForBase();
+	else 
+		symbol->offset = offset + symbol->byteSize();	
 	offset += symbol->byteSize();
-	symbol->offset = offset;	
 }
 
 void SymTableForFields::add(Symbol* symbol)

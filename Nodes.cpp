@@ -165,18 +165,6 @@ bool BinaryOpNode::isLvalue() const
 	}
 }
 
-bool BinaryOpNode::isLocal() const
-{
-	switch (dynamic_cast<OpToken*>(token)->val)
-	{
-	case DOT:
-	case ARROW:
-		return left->isLocal();
-	default:
-		return false;
-	}
-}
-
 void BinaryOpNode::print(int deep) const
 {
 	left->print(deep + 1);
@@ -212,7 +200,6 @@ void BinaryOpNode::generate(AsmCode& code) const
 		rp = dynamic_cast<ArraySym*>(rightType)->convertToPointer();
 	if ((op == PLUS || op == MINUS) && (lp || rp) && !(lp && rp))
 	{
-		int memoryMult = (lp ? left->isLocal() : right->isLocal()) ? -1 : 0;
 		if (!lp)
 		{
 			swap(left, right);
@@ -221,7 +208,7 @@ void BinaryOpNode::generate(AsmCode& code) const
 		left->generateLvalue(code);
 		right->generate(code);
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, lp->type->byteSize() * memoryMult)
+			.add(cmdMOV, EBX, lp->type->byteSize())
 			.add(cmdIMUL, EBX, EAX)
 			.add(cmdPOP, EAX)
 			.add(op == PLUS ? cmdADD : cmdSUB, EAX, EBX)
@@ -251,12 +238,11 @@ void BinaryOpNode::generate(AsmCode& code) const
 		{
 			left->generateLvalue(code);
 			code.add(cmdPOP, EAX);
-			int memoryMult = left->isLocal() ? -1 : 1;
 			int size = right->getType()->byteSize();
 			int steps = size / 4 + (size % 4 != 0);
 			for (int i = 0; i < steps; i++)
 				code.add(cmdPOP, EBX)
-					.add(cmdMOV, makeIndirectArg(EAX, (steps - i - 1) * 4 * memoryMult), makeArg(EBX)); // reverse order
+					.add(cmdMOV, makeIndirectArg(EAX, i * 4), makeArg(EBX));
 			code.add(cmdMOV, EAX, EBX);
 		} else {
 			AsmArg *l, *r;
@@ -376,13 +362,12 @@ void BinaryOpNode::generateLvalue(AsmCode& code) const
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
 	if (op == DOT || op == ARROW) 
 	{
-		int memoryMult = left->isLocal() ? -1 : 1;
 		if (op == DOT)
 			left->generateLvalue(code);
 		else
 			left->generate(code);
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, dynamic_cast<IdentifierNode*>(right)->sym->offset * (op == DOT ? memoryMult : 1))
+			.add(cmdMOV, EBX, dynamic_cast<IdentifierNode*>(right)->sym->offset)
 			.add(cmdADD, EAX, EBX)
 			.add(cmdPUSH, EAX);
 	} else if (isAssignment(op)) {
@@ -434,10 +419,10 @@ void IdentifierNode::generate(AsmCode& code) const
 	int steps = size / 4 + (size % 4 != 0);
 	if (sym->global)
 		for (int i = 0; i < steps; i++)
-			code.add(cmdPUSH, makeArgMemory("dword ptr [var_" + sym->name + " + " + to_string(4 * i) +"]"));
+			code.add(cmdPUSH, makeArgMemory("dword ptr [var_" + sym->name + " + " + to_string(4 * (steps - i - 1)) +"]"));
 	else
 		for (int i = 0; i < steps; i++)
-			code.add(cmdPUSH, makeIndirectArg(EBP, sym->offset - 4 * i));
+			code.add(cmdPUSH, makeIndirectArg(EBP, sym->offset + 4 * (steps - i - 1)));
 }
 
 void IdentifierNode::generateLvalue(AsmCode& code) const
@@ -681,13 +666,12 @@ void ArrNode::generateLvalue(AsmCode& code) const
 		name->generateLvalue(code);
 	else if (dynamic_cast<PointerSym*>(nameType))
 		name->generate(code);
-	int memoryMult = name->isLocal() ? -1 : 1;
 	TypeSym* type = nameType->nextType();
 	for (int i = 0; i < args.size(); i++)
 	{
 		args[i]->generate(code);
 		code.add(cmdPOP, EAX)
-			.add(cmdMOV, EBX, type->byteSize() * memoryMult)
+			.add(cmdMOV, EBX, type->byteSize())
 			.add(cmdIMUL, EAX, EBX)
 			.add(cmdPOP, EBX)
 			.add(cmdADD, EAX, EBX)
