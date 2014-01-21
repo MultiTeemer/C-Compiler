@@ -3,8 +3,6 @@
 
 using namespace std;
 
-string real4("tmp4"), real8("tmp8");
-
 Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), optimizer(), 
 	nameCounter(0), stringConsts(0), parsingFunc(0), parsingCycle(0)
 { 

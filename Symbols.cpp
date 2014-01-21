@@ -375,11 +375,7 @@ void SingleStatement::generate(AsmCode& code) const
 	TypeSym* type = expr->getType();
 	expr->generate(code);
 	if (type && type->byteSize()) // why doesn't work add esp, size?
-		if (type->name == "float")
-			code.add(cmdPOP, EAX)
-				.add(cmdPOP, EAX);
-		else
-			code.add(cmdPOP, EAX);
+		code.add(cmdPOP, EAX);
 }
 
 void Block::print(int deep) const

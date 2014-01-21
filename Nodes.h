@@ -9,8 +9,16 @@
 
 using namespace std;
 
+extern string real4name;
+extern string real8name;
+extern AsmArgMemory* real4;
+extern AsmArgMemory* real8;
+
 class Node
 {
+protected:
+	void generateByteToFPU(AsmCode& code) const;
+	void generateST0ToStack(AsmCode& code) const;
 public:
 	Token* token;
 	friend class Parser;
@@ -19,6 +27,7 @@ public:
 	virtual void print(int deep = 0) const = 0;
 	virtual void generate(AsmCode& code) const {}
 	virtual void generateLvalue(AsmCode& code) const {}
+	virtual void generateLoadInFPUStack(AsmCode& code) const {}
 	virtual void setType(PointerSym* type) {}
 	virtual bool isModifiableLvalue() const { return false; }
 	virtual bool isLvalue() const { return false; }
@@ -55,6 +64,7 @@ public:
 	bool isLvalue() const;
 	virtual void generate(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
+	void generateLoadInFPUStack(AsmCode& code) const;
 };
 
 class PostfixUnaryOpNode : public UnaryOpNode
@@ -94,6 +104,7 @@ public:
 	void generate(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
 	void generateForFloat(AsmCode& code) const;
+	void generateLoadInFPUStack(AsmCode& code) const;
 	virtual TypeSym* getType() const;	
 };
 
@@ -124,6 +135,7 @@ public:
 	FloatNode(Token* t, int idx): Node(t), index(idx) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
+	void generateLoadInFPUStack(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
 	void generateData(AsmCode& code) const;
 	virtual TypeSym* getType() const;
@@ -137,6 +149,7 @@ public:
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
+	void generateLoadInFPUStack(AsmCode& code) const;
 	bool isModifiableLvalue() const;
 	bool isLvalue() const { return true; }
 	virtual TypeSym* getType() const;
@@ -150,6 +163,7 @@ protected:
 	void printArgs(int deep) const;
 public:
 	FunctionalNode(Token* tok, Node* n): Node(tok), name(n), args(0) {}
+	void generateLoadInFPUStack(AsmCode& code) const;
 	void addArg(Node* arg) { args.push_back(arg); }
 };
 
@@ -218,8 +232,5 @@ public:
 };
 
 typedef Node* NodeP;
-
-extern string real4;
-extern string real8;
 
 #endif

@@ -196,6 +196,8 @@ string AsmCmd::cmdName() const
 		return "fld";
 	case cmdFSTP:
 		return "fstp";
+	case cmdFCHS:
+		return "fchs";
 	default:
 		throw exception("Illegal command");
 	}

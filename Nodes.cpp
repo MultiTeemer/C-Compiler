@@ -10,11 +10,29 @@ ScalarSym* charType = new ScalarSym("char");
 ScalarSym* voidType = new ScalarSym("void");
 PointerSym* stringType = new PointerSym(charType);
 
+string real4name("tmp4");
+string real8name("tmp8");
+AsmArgMemory* real4 = new AsmArgMemory(real4name);
+AsmArgMemory* real8 = new AsmArgMemory(real8name);
+
 map<TypeSym*, int> typePriority;
 map<OperationsT, TypeSym*> operationTypeOperands;
 map<OperationsT, TypeSym*> operationReturningType;
 
 static const int M = 2;
+
+void Node::generateByteToFPU(AsmCode& code) const
+{
+	code.add(cmdPOP, EAX)
+		.add(cmdMOV, real4, makeArg(EAX))
+		.add(cmdFLD, real4);
+}
+
+void Node::generateST0ToStack(AsmCode& code) const
+{
+	code.add(cmdFSTP, real4)
+		.add(cmdPUSH, real4);
+}
 
 Node* Node::makeTypeCoerce(Node* expr, TypeSym* from, TypeSym* to)
 {
@@ -189,7 +207,36 @@ bool BinaryOpNode::isComparison(OperationsT op)
 
 void BinaryOpNode::generateForFloat(AsmCode& code) const
 {
-	throw exception("not implementes");
+	left->generateLoadInFPUStack(code);
+	right->generateLoadInFPUStack(code);
+	AsmCommandsT cmd;
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	switch (op)
+	{
+	case PLUS:
+		cmd = cmdFADDP;
+		break;
+	case MINUS:
+		cmd = cmdFSUBP;
+		break;
+	case DIV:
+		cmd = cmdFDIVP;
+		break;
+	case MULT:
+		cmd = cmdFMULP;
+		break;
+	default:
+		throw CompilerException("not implemented", token->line, token->col);
+		break;
+	}
+	code.add(cmd);
+	generateST0ToStack(code);
+}
+
+void BinaryOpNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	generate(code);
+	generateByteToFPU(code);
 }
 
 void BinaryOpNode::generate(AsmCode& code) const
@@ -425,6 +472,11 @@ void FloatNode::generateData(AsmCode& code) const
 	code.add(cmdDD, makeArgMemory(constName()), makeFloat(dynamic_cast<FloatToken*>(token)->val));
 }
 
+void FloatNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	code.add(cmdFLD, makeArgMemory(constName()));
+}
+
 TypeSym* FloatNode::getType() const
 {
 	return floatType;
@@ -456,6 +508,16 @@ void IdentifierNode::generateLvalue(AsmCode& code) const
 			.add(cmdMOV, EBX, sym->offset)
 			.add(cmdADD, EAX, EBX)
 			.add(cmdPUSH, EAX);
+}
+
+void IdentifierNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	if (sym->global)
+		code.add(cmdFLD, makeArgMemory(sym->name));
+	else
+		code.add(cmdMOV, makeArg(EAX), makeIndirectArg(EBP, sym->offset))
+			.add(cmdMOV, real4, makeArg(EAX))
+			.add(cmdFLD, real4);
 }
 
 TypeSym* IdentifierNode::getType() const
@@ -559,8 +621,15 @@ void UnaryOpNode::generate(AsmCode& code) const
 		operand->generate(code);
 		code.add(cmdPOP, EAX);
 		if (op == MINUS)
-			code.add(cmdNEG, EAX)
-				.add(cmdPUSH, EAX);
+			if (*operand->getType() == floatType)
+			{
+				code.add(cmdPUSH, EAX);
+				generateByteToFPU(code);
+				code.add(cmdFCHS);
+				generateST0ToStack(code);
+			} else
+				code.add(cmdNEG, EAX)
+					.add(cmdPUSH, EAX);
 		else if (op == BITWISE_NOT)
 			code.add(cmdNOT, EAX)
 				.add(cmdPUSH, EAX);
@@ -586,6 +655,12 @@ void UnaryOpNode::generateLvalue(AsmCode& code) const
 	default:
 		throw CompilerException("not implemented", 0, 0);
 	}
+}
+
+void UnaryOpNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	generate(code);
+	generateByteToFPU(code);
 }
 
 void PostfixUnaryOpNode::print(int deep) const
@@ -625,6 +700,12 @@ void FunctionalNode::printArgs(int deep) const
 		if (i < args.size() - 1)
 			cout << string(deep * M, ' ') << ',' << endl;
 	}
+}
+
+void FunctionalNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	generate(code);
+	generateByteToFPU(code);
 }
 
 void FuncCallNode::print(int deep) const
@@ -740,10 +821,10 @@ void IOOperatorNode::generate(AsmCode& code) const
 		size += type->byteSize();
 		if (*type == floatType)
 		{
-			code.add(cmdPOP, makeArgMemory(real4))
-				.add(cmdFLD, makeArgMemory(real4))
-				.add(cmdFSTP, makeArgMemory(real8))
-				.add(cmdMOV, makeArg(EAX), makeArgMemory("offset " + real8))
+			code.add(cmdPOP, real4)
+				.add(cmdFLD, real4)
+				.add(cmdFSTP, real8)
+				.add(cmdMOV, makeArg(EAX), makeArgMemory("offset " + real8name))
 				.add(cmdPUSH, makeIndirectArg(EAX, 4))
 				.add(cmdPUSH, makeIndirectArg(EAX));
 			size += 4;
