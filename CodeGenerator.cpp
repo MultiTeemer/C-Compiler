@@ -210,8 +210,7 @@ string AsmIOCmd::generate() const
 	if (arg)
 		return  common + ", " + arg->generate();
 	else
-		return common;
-	
+		return common;	
 }
 
 AsmCode& AsmCode::operator<<(AsmCmd* cmd)

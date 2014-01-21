@@ -109,6 +109,7 @@ public:
 	AsmArgIndirect(AsmRegistersT r, int shift = 0): AsmArgRegister(r), offset(shift) {}
 	string generate() const { return "dword ptr [" + regName() + " + " + to_string(offset) + "]"; }
 	bool operator == (AsmArg* o) const;
+	bool isMemoryLocation() const { return true; }
 };
 
 class AsmArgMemory : public AsmArg
