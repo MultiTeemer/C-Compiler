@@ -219,4 +219,7 @@ public:
 
 typedef Node* NodeP;
 
+extern string real4;
+extern string real8;
+
 #endif

@@ -49,9 +49,7 @@ int ScalarSym::byteSize() const
 		return 0;
 	if (name == "char")
 		return 1;
-	if (name == "float")
-		return 8;
-	if (name == "int")
+	if (name == "int" || name == "float")
 		return 4;
 	throw CompilerException("unknown base type", 0, 0);
 }

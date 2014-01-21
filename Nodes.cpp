@@ -189,31 +189,7 @@ bool BinaryOpNode::isComparison(OperationsT op)
 
 void BinaryOpNode::generateForFloat(AsmCode& code) const
 {
-	int size = floatType->byteSize();	
-	left->generate(code);
-	code.add(cmdFLD, makeIndirectArg(ESP, size))
-		.add(cmdADD, ESP, size);
-	right->generate(code);
-	code.add(cmdFLD, makeIndirectArg(ESP, size));
-	OperationsT op = dynamic_cast<OpToken*>(token)->val;
-	AsmCommandsT cmd;
-	switch (op)
-	{
-	case PLUS:
-		cmd = cmdFADDP;
-		break;
-	case MINUS:
-		cmd = cmdFSUBP;
-		break;
-	case MULT:
-		cmd = cmdFMULP;
-		break;
-	case DIV:
-		cmd = cmdFDIVP;
-		break;
-	}
-	code.add(cmd)
-		.add(cmdFST, makeArgMemory("qword ptr [esp +" + to_string(size) +"]"));
+	throw exception("not implementes");
 }
 
 void BinaryOpNode::generate(AsmCode& code) const
@@ -436,10 +412,7 @@ void FloatNode::print(int deep) const
 
 void FloatNode::generate(AsmCode& code) const
 {
-	generateLvalue(code);
-	code.add(cmdPOP, EAX)
-		.add(cmdPUSH, makeIndirectArg(EAX, 4))
-		.add(cmdPUSH, makeIndirectArg(EAX));
+	code.add(cmdPUSH, makeArgMemory(constName()));
 }
 
 void FloatNode::generateLvalue(AsmCode& code) const
@@ -449,7 +422,7 @@ void FloatNode::generateLvalue(AsmCode& code) const
 
 void FloatNode::generateData(AsmCode& code) const
 {
-	code.add(cmdREAL8, makeArgMemory(constName()), makeFloat(dynamic_cast<FloatToken*>(token)->val));
+	code.add(cmdDD, makeArgMemory(constName()), makeFloat(dynamic_cast<FloatToken*>(token)->val));
 }
 
 TypeSym* FloatNode::getType() const
@@ -759,12 +732,24 @@ bool ArrNode::isModifiableLvalue() const
 
 void IOOperatorNode::generate(AsmCode& code) const
 {
-	for (int i = args.size() - 1; i > -1; i--)
-		args[i]->generate(code);
-	code.add(token->val, makeArgMemory("str" + to_string(format->index)));
 	int size = 0;
-	for (int i = 0; i < args.size(); i++)
-		size += args[i]->getType()->byteSize();
+	for (int i = args.size() - 1; i > -1; i--)
+	{
+		TypeSym* type = args[i]->getType();
+		args[i]->generate(code);
+		size += type->byteSize();
+		if (*type == floatType)
+		{
+			code.add(cmdPOP, makeArgMemory(real4))
+				.add(cmdFLD, makeArgMemory(real4))
+				.add(cmdFSTP, makeArgMemory(real8))
+				.add(cmdMOV, makeArg(EAX), makeArgMemory("offset " + real8))
+				.add(cmdPUSH, makeIndirectArg(EAX, 4))
+				.add(cmdPUSH, makeIndirectArg(EAX));
+			size += 4;
+		}
+	}
+	code.add(token->val, makeArgMemory("str" + to_string(format->index)));
 	code.add(cmdADD, ESP, size);
 }
 

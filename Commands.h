@@ -8,6 +8,7 @@
 using namespace std;
 
 typedef enum {
+	cmdREAL4,
 	cmdREAL8,
 	cmdDD,
 	cmdDB,
@@ -49,7 +50,7 @@ typedef enum {
 	cmdFMULP,
 	cmdFSUBP,
 	cmdFLD,
-	cmdFST,
+	cmdFSTP,
 } AsmCommandsT;
 
 typedef enum {

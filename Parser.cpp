@@ -3,6 +3,8 @@
 
 using namespace std;
 
+string real4("tmp4"), real8("tmp8");
+
 Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), optimizer(), 
 	nameCounter(0), stringConsts(0), parsingFunc(0), parsingCycle(0)
 { 
@@ -803,6 +805,8 @@ void Parser::generateCode()
 	for (int i = 0; i < floatConsts.size(); i++)
 		floatConsts[i]->generateData(generator.data);
 	tableStack.top()->generateGlobals(generator.data);
+	generator.data.add(cmdREAL4, makeArgMemory("tmp4"), makeFloat(0))
+		.add(cmdREAL8, makeArgMemory("tmp8"), makeFloat(0));
 	tableStack.top()->generateCode(generator.code);
 }
 

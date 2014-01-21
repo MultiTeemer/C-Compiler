@@ -142,6 +142,8 @@ string AsmCmd::cmdName() const
 		return "dq";
 	case cmdREAL8:
 		return "real8";
+	case cmdREAL4:
+		return "real4";
 	case cmdINVOKE:
 		return "invoke";
 	case cmdXOR:
@@ -192,8 +194,8 @@ string AsmCmd::cmdName() const
 		return "fsubp";
 	case cmdFLD:
 		return "fld";
-	case cmdFST:
-		return "fst";
+	case cmdFSTP:
+		return "fstp";
 	default:
 		throw exception("Illegal command");
 	}
