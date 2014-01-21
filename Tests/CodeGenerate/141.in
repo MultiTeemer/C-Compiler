@@ -1,0 +1,8 @@
+int main()
+{
+	float a = 0.003, b = 1e3;
+	printf("%d\n", int(a * b));
+	printf("%d\n", int(b * a));
+	printf("%d\n", int(a / b));
+	printf("%d\n", int(b / a));
+}

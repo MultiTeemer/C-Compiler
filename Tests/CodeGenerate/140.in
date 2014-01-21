@@ -1,0 +1,5 @@
+int main()
+{
+	float a = 100.434e-2;
+	printf("%d", int(a));
+}

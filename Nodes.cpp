@@ -688,10 +688,18 @@ void CoerceNode::print(int deep) const
 void CoerceNode::generate(AsmCode& code) const
 {
 	operand->generate(code);
-	code.add(cmdPOP, EAX)
-		.add(cmdMOV, real4, makeArg(EAX))
-		.add(cmdFILD, real4);
-	generateST0ToStack(code);
+	TypeSym* opType = operand->getType();
+	if (*type == floatType && *opType == intType)
+	{
+		code.add(cmdPOP, EAX)
+			.add(cmdMOV, real4, makeArg(EAX))
+			.add(cmdFILD, real4);
+		generateST0ToStack(code);
+	} else if (*type == intType && *opType == floatType) {
+		generateByteToFPU(code);
+		code.add(cmdFISTP, real4)
+			.add(cmdPUSH, real4);
+	}
 }
 
 void CoerceNode::generateLoadInFPUStack(AsmCode& code) const

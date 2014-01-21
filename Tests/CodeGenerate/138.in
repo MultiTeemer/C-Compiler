@@ -1,0 +1,6 @@
+int main()
+{
+	int a, b;
+	a = b = int(1.34e1);
+	printf("%f", a * b * 1.0);
+}
