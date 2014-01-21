@@ -1,0 +1,11 @@
+float a[500];
+
+int main()
+{
+	float *pa = &a[0];
+	*pa = 1;
+	float *pb = pa;
+	++pa;
+	*pa = 3.0 * int(5.0);
+	printf("%f %f", *pa, *pb);
+}

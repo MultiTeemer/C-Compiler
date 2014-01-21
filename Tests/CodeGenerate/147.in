@@ -1,0 +1,15 @@
+typedef struct {
+	float x, y, z;
+} point;
+
+point b;
+
+int main()
+{
+	point a;
+	a.x = 3;
+	a.y = 3.0;
+	a.z = a.x / a.y * a.x;
+	b = a;
+	printf("%f %f %f", b.x, b.y, b.z);
+}

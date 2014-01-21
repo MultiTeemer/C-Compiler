@@ -1,0 +1,21 @@
+typedef struct {
+	float x;
+	int a;
+	float y;
+	struct {
+		float arr[30][40][5];
+	} arr;
+	float z;
+	int b;	
+	int c;
+} point;
+
+point b;
+
+int main()
+{
+	b.x = b.y = b.z = (b.a = b.b = b.c = -1) * 3.0;
+	printf("%f %f %f %d %d %d\n", b.x, b.y, b.z, b.a, b.b, b.c);
+	b.arr.arr[30][40][3] = 5;
+	printf("%f", *&b.arr.arr[30][40][3]);
+}
