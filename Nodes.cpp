@@ -687,7 +687,17 @@ void CoerceNode::print(int deep) const
 
 void CoerceNode::generate(AsmCode& code) const
 {
+	operand->generate(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdMOV, real4, makeArg(EAX))
+		.add(cmdFILD, real4);
+	generateST0ToStack(code);
+}
 
+void CoerceNode::generateLoadInFPUStack(AsmCode& code) const
+{
+	generate(code);
+	generateByteToFPU(code);
 }
 
 TypeSym* CoerceNode::getType() const

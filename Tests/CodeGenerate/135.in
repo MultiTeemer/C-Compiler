@@ -1,0 +1,8 @@
+int a; 
+float b;
+
+int main()
+{
+	b = a = 5;
+	printf("%f", a * b);
+}

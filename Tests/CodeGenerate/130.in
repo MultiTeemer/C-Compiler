@@ -1,0 +1,5 @@
+int main()
+{
+	float a = 1e-6;
+	printf("%f", a * 1 * 1e6);
+}

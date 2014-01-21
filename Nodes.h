@@ -86,6 +86,7 @@ public:
 	void print(int deep) const;
 	virtual TypeSym* getType() const;
 	void generate(AsmCode& code) const;
+	void generateLoadInFPUStack(AsmCode& code) const;
 };
 
 class BinaryOpNode : public OpNode
