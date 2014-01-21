@@ -93,6 +93,7 @@ public:
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
 	void generateLvalue(AsmCode& code) const;
+	void generateForFloat(AsmCode& code) const;
 	virtual TypeSym* getType() const;	
 };
 
@@ -116,10 +117,15 @@ public:
 
 class FloatNode : public Node
 {
+private:
+	string constName() const;
 public:	
-	FloatNode(Token* t): Node(t) {}
+	int index;
+	FloatNode(Token* t, int idx): Node(t), index(idx) {}
 	void print(int deep) const;
 	void generate(AsmCode& code) const;
+	void generateLvalue(AsmCode& code) const;
+	void generateData(AsmCode& code) const;
 	virtual TypeSym* getType() const;
 };
 
@@ -207,7 +213,7 @@ public:
 	int index;
 	StringNode(Token* t, int idx): Node(t), index(idx) {}
 	void print(int deep) const;
-	void generate(AsmCode& code) const;
+	void generateData(AsmCode& code) const;
 	virtual TypeSym* getType() const;
 };
 

@@ -15,7 +15,6 @@ class Parser
 {
 private:
 	int nameCounter;
-	int operatorCounter;
 	Scanner lexer;		
 	CodeGenerator generator;
 	Optimizer optimizer;
@@ -27,6 +26,7 @@ private:
 	map<OperationsT, bool> unaryOps;
 	map<OperationsT, bool> rightAssocOps;
 	vector<StringNode*> stringConsts;
+	vector<FloatNode*> floatConsts;
 	VarSym* parseComplexDecl(TypeSym* baseType);
 	VarSym* parseIdentifier(TypeSym* baseType);
 	VarSym* parseDirectDecl();

@@ -43,6 +43,19 @@ bool ScalarSym::canConvertTo(TypeSym* to)
 	return typePriority[this] <= typePriority[to]; // how to do it with const-modifier?
 }
 
+int ScalarSym::byteSize() const
+{
+	if (name == "void")
+		return 0;
+	if (name == "char")
+		return 1;
+	if (name == "float")
+		return 8;
+	if (name == "int")
+		return 4;
+	throw CompilerException("unknown base type", 0, 0);
+}
+
 string ConstTypeSym::typeName() const
 {
 	return "const " + type->typeName();
@@ -361,9 +374,14 @@ bool SymTableStack::existsInLastNamespace(const string& name)
 
 void SingleStatement::generate(AsmCode& code) const
 {
+	TypeSym* type = expr->getType();
 	expr->generate(code);
-	if (expr->getType() && expr->getType()->byteSize())
-		code.add(cmdPOP, makeArg(EAX));
+	if (type && type->byteSize()) // why doesn't work add esp, size?
+		if (type->name == "float")
+			code.add(cmdPOP, EAX)
+				.add(cmdPOP, EAX);
+		else
+			code.add(cmdPOP, EAX);
 }
 
 void Block::print(int deep) const

@@ -4,7 +4,7 @@
 using namespace std;
 
 Parser::Parser(Scanner& scanner, CodeGenerator& codeGen): lexer(scanner), generator(codeGen), optimizer(), 
-	nameCounter(0), stringConsts(0), parsingFunc(0), parsingCycle(0), operatorCounter (0)
+	nameCounter(0), stringConsts(0), parsingFunc(0), parsingCycle(0)
 { 
 	lexer.next(); 
 	
@@ -188,7 +188,8 @@ Node* Parser::parseFactor()
 		parseArrIndex(root);
 		break;
 	case REAL_NUMBER:
-		root = new FloatNode(token);
+		root = new FloatNode(token, floatConsts.size());
+		floatConsts.push_back(dynamic_cast<FloatNode*>(root));
 		break;
 	case IDENTIFIER:
 		{
@@ -798,7 +799,9 @@ void Parser::print() const
 void Parser::generateCode() 
 {
 	for (int i = 0; i < stringConsts.size(); i++)
-		stringConsts[i]->generate(generator.data);
+		stringConsts[i]->generateData(generator.data);
+	for (int i = 0; i < floatConsts.size(); i++)
+		floatConsts[i]->generateData(generator.data);
 	tableStack.top()->generateGlobals(generator.data);
 	tableStack.top()->generateCode(generator.code);
 }

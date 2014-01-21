@@ -187,6 +187,35 @@ bool BinaryOpNode::isComparison(OperationsT op)
 		|| op == NOT_EQUAL;
 }
 
+void BinaryOpNode::generateForFloat(AsmCode& code) const
+{
+	int size = floatType->byteSize();	
+	left->generate(code);
+	code.add(cmdFLD, makeIndirectArg(ESP, size))
+		.add(cmdADD, ESP, size);
+	right->generate(code);
+	code.add(cmdFLD, makeIndirectArg(ESP, size));
+	OperationsT op = dynamic_cast<OpToken*>(token)->val;
+	AsmCommandsT cmd;
+	switch (op)
+	{
+	case PLUS:
+		cmd = cmdFADDP;
+		break;
+	case MINUS:
+		cmd = cmdFSUBP;
+		break;
+	case MULT:
+		cmd = cmdFMULP;
+		break;
+	case DIV:
+		cmd = cmdFDIVP;
+		break;
+	}
+	code.add(cmd)
+		.add(cmdFST, makeArgMemory("qword ptr [esp +" + to_string(size) +"]"));
+}
+
 void BinaryOpNode::generate(AsmCode& code) const
 {
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
@@ -228,7 +257,9 @@ void BinaryOpNode::generate(AsmCode& code) const
 			.add(cmdPUSH, EAX);
 		return;
 	}
-	if (op == DOT || op == ARROW) {
+	if (*getType() == floatType)
+		generateForFloat(code);
+	else if (op == DOT || op == ARROW) {
 			generateLvalue(code);
 			code.add(cmdPOP, EAX)
 				.add(cmdPUSH, makeIndirectArg(EAX));
@@ -393,6 +424,11 @@ TypeSym* IntNode::getType() const
 	return intType;
 }
 
+string FloatNode::constName() const
+{
+	return "float" + to_string(index);
+}
+
 void FloatNode::print(int deep) const
 {
 	cout << string(deep * M, ' ') << dynamic_cast<FloatToken*>(token)->val << endl;
@@ -400,7 +436,20 @@ void FloatNode::print(int deep) const
 
 void FloatNode::generate(AsmCode& code) const
 {
+	generateLvalue(code);
+	code.add(cmdPOP, EAX)
+		.add(cmdPUSH, makeIndirectArg(EAX, 4))
+		.add(cmdPUSH, makeIndirectArg(EAX));
+}
 
+void FloatNode::generateLvalue(AsmCode& code) const
+{
+	code.add(cmdPUSH, makeArgMemory("offset " + constName()));
+}
+
+void FloatNode::generateData(AsmCode& code) const
+{
+	code.add(cmdREAL8, makeArgMemory(constName()), makeFloat(dynamic_cast<FloatToken*>(token)->val));
 }
 
 TypeSym* FloatNode::getType() const
@@ -762,7 +811,7 @@ void StringNode::print(int deep) const
 	cout << string(deep * M, ' ') << '"' << dynamic_cast<StringToken*>(token)->val << '"' << endl; 
 }
 
-void StringNode::generate(AsmCode& code) const
+void StringNode::generateData(AsmCode& code) const
 {
 	code.add(cmdDB, makeArgMemory("str" + to_string(index)), makeString(token->text));
 }

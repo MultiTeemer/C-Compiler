@@ -8,6 +8,7 @@
 using namespace std;
 
 typedef enum {
+	cmdREAL8,
 	cmdDD,
 	cmdDB,
 	cmdDQ,
@@ -43,6 +44,12 @@ typedef enum {
 	cmdSETLE,
 	cmdSETE,
 	cmdSETNE,
+	cmdFDIVP,
+	cmdFADDP,
+	cmdFMULP,
+	cmdFSUBP,
+	cmdFLD,
+	cmdFST,
 } AsmCommandsT;
 
 typedef enum {
@@ -141,6 +148,15 @@ public:
 	string generate() const { return to_string(count) + " dup(0)"; }
 };
 
+class AsmArgFloat : public AsmArg
+{
+private:
+	float val;
+public:
+	AsmArgFloat(float v): val(v) {}
+	string generate() const { return to_string(val); }
+};
+
 class AsmInstruction 
 {
 public:
@@ -214,6 +230,7 @@ AsmArgMemory* makeArgMemory(const string& varName);
 AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset = 0);
 AsmArgLabel* makeLabel(const string& name);
 AsmArgString* makeString(const string& name);
+AsmArgFloat* makeFloat(float val);
 
 class AsmCode
 {

@@ -45,7 +45,7 @@ public:
 	bool canConvertTo(TypeSym* to);
 	bool isLvalue() const { return true; }
 	bool isModifiableLvalue() const { return true; }
-	int byteSize() const { return name == "char" ? 1 : name == "void" ? 0 : 4; }
+	int byteSize() const;
 };
 
 class PointerSym : public TypeSym 

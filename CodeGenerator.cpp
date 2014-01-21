@@ -74,6 +74,11 @@ AsmArgString* makeString(const string& val)
 	return new AsmArgString(str);
 }
 
+AsmArgFloat* makeFloat(float val)
+{
+	return new AsmArgFloat(val);
+}
+
 string AsmArgRegister::regName() const
 {
 	switch (reg)
@@ -135,6 +140,8 @@ string AsmCmd::cmdName() const
 		return "dd";
 	case cmdDQ:
 		return "dq";
+	case cmdREAL8:
+		return "real8";
 	case cmdINVOKE:
 		return "invoke";
 	case cmdXOR:
@@ -175,6 +182,18 @@ string AsmCmd::cmdName() const
 		return "setl";
 	case cmdSETLE:
 		return "setle";
+	case cmdFADDP:
+		return "faddp";
+	case cmdFDIVP:
+		return "fdivp";
+	case cmdFMULP:
+		return "fmulp";
+	case cmdFSUBP:
+		return "fsubp";
+	case cmdFLD:
+		return "fld";
+	case cmdFST:
+		return "fst";
 	default:
 		throw exception("Illegal command");
 	}
