@@ -1,0 +1,7 @@
+float a, b, c;
+
+int main()
+{
+	a = b = c = 5500e-4;
+	printf("%f %f %f", a, b, c);
+}

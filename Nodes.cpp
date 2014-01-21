@@ -280,9 +280,7 @@ void BinaryOpNode::generate(AsmCode& code) const
 			.add(cmdPUSH, EAX);
 		return;
 	}
-	if (*getType() == floatType)
-		generateForFloat(code);
-	else if (op == DOT || op == ARROW) {
+	if (op == DOT || op == ARROW) {
 			generateLvalue(code);
 			code.add(cmdPOP, EAX)
 				.add(cmdPUSH, makeIndirectArg(EAX));
@@ -299,6 +297,11 @@ void BinaryOpNode::generate(AsmCode& code) const
 					.add(cmdMOV, makeIndirectArg(EAX, i * 4), makeArg(EBX));
 			code.add(cmdMOV, EAX, EBX);
 		} else {
+			if (*getType() == floatType)
+			{
+				generateForFloat(code);
+				return;
+			}
 			AsmArg *l, *r;
 			if (isAssignment(op))
 			{
@@ -513,7 +516,7 @@ void IdentifierNode::generateLvalue(AsmCode& code) const
 void IdentifierNode::generateLoadInFPUStack(AsmCode& code) const
 {
 	if (sym->global)
-		code.add(cmdFLD, makeArgMemory(sym->name));
+		code.add(cmdFLD, makeArgMemory("var_" + sym->name));
 	else
 		code.add(cmdMOV, makeArg(EAX), makeIndirectArg(EBP, sym->offset))
 			.add(cmdMOV, real4, makeArg(EAX))
