@@ -54,6 +54,7 @@ typedef enum {
 	cmdFCHS,
 	cmdFILD,
 	cmdFISTP,
+	cmdFLD1,
 } AsmCommandsT;
 
 typedef enum {

@@ -601,14 +601,22 @@ void UnaryOpNode::generate(AsmCode& code) const
 		operand->generateLvalue(code);
 	else if (op == INC || op == DEC) {
 		operand->generate(code);
-		code.add(cmdPOP, EAX);
-		PointerSym* pointer = dynamic_cast<PointerSym*>(operand->getType()); 
-		if (pointer)
-			code.add(cmdMOV, EBX, pointer->type->byteSize())
-				.add(op == INC ? cmdADD : cmdSUB, EAX, EBX);
-		else 
-			code.add(op == INC ? cmdINC : cmdDEC, EAX);
-		code.add(cmdPUSH, EAX);
+		if (*operand->getType() == floatType) 
+		{
+			generateByteToFPU(code);
+			code.add(cmdFLD1)
+				.add(op == INC ? cmdFADDP : cmdFSUBP);
+			generateST0ToStack(code);			
+		} else {
+			code.add(cmdPOP, EAX);
+			PointerSym* pointer = dynamic_cast<PointerSym*>(operand->getType()); 
+			if (pointer)
+				code.add(cmdMOV, EBX, pointer->type->byteSize())
+					.add(op == INC ? cmdADD : cmdSUB, EAX, EBX);
+			else 
+				code.add(op == INC ? cmdINC : cmdDEC, EAX);
+			code.add(cmdPUSH, EAX);
+		}
 		operand->generateLvalue(code);
 		code.add(cmdPOP, EBX)
 			.add(cmdPOP, EAX)

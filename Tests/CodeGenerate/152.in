@@ -1,0 +1,21 @@
+int toInt(float a)
+{
+	return int(a);
+}
+
+float inc(float a)
+{
+	return a + 1;
+}
+
+float sum(float a, float b)
+{
+	return a * (b - 1) + 3;
+}
+
+int main()
+{
+	printf("%f\n", float(toInt(3.40-2.1)));
+	printf("%f %f %f\n", inc(1.0), inc(-1), inc(toInt(inc(-.34))));
+	printf("%f", sum(3.0, 10));
+}
