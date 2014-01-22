@@ -1,0 +1,10 @@
+int main()
+{
+	float a, b;
+	a += 3.0;
+	b -= 1;
+	printf("%f %f\n", a, b);
+	a /= b;
+	b *= a * a;
+	printf("%f %f\n", a, b);
+}

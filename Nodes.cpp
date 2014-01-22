@@ -211,8 +211,8 @@ void BinaryOpNode::generateForFloat(AsmCode& code) const
 	right->generateLoadInFPUStack(code);
 	AsmCommandsT cmd;
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
-	if (isComparison(op))
-	{
+	 if (isComparison(op)) 
+	 {
 		code.add(cmdFCOMPP)
 			.add(cmdFNSTSW, AX)
 			.add(cmdSAHF)
@@ -244,15 +244,19 @@ void BinaryOpNode::generateForFloat(AsmCode& code) const
 		switch (op)
 		{
 		case PLUS:
+		case PLUS_ASSIGN:
 			cmd = cmdFADDP;
 			break;
 		case MINUS:
+		case MINUS_ASSIGN:
 			cmd = cmdFSUBP;
 			break;
 		case DIV:
+		case DIV_ASSIGN:
 			cmd = cmdFDIVP;
 			break;
 		case MULT:
+		case MULT_ASSIGN:
 			cmd = cmdFMULP;
 			break;
 		default:
@@ -261,6 +265,14 @@ void BinaryOpNode::generateForFloat(AsmCode& code) const
 		}
 		code.add(cmd);
 		generateST0ToStack(code);
+		if (isAssignment(op))
+		{
+			left->generateLvalue(code);
+			code.add(cmdPOP, EAX)
+				.add(cmdPOP, EBX)
+				.add(cmdMOV, makeIndirectArg(EAX), makeArg(EBX))
+				.add(cmdPUSH, EBX);
+		}
 	}
 }
 
