@@ -101,6 +101,8 @@ string AsmArgRegister::regName() const
 		return "al";
 	case BL:
 		return "bl";
+	case AX:
+		return "ax";
 	default:
 		throw exception("Illegal register value");
 	}
@@ -204,6 +206,12 @@ string AsmCmd::cmdName() const
 		return "fistp";
 	case cmdFLD1:
 		return "fld1";
+	case cmdFCOMPP:
+		return "fcompp";
+	case cmdFNSTSW:
+		return "fnstsw";
+	case cmdSAHF:
+		return "sahf";
 	default:
 		throw exception("Illegal command");
 	}

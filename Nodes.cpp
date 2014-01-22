@@ -211,26 +211,57 @@ void BinaryOpNode::generateForFloat(AsmCode& code) const
 	right->generateLoadInFPUStack(code);
 	AsmCommandsT cmd;
 	OperationsT op = dynamic_cast<OpToken*>(token)->val;
-	switch (op)
+	if (isComparison(op))
 	{
-	case PLUS:
-		cmd = cmdFADDP;
-		break;
-	case MINUS:
-		cmd = cmdFSUBP;
-		break;
-	case DIV:
-		cmd = cmdFDIVP;
-		break;
-	case MULT:
-		cmd = cmdFMULP;
-		break;
-	default:
-		throw CompilerException("not implemented", token->line, token->col);
-		break;
+		code.add(cmdFCOMPP)
+			.add(cmdFNSTSW, AX)
+			.add(cmdSAHF)
+			.add(cmdMOV, EAX, 0);
+		switch (op)
+		{
+		case GREATER:
+			cmd = cmdSETG;
+			break;
+		case GREATER_OR_EQUAL:
+			cmd = cmdSETGE;
+			break;
+		case LESS:
+			cmd = cmdSETL;
+			break;
+		case LESS_OR_EQUAL:
+			cmd = cmdSETLE;
+			break;
+		case EQUAL:
+			cmd = cmdSETE;
+			break;
+		case NOT_EQUAL:
+			cmd = cmdSETNE;
+			break;
+		}
+		code.add(cmd, AL)
+			.add(cmdPUSH, EAX);
+	} else {
+		switch (op)
+		{
+		case PLUS:
+			cmd = cmdFADDP;
+			break;
+		case MINUS:
+			cmd = cmdFSUBP;
+			break;
+		case DIV:
+			cmd = cmdFDIVP;
+			break;
+		case MULT:
+			cmd = cmdFMULP;
+			break;
+		default:
+			throw CompilerException("not implemented", token->line, token->col);
+			break;
+		}
+		code.add(cmd);
+		generateST0ToStack(code);
 	}
-	code.add(cmd);
-	generateST0ToStack(code);
 }
 
 void BinaryOpNode::generateLoadInFPUStack(AsmCode& code) const

@@ -1,0 +1,13 @@
+float a, b;
+
+int main()
+{
+	a = 0.3; 
+	b = a * 1e-3;
+	printf("%d", a < b);
+	printf("%d", a > b);
+	printf("%d", a == b * 1e3);
+	printf("%d", a != b);
+	printf("%d", 0.09 <= a * a);
+	printf("%d", 1 > b);
+}

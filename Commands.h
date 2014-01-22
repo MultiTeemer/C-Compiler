@@ -55,6 +55,9 @@ typedef enum {
 	cmdFILD,
 	cmdFISTP,
 	cmdFLD1,
+	cmdFCOMPP,
+	cmdFNSTSW,
+	cmdSAHF,
 } AsmCommandsT;
 
 typedef enum {
@@ -67,6 +70,7 @@ typedef enum {
 	CL,
 	AL,
 	BL,
+	AX,
 } AsmRegistersT;
 
 class AsmArg
