@@ -82,6 +82,7 @@ public:
 	virtual bool operator == (AsmArg* o) const { return false; }
 	virtual bool isRegister() const { return false; }
 	virtual bool isMemoryLocation() const { return false; }
+	virtual bool isImmediate() const { return false; }
 	bool operator != (AsmArg* o) const { return !(*this == o); }
 };
 
@@ -93,6 +94,7 @@ public:
 	AsmArgImmediate(int v): value(v) {}
 	string generate() const { return to_string(value); }
 	bool operator == (int val) const { return value == val; }
+	bool isImmediate() const { return true; }
 };
 
 class AsmArgString : public AsmArg
@@ -133,9 +135,10 @@ class AsmArgMemory : public AsmArg
 {
 private:
 	string varName;
+	bool lvalue;
 public:
-	AsmArgMemory(const string& name): varName(name) {}
-	string generate() const { return varName; }
+	AsmArgMemory(const string& name, bool lv = false): varName(name), lvalue(lv) {}
+	string generate() const { return (lvalue ? "offset " : "") + varName; }
 	bool operator == (AsmArg* o) const;
 	bool isMemoryLocation() const { return true; }
 };
@@ -238,7 +241,7 @@ public:
 AsmArgRegister* makeArg(AsmRegistersT reg);
 AsmArgImmediate* makeArg(int val);
 AsmArgDup* makeArgDup(int count);
-AsmArgMemory* makeArgMemory(const string& varName);
+AsmArgMemory* makeArgMemory(const string& varName, bool lv = false);
 AsmArgIndirect* makeIndirectArg(AsmRegistersT reg, int offset = 0);
 AsmArgLabel* makeLabel(const string& name);
 AsmArgString* makeString(const string& name);

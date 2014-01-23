@@ -29,9 +29,9 @@ bool AsmArgLabel::operator==(AsmArg* o) const
 	return tmp && tmp->name == name;
 }
 
-AsmArgMemory* makeArgMemory(const string& varName)
+AsmArgMemory* makeArgMemory(const string& varName, bool lv)
 {
-	return new AsmArgMemory(varName);
+	return new AsmArgMemory(varName, lv);
 }
 
 AsmArgRegister* makeArg(AsmRegistersT reg)

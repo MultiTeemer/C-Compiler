@@ -12,8 +12,8 @@ PointerSym* stringType = new PointerSym(charType);
 
 string real4name("tmp4");
 string real8name("tmp8");
-AsmArgMemory* real4 = new AsmArgMemory(real4name);
-AsmArgMemory* real8 = new AsmArgMemory(real8name);
+AsmArgMemory* real4 = new AsmArgMemory(real4name, false);
+AsmArgMemory* real8 = new AsmArgMemory(real8name, false);
 
 map<TypeSym*, int> typePriority;
 map<OperationsT, TypeSym*> operationTypeOperands;
@@ -896,7 +896,7 @@ void IOOperatorNode::generate(AsmCode& code) const
 			code.add(cmdPOP, real4)
 				.add(cmdFLD, real4)
 				.add(cmdFSTP, real8)
-				.add(cmdMOV, makeArg(EAX), makeArgMemory("offset " + real8name))
+				.add(cmdMOV, makeArg(EAX), makeArgMemory(real8name, true))
 				.add(cmdPUSH, makeIndirectArg(EAX, 4))
 				.add(cmdPUSH, makeIndirectArg(EAX));
 			size += 4;
