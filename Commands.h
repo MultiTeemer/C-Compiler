@@ -185,15 +185,14 @@ public:
 	virtual bool changeStack() const { return false; }
 	virtual bool operateWith(AsmArg* arg) const { return false; }
 	virtual bool usesRegister(AsmRegistersT reg) const  { return false; }
-	virtual bool operator == (AsmCommandsT cmd) { return false; }	
+	virtual bool operator == (AsmCommandsT cmd) { return false; }
 	bool operator != (AsmCommandsT cmd) { return !(*this == cmd); }
 };
 
 class AsmLabel : public AsmInstruction
 {
-protected:
-	AsmArgLabel* label;
 public:
+	AsmArgLabel* label;
 	AsmLabel(AsmArgLabel* l): label(l) {}
 	virtual string generate() const { return label->generate() + ":"; }
 };

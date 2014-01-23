@@ -79,7 +79,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [ebp + 36], eax
 	mov eax, dword ptr [ebp + 16]
 	mov dword ptr [ebp + 40], eax
-	jmp f_mult_end
 	f_mult_end:
 	mov esp, ebp
 	pop ebp
@@ -140,7 +139,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [ebp + 36], eax
 	mov eax, dword ptr [ebp + 16]
 	mov dword ptr [ebp + 40], eax
-	jmp f_div_end
 	f_div_end:
 	mov esp, ebp
 	pop ebp

@@ -106,7 +106,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	add eax, ebx
 	mov dword ptr [ebp + 32], eax
-	jmp f_distance_end
 	f_distance_end:
 	mov esp, ebp
 	pop ebp

@@ -23,7 +23,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	fistp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 12], eax
-	jmp f_toInt_end
 	f_toInt_end:
 	mov esp, ebp
 	pop ebp
@@ -48,7 +47,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	fstp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 12], eax
-	jmp f_inc_end
 	f_inc_end:
 	mov esp, ebp
 	pop ebp
@@ -112,7 +110,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	fstp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 16], eax
-	jmp f_sum_end
 	f_sum_end:
 	mov esp, ebp
 	pop ebp

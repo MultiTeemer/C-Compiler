@@ -11,7 +11,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	push ebp
 	mov ebp, esp
 	mov dword ptr [ebp + 8], 1
-	jmp f_one_end
 	f_one_end:
 	mov esp, ebp
 	pop ebp

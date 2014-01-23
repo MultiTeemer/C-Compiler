@@ -90,7 +90,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [ebp + 36], eax
 	mov eax, dword ptr [ebp + 20]
 	mov dword ptr [ebp + 40], eax
-	jmp f_scale_end
 	f_scale_end:
 	mov esp, ebp
 	pop ebp

@@ -14,7 +14,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, dword ptr [ebp + 12]
 	add eax, ebx
 	mov dword ptr [ebp + 16], eax
-	jmp f_sigma_end
 	f_sigma_end:
 	mov esp, ebp
 	pop ebp
@@ -26,7 +25,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, dword ptr [ebp + 8]
 	imul eax, ebx
 	mov dword ptr [ebp + 12], eax
-	jmp f_square_end
 	f_square_end:
 	mov esp, ebp
 	pop ebp

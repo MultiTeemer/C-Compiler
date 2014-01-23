@@ -91,6 +91,17 @@ bool Neg2MovOppositeOptimization::optimize(AsmCode& code, int index) const
 	return true;
 }
 
+bool Jmp2NextLineOptimization::optimize(AsmCode& code, int index) const
+{
+	AsmCmd1* jmp = dynamic_cast<AsmCmd1*>(code[index]);
+	AsmLabel* label = dynamic_cast<AsmLabel*>(code[index + 1]);
+	if (jmp && label && *jmp->argument() == label->label)
+		code.deleteRange(index, index);
+	else
+		return false;
+	return true;
+}
+
 bool AddZero2MovOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
@@ -164,6 +175,7 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0
 	twoOpOpts.push_back(new MovChainOptimization());
 	twoOpOpts.push_back(new AddZeroToEAX2NilOptimization());
 	twoOpOpts.push_back(new Neg2MovOppositeOptimization());
+	twoOpOpts.push_back(new Jmp2NextLineOptimization());
 	
 	threeOpOpts.push_back(new AddZero2MovOptimization());
 	threeOpOpts.push_back(new MultIntByInt2MovOptimization());
