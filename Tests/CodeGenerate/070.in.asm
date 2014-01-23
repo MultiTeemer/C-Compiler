@@ -9,7 +9,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	mov eax, 0
@@ -51,7 +51,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	invoke crt_printf, addr str2
 	add esp, 4
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

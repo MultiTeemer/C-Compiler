@@ -239,6 +239,12 @@ bool AsmCmd1::operateWith(AsmArg* a) const
 		return *arg == a;
 }
 
+bool AsmCmd1::isJump() const
+{
+	return opCode == cmdJMP || opCode == cmdJE
+		|| opCode == cmdJNE || opCode == cmdCALL;
+}
+
 string AsmCmd2::generate() const
 {
 	return opCode > cmdDQ 
@@ -328,7 +334,7 @@ AsmCode& AsmCode::add(OperationsT func, AsmArgMemory* format, AsmArg* arg)
 void AsmCode::fflush(ofstream& out) const
 {
 	for (int i = 0; i < commands.size(); i++)
-		out << "\t" << commands[i]->generate() << endl;
+		out << (dynamic_cast<AsmLabel*>(commands[i]) ? "" : "\t") << commands[i]->generate() << endl;
 }
 
 void AsmCode::deleteRange(int l, int r) 
@@ -350,7 +356,7 @@ void AsmCode::move(int from, int to)
 	commands.insert(commands.begin() + to, tmp);
 }
 
-void CodeGenerator::generate() const
+void CodeGenerator::generate() 
 {
 	ofstream out(filename);
 	if (!out)
@@ -363,5 +369,5 @@ void CodeGenerator::generate() const
 	data.fflush(out);
 	out << ".code\n";
 	code.fflush(out);
-	out << "start:\n\tcall f_main\n\tret 0\nend start";
+	out << "end start";
 }

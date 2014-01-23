@@ -296,6 +296,29 @@ void Optimizer::deleteUselessMovs(AsmCode& code)
 	}
 }
 
+void Optimizer::deleteUselessLabels(AsmCode& code) 
+{
+	for (int i = 0; i < code.size(); i++)
+	{
+		AsmLabel* label = dynamic_cast<AsmLabel*>(code[i]);
+		if (!label || *label == string("start"))
+			continue;
+		bool unused = true;
+		for (int j = 0; j < code.size() && unused; j++)
+		{
+			if (j == i)
+				continue;
+			if (code[j]->isJump())
+			{
+				AsmArgLabel* dstn = dynamic_cast<AsmArgLabel*>(dynamic_cast<AsmCmd1*>(code[j])->argument());
+				unused = *label->label != dstn;
+			}
+		}
+		if (unused)
+			code.deleteRange(i, i);
+	}
+}
+
 void Optimizer::optimize(AsmCode& code)
 {
 	while (1)
@@ -326,6 +349,7 @@ void Optimizer::optimize(AsmCode& code)
 			break;
 	}
 	deleteUselessMovs(code);
+	deleteUselessLabels(code);
 	while (1)
 	{
 		bool goToNextIteration = false;

@@ -155,6 +155,7 @@ class AsmArgLabel : public AsmArg
 private:
 	string name;
 public:
+	friend class AsmLabel;
 	AsmArgLabel(const string& n): name(n) {}
 	string generate() const { return name; }
 	bool operator == (AsmArg* o) const;
@@ -186,6 +187,7 @@ public:
 	virtual bool operateWith(AsmArg* arg) const { return false; }
 	virtual bool usesRegister(AsmRegistersT reg) const  { return false; }
 	virtual bool operator == (AsmCommandsT cmd) { return false; }
+	virtual bool isJump() const { return false; }
 	bool operator != (AsmCommandsT cmd) { return !(*this == cmd); }
 };
 
@@ -194,6 +196,7 @@ class AsmLabel : public AsmInstruction
 public:
 	AsmArgLabel* label;
 	AsmLabel(AsmArgLabel* l): label(l) {}
+	bool operator == (string s) { return label->name == s; }
 	virtual string generate() const { return label->generate() + ":"; }
 };
 
@@ -220,6 +223,7 @@ public:
 	bool changeStack() const { return opCode == cmdPUSH || opCode == cmdPOP || opCode == cmdRET || opCode == cmdCALL; }
 	bool operateWith(AsmArg* a) const;
 	bool usesRegister(AsmRegistersT reg) const { return arg->usesRegister(reg) || opCode == cmdIDIV; } 
+	bool isJump() const;
 };
 
 class AsmCmd2 : public AsmCmd

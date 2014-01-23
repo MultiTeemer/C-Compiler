@@ -806,6 +806,9 @@ void Parser::generateCode()
 	generator.data.add(cmdREAL4, makeArgMemory("tmp4"), makeFloat(0))
 		.add(cmdREAL8, makeArgMemory("tmp8"), makeFloat(0));
 	tableStack.top()->generateCode(generator.code);
+	generator.code.add(makeLabel("start"))
+		.add(cmdCALL, makeLabel("f_main"))
+		.add(cmdRET, makeArg(0));
 }
 
 void Parser::optimize()

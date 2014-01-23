@@ -14,7 +14,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_toInt:
+f_toInt:
 	push ebp
 	mov ebp, esp
 	mov eax, dword ptr [ebp + 8]
@@ -23,11 +23,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	fistp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 12], eax
-	f_toInt_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_inc:
+f_inc:
 	push ebp
 	mov ebp, esp
 	mov tmp4, 1
@@ -47,11 +46,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	fstp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 12], eax
-	f_inc_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_sum:
+f_sum:
 	push ebp
 	mov ebp, esp
 	mov tmp4, 3
@@ -110,11 +108,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	fstp tmp4
 	mov eax, tmp4
 	mov dword ptr [ebp + 16], eax
-	f_sum_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
@@ -206,7 +203,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str2
 	add esp, 8
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

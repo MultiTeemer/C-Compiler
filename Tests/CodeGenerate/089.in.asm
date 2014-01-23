@@ -10,7 +10,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_print:
+f_print:
 	push ebp
 	mov ebp, esp
 	mov eax, ebp
@@ -40,11 +40,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str0
 	add esp, 16
-	f_print_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_scale:
+f_scale:
 	push ebp
 	mov ebp, esp
 	push dword ptr [ebp + 24]
@@ -95,11 +94,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [ebp + 36], eax
 	pop eax
 	mov dword ptr [ebp + 40], eax
-	f_scale_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_cross_product:
+f_cross_product:
 	push ebp
 	mov ebp, esp
 	sub esp, 16
@@ -195,11 +193,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	sub eax, ebx
 	mov dword ptr [ebp + 40], eax
-	f_cross_product_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	sub esp, 32
@@ -411,7 +408,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 32
 	invoke crt_printf, addr str3
 	add esp, 8
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

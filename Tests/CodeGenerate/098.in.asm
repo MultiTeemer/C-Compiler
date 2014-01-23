@@ -7,19 +7,18 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
-	postwhile41_start:
+postwhile41_start:
 	jmp postwhile41_end
 	mov eax, 1
 	cmp eax, 0
 	jne postwhile41_start
-	postwhile41_end:
+postwhile41_end:
 	push dword ptr 1
 	invoke crt_printf, addr str0
 	add esp, 4
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

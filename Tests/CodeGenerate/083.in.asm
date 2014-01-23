@@ -11,7 +11,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_distance:
+f_distance:
 	push ebp
 	mov ebp, esp
 	mov eax, ebp
@@ -106,11 +106,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	add eax, ebx
 	mov dword ptr [ebp + 32], eax
-	f_distance_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
@@ -175,7 +174,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 24
 	invoke crt_printf, addr str2
 	add esp, 8
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

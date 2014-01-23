@@ -7,7 +7,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_five:
+f_five:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
@@ -18,8 +18,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	mov dword ptr [eax + 0], ebx
 	mov eax, ebx
-	for41_start:
-	for41_cond:
+for41_cond:
 	push eax
 	mov eax, dword ptr [ebp + -4]
 	mov ebx, 10
@@ -43,15 +42,15 @@ includelib c:\masm32\lib\msvcrt.lib
 	cmp eax, 0
 	jne if18467_true
 	je if18467_false
-	if18467_true:
+if18467_true:
 	jmp for41_inc
 	jmp if18467_end
-	if18467_false:
-	if18467_end:
+if18467_false:
+if18467_end:
 	mov eax, dword ptr [ebp + -8]
 	mov dword ptr [ebp + 8], eax
 	jmp f_five_end
-	for41_inc:
+for41_inc:
 	mov eax, dword ptr [ebp + -4]
 	inc eax
 	push eax
@@ -62,20 +61,19 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop eax
 	mov dword ptr [ebx + 0], eax
 	jmp for41_cond
-	for41_end:
-	f_five_end:
+for41_end:
+f_five_end:
 	push eax
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
 	call f_five
 	invoke crt_printf, addr str0
 	add esp, 4
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0

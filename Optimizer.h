@@ -112,6 +112,7 @@ private:
 	vector<TwoOperationOptimization*> postTwoOpOpts;
 	void pushDownPopUp(AsmCode& code);
 	void deleteUselessMovs(AsmCode& code);
+	void deleteUselessLabels(AsmCode& code);
 public:
 	Optimizer();
 	void optimize(AsmCode& code);

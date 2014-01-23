@@ -16,7 +16,7 @@ private:
 public:
 	friend class Parser;
 	CodeGenerator(const string& file): filename(file) {}
-	void generate() const;
+	void generate();
 };
 
 #endif

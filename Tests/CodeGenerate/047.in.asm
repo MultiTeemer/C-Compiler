@@ -7,18 +7,17 @@ includelib c:\masm32\lib\msvcrt.lib
 	tmp4 real4 0.000000
 	tmp8 real8 0.000000
 .code
-	f_sigma:
+f_sigma:
 	push ebp
 	mov ebp, esp
 	mov ebx, dword ptr [ebp + 12]
 	mov eax, dword ptr [ebp + 8]
 	add eax, ebx
 	mov dword ptr [ebp + 16], eax
-	f_sigma_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
-	f_main:
+f_main:
 	push ebp
 	mov ebp, esp
 	sub esp, 4
@@ -28,7 +27,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 8
 	invoke crt_printf, addr str0
 	add esp, 4
-	f_main_end:
 	mov esp, ebp
 	pop ebp
 	ret 0
