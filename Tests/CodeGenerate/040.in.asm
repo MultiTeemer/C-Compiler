@@ -23,8 +23,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 36
+	mov ebx, 36
 	add eax, ebx
 	push eax
 	mov eax, ebp
@@ -43,8 +42,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 36
+	mov ebx, 36
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
@@ -73,8 +71,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 36
+	mov ebx, 36
 	add eax, ebx
 	mov ebx, dword ptr [ebp + -48]
 	push dword ptr [eax + 0]

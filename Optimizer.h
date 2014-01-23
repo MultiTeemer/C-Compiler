@@ -90,6 +90,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class CompactAdditionOptimization : public ThreeOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class Mov2MemoryDirectlyOptimization : public FourOperationOptimization
 {
 public:

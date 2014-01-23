@@ -14,16 +14,14 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, 20
 	mov ebx, offset var_a
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 8
+	mov ebx, 8
 	add eax, ebx
 	mov ebx, 3
 	mov dword ptr [eax + 0], ebx
 	mov eax, 20
 	mov ebx, offset var_a
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 8
+	mov ebx, 8
 	add eax, ebx
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str0

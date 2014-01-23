@@ -31,8 +31,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 14352
+	mov ebx, 14352
 	add eax, ebx
 	mov eax, eax
 	mov ebx, 15
@@ -44,8 +43,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
-	mov ebx, eax
-	mov eax, 14352
+	mov ebx, 14352
 	add eax, ebx
 	push eax
 	mov eax, ebp
