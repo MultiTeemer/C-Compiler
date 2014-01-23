@@ -207,7 +207,6 @@ public:
 	AsmCmd() {}
 	AsmCmd(AsmCommandsT opcode): opCode(opcode) {}
 	virtual string generate() const;
-	AsmCommandsT code() const { return opCode; }
 	bool operator == (AsmCommandsT cmd) { return opCode == cmd; }
 };
 

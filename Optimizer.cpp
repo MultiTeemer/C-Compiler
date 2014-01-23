@@ -17,7 +17,7 @@ bool PushPop2MovOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd1* cmd1 = dynamic_cast<AsmCmd1*>(code[index]);
 	AsmCmd1* cmd2 = dynamic_cast<AsmCmd1*>(code[index + 1]);
-	if  (cmd1 && cmd1->code() == cmdPUSH && cmd2 && cmd2->code() == cmdPOP && *cmd1->argument() != cmd2->argument()
+	if  (cmd1 && *cmd1 == cmdPUSH && cmd2 && *cmd2 == cmdPOP && *cmd1->argument() != cmd2->argument()
 		&& !(cmd1->argument()->isMemoryLocation() && cmd2->argument()->isMemoryLocation()))
 	{
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->argument(), cmd1->argument());
@@ -32,7 +32,7 @@ bool PushPop2NilOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd1* cmd1 = dynamic_cast<AsmCmd1*>(code[index]);
 	AsmCmd1* cmd2 = dynamic_cast<AsmCmd1*>(code[index + 1]);
-	if  (cmd1 && cmd1->code() == cmdPUSH && cmd2 && cmd2->code() == cmdPOP 
+	if  (cmd1 && *cmd1 == cmdPUSH && cmd2 && *cmd2 == cmdPOP 
 		&& cmd1->argument()->isRegister() && *cmd1->argument() == cmd2->argument())
 		code.deleteRange(index, index + 1);
 	else 
@@ -44,8 +44,11 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
 	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
-	if (cmd1 && *cmd1->firstArg() == EAX && cmd2 && *cmd2->secondArg() == cmd1->firstArg()
-		&& !cmd1->secondArg()->isMemoryLocation() && cmd1->code() == cmdMOV && cmd2->code() == cmdMOV)
+	if (
+		cmd1 && *cmd1 == cmdMOV && *cmd1->firstArg() == EAX 
+		&& cmd2 && *cmd2 == cmdMOV && *cmd2->secondArg() == cmd1->firstArg()
+		&& !(cmd1->secondArg()->isMemoryLocation() && cmd2->firstArg()->isMemoryLocation()) 
+		)
 	{
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->firstArg(), cmd1->secondArg());
 		code.deleteRange(index, index + 1);
@@ -171,13 +174,13 @@ void Optimizer::pushDownPopUp(AsmCode& code)
 	for (int i = 0; i < code.size(); i++)
 	{
 		AsmCmd1* cmd = dynamic_cast<AsmCmd1*>(code[i]);
-		if (cmd && cmd->code() == cmdPUSH)
+		if (cmd && *cmd == cmdPUSH)
 		{			
 			int j = i;
 			while (j + 1 < code.size() && !code[j + 1]->changeStack() && !code[j + 1]->operateWith(cmd->argument()))
 				j++;
 			code.move(i, j);
-		} else if (cmd && cmd->code() == cmdPOP) {
+		} else if (cmd && *cmd == cmdPOP) {
 			int j = i;
 			while (j - 1 > -1 && !code[j - 1]->changeStack() && !code[j - 1]->operateWith(cmd->argument()))
 				j--;
