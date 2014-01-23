@@ -81,11 +81,13 @@ public:
 	virtual bool operator == (AsmRegistersT reg) const { return false; }
 	virtual bool operator == (AsmArg* o) const { return false; }
 	virtual bool isRegister() const { return false; }
+	virtual bool usesRegister(AsmRegistersT reg) const { return false; }
 	virtual bool isMemoryLocation() const { return false; }
 	virtual bool isImmediate() const { return false; }
 	virtual bool isOffset() const { return false; }
 	virtual void clearOffset() {}
 	bool operator != (AsmArg* o) const { return !(*this == o); }
+	bool operator != (AsmRegistersT o) const { return !(*this == o); }
 };
 
 class AsmArgImmediate : public AsmArg
@@ -117,6 +119,7 @@ public:
 	AsmArgRegister(AsmRegistersT r): reg(r) {}
 	string generate() const { return regName(); }
 	bool operator == (AsmArg* o) const;
+	bool usesRegister(AsmRegistersT r) const { return reg == r; }
 	virtual bool operator == (AsmRegistersT r) const { return r == reg; }
 	bool isRegister() const { return true; }
 };
@@ -130,6 +133,7 @@ public:
 	string generate() const { return "dword ptr [" + regName() + " + " + to_string(offset) + "]"; }
 	bool operator == (AsmArg* o) const;
 	bool operator == (AsmRegistersT r) const { return false; }
+	bool usesRegister(AsmRegistersT r) const { return r == reg; }
 	bool isMemoryLocation() const { return true; }
 };
 
@@ -181,6 +185,9 @@ public:
 	virtual string generate() const = 0;
 	virtual bool changeStack() const { return false; }
 	virtual bool operateWith(AsmArg* arg) const { return false; }
+	virtual bool usesRegister(AsmRegistersT reg) const  { return false; }
+	virtual bool operator == (AsmCommandsT cmd) { return false; }	
+	bool operator != (AsmCommandsT cmd) { return !(*this == cmd); }
 };
 
 class AsmLabel : public AsmInstruction
@@ -215,6 +222,7 @@ public:
 	AsmArg* argument() { return arg; }
 	bool changeStack() const { return opCode == cmdPUSH || opCode == cmdPOP || opCode == cmdRET || opCode == cmdCALL; }
 	bool operateWith(AsmArg* a) const { return *arg == a; }
+	bool usesRegister(AsmRegistersT reg) const { return arg->usesRegister(reg) || opCode == cmdIDIV; } 
 };
 
 class AsmCmd2 : public AsmCmd
@@ -228,6 +236,7 @@ public:
 	AsmArg* secondArg() { return arg2; }
 	bool changeStack() const;
 	bool operateWith(AsmArg* a) const { return *arg1 == a || *arg2 == a; }
+	bool usesRegister(AsmRegistersT reg) const { return arg1->usesRegister(reg) || arg2->usesRegister(reg); }
 };
 
 class AsmIOCmd : public AsmCmd

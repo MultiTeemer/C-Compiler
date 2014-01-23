@@ -48,12 +48,6 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
-class TwoSequentialMovs2EAX : public TwoOperationOptimization
-{
-public:
-	bool optimize(AsmCode& code, int index) const;
-};
-
 class Mov2MemoryDirectlyOptimization : public FourOperationOptimization
 {
 public:
@@ -68,6 +62,7 @@ private:
 	vector<ThreeOperationOptimization*> threeOpOpts;
 	vector<FourOperationOptimization*> fourOpOpts;
 	void pushDownPopUp(AsmCode& code);
+	void deleteUselessMovs(AsmCode& code);
 public:
 	Optimizer();
 	void optimize(AsmCode& code);

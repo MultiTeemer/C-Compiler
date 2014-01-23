@@ -55,18 +55,6 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 	return true;
 }
 
-bool TwoSequentialMovs2EAX::optimize(AsmCode& code, int index) const
-{
-	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
-	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
-	if (cmd1 && *cmd1->firstArg() == EAX && *cmd1 == cmdMOV 
-		&& cmd2 && *cmd2->firstArg() == EAX && *cmd2 == cmdMOV)
-		code.deleteRange(index, index);
-	else 
-		return false;
-	return true;
-}
-
 bool Mov2MemoryDirectlyOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
@@ -98,7 +86,6 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0
 	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new PushPop2NilOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
-	twoOpOpts.push_back(new TwoSequentialMovs2EAX());
 	
 	fourOpOpts.push_back(new Mov2MemoryDirectlyOptimization());
 }
@@ -120,6 +107,39 @@ void Optimizer::pushDownPopUp(AsmCode& code)
 				j--;
 			code.move(i, j);
 		}
+	}
+}
+
+void Optimizer::deleteUselessMovs(AsmCode& code)
+{
+	for (int i = 0; i < code.size(); i++)
+	{
+		if (*code[i] != cmdMOV || !code[i]->usesRegister(EAX))
+			continue;
+		AsmCmd2* cmd = dynamic_cast<AsmCmd2*>(code[i]);
+		if (cmd->secondArg()->usesRegister(EAX))
+			continue;
+		if (*cmd->firstArg() != EAX)
+			continue;
+		int idx = i + 1;
+		bool deletingNedeed = true;
+		while (idx < code.size() && deletingNedeed)
+		{
+			if (code[idx]->usesRegister(EAX))
+				if (*code[idx] != cmdMOV)
+					deletingNedeed = false;
+				else {
+					AsmCmd2* tmp = dynamic_cast<AsmCmd2*>(code[idx]);
+					if (tmp->secondArg()->usesRegister(EAX)
+						|| dynamic_cast<AsmArgIndirect*>(tmp->firstArg()))
+						deletingNedeed = false;
+					else
+						break;
+				}
+			idx++;
+		}
+		if (deletingNedeed)
+			code.deleteRange(i, i);
 	}
 }
 
@@ -153,4 +173,5 @@ void Optimizer::optimize(AsmCode& code)
 		if (!goToNextIteration)
 			break;
 	}
+	deleteUselessMovs(code);
 }
