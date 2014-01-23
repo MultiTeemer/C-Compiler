@@ -17,8 +17,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [eax + 0], ebx
 	mov eax, ebx
 	mov var_a, 1
-	mov ebx, eax
-	mov eax, ebx
 	mov ebx, 1000
 	mov eax, ebx
 	push eax

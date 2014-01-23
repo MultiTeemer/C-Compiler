@@ -66,6 +66,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class MovCycle2NilOptimization : public TwoOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class MultIntByInt2MovOptimization : public ThreeOperationOptimization
 {
 public:
@@ -91,6 +97,7 @@ private:
 	vector<TwoOperationOptimization*> twoOpOpts;
 	vector<ThreeOperationOptimization*> threeOpOpts;
 	vector<FourOperationOptimization*> fourOpOpts;
+	vector<TwoOperationOptimization*> postTwoOpOpts;
 	void pushDownPopUp(AsmCode& code);
 	void deleteUselessMovs(AsmCode& code);
 public:
