@@ -92,9 +92,8 @@ public:
 
 class AsmArgImmediate : public AsmArg
 {
-private:
-	int value;
 public:
+	int value;
 	AsmArgImmediate(int v): value(v) {}
 	string generate() const { return to_string(value); }
 	bool operator == (int val) const { return value == val; }

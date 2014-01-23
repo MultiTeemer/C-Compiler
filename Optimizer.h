@@ -54,6 +54,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class Neg2MovOppositeOptimization : public TwoOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class MultByZeroOptimization : public ThreeOperationOptimization
 {
 public:
