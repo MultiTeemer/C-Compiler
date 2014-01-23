@@ -8,9 +8,9 @@ bool AddOrSubESPZeroOptimization::optimize(AsmCode& code, int index) const
 	if (cmd && *cmd->firstArg() == ESP && *cmd->secondArg() == 0)
 	{
 		code.deleteRange(index, index);
-	} else
-		return false;
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool PushPop2MovOptimization::optimize(AsmCode& code, int index) const
@@ -25,9 +25,9 @@ bool PushPop2MovOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->argument(), cmd1->argument());
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);	
-	} else 
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 bool PushPop2NilOptimization::optimize(AsmCode& code, int index) const
@@ -36,10 +36,11 @@ bool PushPop2NilOptimization::optimize(AsmCode& code, int index) const
 	AsmCmd1* cmd2 = dynamic_cast<AsmCmd1*>(code[index + 1]);
 	if  (cmd1 && *cmd1 == cmdPUSH && cmd2 && *cmd2 == cmdPOP 
 		&& cmd1->argument()->isRegister() && *cmd1->argument() == cmd2->argument())
+	{
 		code.deleteRange(index, index + 1);
-	else 
-		return false;
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool MovChainOptimization::optimize(AsmCode& code, int index) const
@@ -55,9 +56,9 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->firstArg(), cmd1->secondArg());
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);
-	} else 
-		return false;
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool AddZeroToEAX2NilOptimization::optimize(AsmCode& code, int index) const
@@ -68,10 +69,11 @@ bool AddZeroToEAX2NilOptimization::optimize(AsmCode& code, int index) const
 		cmd1 && *cmd1 == cmdMOV && *cmd1->secondArg() == 0
 		&& cmd2 && *cmd2 == cmdADD && *cmd1->firstArg() == cmd2->secondArg()
 		)
+	{
 		code.deleteRange(index, index + 1);
-	else
-		return false;
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool Neg2MovOppositeOptimization::optimize(AsmCode& code, int index) const
@@ -88,9 +90,9 @@ bool Neg2MovOppositeOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd2* optCmd = new AsmCmd2(cmdMOV, makeArg(EAX), makeArg(-val));
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);
-	} else
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 bool Jmp2NextLineOptimization::optimize(AsmCode& code, int index) const
@@ -98,10 +100,11 @@ bool Jmp2NextLineOptimization::optimize(AsmCode& code, int index) const
 	AsmCmd1* jmp = dynamic_cast<AsmCmd1*>(code[index]);
 	AsmLabel* label = dynamic_cast<AsmLabel*>(code[index + 1]);
 	if (jmp && label && *jmp->argument() == label->label)
+	{
 		code.deleteRange(index, index);
-	else
-		return false;
-	return true;
+		return true;
+	}
+	return false;	
 }
 
 bool MovCycle2NilOptimization::optimize(AsmCode& code, int index) const
@@ -114,10 +117,11 @@ bool MovCycle2NilOptimization::optimize(AsmCode& code, int index) const
 		&& *cmd1->firstArg() == cmd2->secondArg()
 		&& *cmd1->secondArg() == cmd2->firstArg()
 		)
+	{
 		code.deleteRange(index, index + 1);
-	else 
-		return false;
-	return true;
+		return true;
+	}
+	return false;
 }
 
 bool MovPush2PushOptimization::optimize(AsmCode& code, int index) const
@@ -132,9 +136,9 @@ bool MovPush2PushOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd1* optCmd = new AsmCmd1(cmdPUSH, cmd1->secondArg());
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);
-	} else 
-		return false;
-	return true;
+		return true;
+	}  
+	return false;
 }
 
 bool RegRegCMP2RegIntCmpOptimization::optimize(AsmCode& code, int index) const
@@ -149,9 +153,9 @@ bool RegRegCMP2RegIntCmpOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd2* optCmd = new AsmCmd2(cmdCMP, cmd2->firstArg(), cmd1->secondArg());
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);
-	} else
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 bool AddZero2MovOptimization::optimize(AsmCode& code, int index) const
@@ -167,9 +171,9 @@ bool AddZero2MovOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd2* optCmd = new AsmCmd2(cmdMOV, cmd3->firstArg(), *cmd1->secondArg() == 0 ? cmd2->secondArg() : cmd1->secondArg());
 		code.deleteRange(index, index + 2);
 		code.insertBefore(optCmd, index);
-	} else
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 bool CompactAdditionOptimization::optimize(AsmCode& code, int index) const
@@ -187,9 +191,9 @@ bool CompactAdditionOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd2* optCmd = new AsmCmd2(cmdMOV, makeArg(EBX), cmd2->secondArg());
 		code.deleteRange(index, index + 1);
 		code.insertBefore(optCmd, index);
-	} else
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 
@@ -210,9 +214,9 @@ bool MultIntByInt2MovOptimization::optimize(AsmCode& code, int index) const
 		AsmCmd2* optCmd = new AsmCmd2(cmdMOV, cmd3->firstArg(), makeArg(val1 * val2));
 		code.deleteRange(index, index + 2);
 		code.insertBefore(optCmd, index);
-	} else 
-		return false;
-	return true;
+		return true;
+	} 
+	return false;
 }
 
 bool Mov2MemoryDirectlyOptimization::optimize(AsmCode& code, int index) const
@@ -234,9 +238,9 @@ bool Mov2MemoryDirectlyOptimization::optimize(AsmCode& code, int index) const
 		code.deleteRange(index, index + 3);
 		code.insertBefore(optCmd2, index);
 		code.insertBefore(optCmd1, index);
-	} else
-		return false;
-	return true;
+		return true;
+	}	
+	return false;
 }
 
 Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0)
