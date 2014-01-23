@@ -54,6 +54,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class MultByZeroOptimization : public ThreeOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class Mov2MemoryDirectlyOptimization : public FourOperationOptimization
 {
 public:
