@@ -83,6 +83,8 @@ public:
 	virtual bool isRegister() const { return false; }
 	virtual bool isMemoryLocation() const { return false; }
 	virtual bool isImmediate() const { return false; }
+	virtual bool isOffset() const { return false; }
+	virtual void clearOffset() {}
 	bool operator != (AsmArg* o) const { return !(*this == o); }
 };
 
@@ -141,6 +143,8 @@ public:
 	string generate() const { return (lvalue ? "offset " : "") + varName; }
 	bool operator == (AsmArg* o) const;
 	bool isMemoryLocation() const { return true; }
+	bool isOffset() const { return lvalue; }
+	void clearOffset() { lvalue = false; }
 };
 
 class AsmArgLabel : public AsmArg

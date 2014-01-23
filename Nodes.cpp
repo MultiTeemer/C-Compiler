@@ -510,7 +510,7 @@ void FloatNode::generate(AsmCode& code) const
 
 void FloatNode::generateLvalue(AsmCode& code) const
 {
-	code.add(cmdPUSH, makeArgMemory("offset " + constName()));
+	code.add(cmdPUSH, makeArgMemory(constName(), true));
 }
 
 void FloatNode::generateData(AsmCode& code) const
@@ -548,7 +548,7 @@ void IdentifierNode::generate(AsmCode& code) const
 void IdentifierNode::generateLvalue(AsmCode& code) const
 {
 	if (sym->global)
-		code.add(cmdPUSH, makeArgMemory("offset var_" + sym->name));
+		code.add(cmdPUSH, makeArgMemory("var_" + sym->name, true));
 	else 
 		code.add(cmdMOV, EAX, EBP)
 			.add(cmdMOV, EBX, sym->offset)

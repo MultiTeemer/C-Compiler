@@ -21,6 +21,9 @@ class TwoOperationOptimization : public Optimization
 class ThreeOperationOptimization : public Optimization
 {};
 
+class FourOperationOptimization : public Optimization
+{};
+
 class AddOrSubESPZeroOptimization : public OneOperationOptimization
 {
 public:
@@ -51,12 +54,19 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class Mov2MemoryDirectlyOptimization : public FourOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class Optimizer
 {
 private:
 	vector<OneOperationOptimization*> oneOpOpts;
 	vector<TwoOperationOptimization*> twoOpOpts;
 	vector<ThreeOperationOptimization*> threeOpOpts;
+	vector<FourOperationOptimization*> fourOpOpts;
 	void pushDownPopUp(AsmCode& code);
 public:
 	Optimizer();

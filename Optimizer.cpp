@@ -67,7 +67,31 @@ bool TwoSequentialMovs2EAX::optimize(AsmCode& code, int index) const
 	return true;
 }
 
-Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0)
+bool Mov2MemoryDirectlyOptimization::optimize(AsmCode& code, int index) const
+{
+	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
+	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
+	AsmCmd2* cmd3 = dynamic_cast<AsmCmd2*>(code[index + 2]);
+	AsmCmd2* cmd4 = dynamic_cast<AsmCmd2*>(code[index + 3]);
+	if (
+		cmd1 && *cmd1->firstArg() == EAX && cmd1->secondArg()->isOffset()
+		&& cmd2 && *cmd2->firstArg() == EBX && cmd2->secondArg()->isImmediate()
+		&& cmd3 && cmd3->firstArg()->isMemoryLocation() && *cmd3->secondArg() == EBX
+		&& cmd4 && *cmd4 == cmdMOV
+		)
+	{
+		cmd1->secondArg()->clearOffset();
+		AsmCmd2* optCmd1 = new AsmCmd2(cmdMOV, cmd1->secondArg(), cmd2->secondArg());
+		AsmCmd2* optCmd2 = new AsmCmd2(cmdMOV, cmd4->firstArg(), cmd2->secondArg());
+		code.deleteRange(index, index + 3);
+		code.insertBefore(optCmd2, index);
+		code.insertBefore(optCmd1, index);
+	} else
+		return false;
+	return true;
+}
+
+Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0)
 {
 	oneOpOpts.push_back(new AddOrSubESPZeroOptimization());
 	
@@ -75,6 +99,8 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0)
 	twoOpOpts.push_back(new PushPop2NilOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
 	twoOpOpts.push_back(new TwoSequentialMovs2EAX());
+	
+	fourOpOpts.push_back(new Mov2MemoryDirectlyOptimization());
 }
 
 void Optimizer::pushDownPopUp(AsmCode& code)
@@ -119,6 +145,10 @@ void Optimizer::optimize(AsmCode& code)
 		for (int i = 0; i < code.size() - 2; i++)
 			for (int j = 0; j < threeOpOpts.size(); j++)
 				if (threeOpOpts[j]->optimize(code, i))
+					goToNextIteration = true;
+		for (int i = 0; i < code.size() - 3; i++)
+			for (int j = 0; j < fourOpOpts.size(); j++)
+				if (fourOpOpts[j]->optimize(code, i))
 					goToNextIteration = true;
 		if (!goToNextIteration)
 			break;
