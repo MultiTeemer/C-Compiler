@@ -14,21 +14,13 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
-	push eax
-	mov eax, 3
-	mov ebx, 4
-	imul ebx, eax
-	pop eax
+	mov ebx, 12
 	add eax, ebx
 	push eax
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
-	push eax
-	mov eax, 7
-	mov ebx, 4
-	imul ebx, eax
-	pop eax
+	mov ebx, 28
 	add eax, ebx
 	pop ebx
 	sub eax, ebx

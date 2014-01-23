@@ -11,22 +11,13 @@ includelib c:\masm32\lib\msvcrt.lib
 	f_main:
 	push ebp
 	mov ebp, esp
-	mov eax, offset var_$a
-	push dword ptr 5
-	push eax
-	mov eax, 2
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, offset var_$a
+	mov eax, 8
 	add eax, ebx
-	pop ebx
+	mov ebx, 5
 	mov dword ptr [eax + 0], ebx
-	mov eax, offset var_$a
-	push eax
-	mov eax, 2
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, offset var_$a
+	mov eax, 8
 	add eax, ebx
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str0

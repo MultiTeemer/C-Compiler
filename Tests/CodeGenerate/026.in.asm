@@ -54,9 +54,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	imul ebx, dword ptr [eax + 0]
 	mov dword ptr [eax + 0], ebx
-	mov eax, 99
-	mov ebx, 4
-	imul eax, ebx
+	mov eax, 396
 	mov ebx, offset var_a
 	add eax, ebx
 	push dword ptr [eax + 0]

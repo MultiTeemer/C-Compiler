@@ -13,60 +13,39 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebp, esp
 	mov eax, -1
 	push eax
-	mov eax, 5
-	mov ebx, 20
-	imul eax, ebx
+	mov eax, 100
 	mov ebx, offset var_a
 	add eax, ebx
-	push eax
-	mov eax, 1
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 4
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, 5
-	mov ebx, 20
-	imul eax, ebx
+	mov eax, 100
 	mov ebx, offset var_a
 	add eax, ebx
-	push eax
-	mov eax, 1
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 4
 	add eax, ebx
 	mov ebx, dword ptr [eax + 0]
 	mov eax, offset var_a
 	mov dword ptr [eax + 0], ebx
-	mov eax, 5
-	mov ebx, 20
-	imul eax, ebx
+	mov eax, 100
 	mov ebx, offset var_a
 	add eax, ebx
 	mov eax, eax
+	mov ebx, offset var_a
 	push dword ptr [eax + 0]
-	mov eax, offset var_a
-	push eax
-	mov eax, 1
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov eax, 4
 	add eax, ebx
 	push dword ptr [eax + 0]
 	mov eax, offset var_a
 	push dword ptr [eax + 0]
-	mov eax, 5
-	mov ebx, 20
-	imul eax, ebx
+	mov eax, 100
 	mov ebx, offset var_a
 	add eax, ebx
-	push eax
-	mov eax, 1
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 4
 	add eax, ebx
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str0

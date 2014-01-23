@@ -60,7 +60,7 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
-class MultByZeroOptimization : public ThreeOperationOptimization
+class MultIntByInt2MovOptimization : public ThreeOperationOptimization
 {
 public:
 	bool optimize(AsmCode& code, int index) const;

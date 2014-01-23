@@ -107,47 +107,28 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, offset var_$b
 	mov ebx, 12
 	add eax, ebx
-	push tmp4
-	push eax
-	mov eax, 30
-	mov ebx, 800
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 24000
 	add eax, ebx
-	push eax
-	mov eax, 40
-	mov ebx, 20
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 800
 	add eax, ebx
-	push eax
-	mov eax, 3
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 12
 	add eax, ebx
-	pop ebx
+	mov ebx, tmp4
 	mov dword ptr [eax + 0], ebx
 	mov eax, offset var_$b
 	mov ebx, 12
 	add eax, ebx
-	push eax
-	mov eax, 30
-	mov ebx, 800
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 24000
 	add eax, ebx
-	push eax
-	mov eax, 40
-	mov ebx, 20
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 800
 	add eax, ebx
-	push eax
-	mov eax, 3
-	mov ebx, 4
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 12
 	add eax, ebx
 	mov ebx, eax
 	mov eax, dword ptr [ebx + 0]

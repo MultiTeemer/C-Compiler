@@ -25,39 +25,28 @@ includelib c:\masm32\lib\msvcrt.lib
 	push ebp
 	mov ebp, esp
 	sub esp, 4
-	mov eax, 50
-	mov ebx, 28824
-	imul eax, ebx
+	mov eax, 1441200
 	mov ebx, offset var_a
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
-	push dword ptr 15
-	push eax
-	mov eax, 299
-	mov ebx, 48
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 14352
 	add eax, ebx
-	pop ebx
 	mov eax, eax
+	mov ebx, 15
 	mov dword ptr [eax + 0], ebx
-	mov eax, 50
-	mov ebx, 28824
-	imul eax, ebx
+	mov eax, 1441200
 	mov ebx, offset var_a
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
 	mov ebx, 8
 	add eax, ebx
-	push eax
-	mov eax, 299
-	mov ebx, 48
-	imul eax, ebx
-	pop ebx
+	mov ebx, eax
+	mov eax, 14352
 	add eax, ebx
 	mov eax, eax
 	push eax

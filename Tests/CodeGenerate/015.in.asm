@@ -53,10 +53,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	push dword ptr [var_a + 0]
 	invoke crt_printf, addr str3
 	add esp, 4
-	mov eax, 3
-	mov ebx, 3
-	imul eax, ebx
-	mov ebx, eax
+	mov ebx, 9
 	mov eax, dword ptr [var_b + 0]
 	imul eax, ebx
 	mov ebx, eax

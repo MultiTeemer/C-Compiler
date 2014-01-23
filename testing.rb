@@ -20,7 +20,7 @@ dirs.each do |dir|
 					mainDir = 'd:/works/c++/compiler/'
 					path = mainDir + filename + '.asm'
 					%x['ml', "#{path}"]
-					tmpfiles << path
+					#tmpfiles << path
 					path = mainDir + "#{index}.in" + '.obj'
 					%x['c:/masm32/bin/link.exe', "/subsystem:console" "#{path}"]
 					path[/(obj)$/] = 'exe'

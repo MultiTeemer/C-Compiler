@@ -31,9 +31,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	push ebp
 	mov ebp, esp
 	sub esp, 8
-	mov eax, 50
-	mov ebx, 8
-	imul eax, ebx
+	mov eax, 400
 	mov ebx, offset var_a
 	add eax, ebx
 	push eax
@@ -47,9 +45,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, ebx
 	mov eax, offset var_$b
 	mov dword ptr [eax + 0], ebx
-	mov eax, 50
-	mov ebx, 8
-	imul eax, ebx
+	mov eax, 400
 	mov ebx, offset var_a
 	add eax, ebx
 	push eax

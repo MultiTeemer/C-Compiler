@@ -21,16 +21,12 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, 499
-	mov ebx, 4
-	imul eax, ebx
+	mov eax, 1996
 	mov ebx, offset var_a
 	add eax, ebx
 	mov ebx, dword ptr [ebp + -4]
 	mov dword ptr [eax + 0], ebx
-	mov eax, 499
-	mov ebx, 4
-	imul eax, ebx
+	mov eax, 1996
 	mov ebx, offset var_a
 	add eax, ebx
 	push dword ptr [eax + 0]
