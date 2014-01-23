@@ -133,20 +133,20 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	invoke crt_printf, addr str3
 	add esp, 4
-	mov eax, dword ptr [ebp + -8]
 	mov ebx, dword ptr [ebp + -12]
+	mov eax, dword ptr [ebp + -8]
 	cmp eax, ebx
 	mov eax, 0
 	setne al
+	mov ebx, dword ptr [ebp + -4]
 	push eax
 	mov eax, dword ptr [ebp + -12]
-	mov ebx, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setne al
+	mov ebx, dword ptr [ebp + -8]
 	push eax
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, dword ptr [ebp + -8]
 	cmp eax, ebx
 	pop ebx
 	mov eax, 0

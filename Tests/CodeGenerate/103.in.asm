@@ -63,8 +63,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, eax
 	pop eax
 	mov dword ptr [ebx + 0], eax
-	mov eax, dword ptr [ebp + -8]
 	mov ebx, dword ptr [ebp + -4]
+	mov eax, dword ptr [ebp + -8]
 	cmp eax, ebx
 	mov eax, 0
 	setl al

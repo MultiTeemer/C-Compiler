@@ -112,9 +112,9 @@ public:
 class AsmArgRegister : public AsmArg
 {
 protected:
-	AsmRegistersT reg;
 	string regName() const;
 public:
+	AsmRegistersT reg;
 	AsmArgRegister(AsmRegistersT r): reg(r) {}
 	string generate() const { return regName(); }
 	bool operator == (AsmArg* o) const;
@@ -218,7 +218,7 @@ public:
 	string generate() const;
 	AsmArg* argument() { return arg; }
 	bool changeStack() const { return opCode == cmdPUSH || opCode == cmdPOP || opCode == cmdRET || opCode == cmdCALL; }
-	bool operateWith(AsmArg* a) const { return *arg == a; }
+	bool operateWith(AsmArg* a) const;
 	bool usesRegister(AsmRegistersT reg) const { return arg->usesRegister(reg) || opCode == cmdIDIV; } 
 };
 
@@ -232,7 +232,7 @@ public:
 	AsmArg* firstArg() { return arg1; }
 	AsmArg* secondArg() { return arg2; }
 	bool changeStack() const;
-	bool operateWith(AsmArg* a) const { return *arg1 == a || *arg2 == a; }
+	bool operateWith(AsmArg* a) const;
 	bool usesRegister(AsmRegistersT reg) const { return arg1->usesRegister(reg) || arg2->usesRegister(reg); }
 };
 

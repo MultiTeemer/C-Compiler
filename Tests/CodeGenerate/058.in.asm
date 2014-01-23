@@ -26,8 +26,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [eax + 0], ebx
 	prewhile41_start:
 	prewhile41_cond:
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	sub eax, ebx
 	cmp eax, 0
 	je prewhile41_end

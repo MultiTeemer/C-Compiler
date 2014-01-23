@@ -10,8 +10,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	f_sigma:
 	push ebp
 	mov ebp, esp
-	mov eax, dword ptr [ebp + 8]
 	mov ebx, dword ptr [ebp + 12]
+	mov eax, dword ptr [ebp + 8]
 	add eax, ebx
 	mov dword ptr [ebp + 16], eax
 	f_sigma_end:

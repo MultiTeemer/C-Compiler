@@ -65,6 +65,7 @@ class Jmp2NextLineOptimization : public TwoOperationOptimization
 public:
 	bool optimize(AsmCode& code, int index) const;
 };
+
 class MultIntByInt2MovOptimization : public ThreeOperationOptimization
 {
 public:

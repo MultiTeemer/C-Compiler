@@ -25,8 +25,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	f_equal:
 	push ebp
 	mov ebp, esp
-	mov eax, dword ptr [ebp + 8]
 	mov ebx, dword ptr [ebp + 12]
+	mov eax, dword ptr [ebp + 8]
 	cmp eax, ebx
 	mov eax, 0
 	sete al

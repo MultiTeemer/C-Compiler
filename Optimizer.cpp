@@ -17,8 +17,10 @@ bool PushPop2MovOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd1* cmd1 = dynamic_cast<AsmCmd1*>(code[index]);
 	AsmCmd1* cmd2 = dynamic_cast<AsmCmd1*>(code[index + 1]);
-	if  (cmd1 && *cmd1 == cmdPUSH && cmd2 && *cmd2 == cmdPOP && *cmd1->argument() != cmd2->argument()
-		&& !(cmd1->argument()->isMemoryLocation() && cmd2->argument()->isMemoryLocation()))
+	if  (
+		cmd1 && *cmd1 == cmdPUSH && cmd2 && *cmd2 == cmdPOP 
+		&& !(cmd1->argument()->isMemoryLocation() && cmd2->argument()->isMemoryLocation())
+		)
 	{
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->argument(), cmd1->argument());
 		code.deleteRange(index, index + 1);
@@ -170,8 +172,8 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0
 {
 	oneOpOpts.push_back(new AddOrSubESPZeroOptimization());
 	
-	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new PushPop2NilOptimization());
+	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
 	twoOpOpts.push_back(new AddZeroToEAX2NilOptimization());
 	twoOpOpts.push_back(new Neg2MovOppositeOptimization());

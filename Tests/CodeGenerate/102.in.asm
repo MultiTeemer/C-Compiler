@@ -55,8 +55,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	setl al
 	cmp eax, 0
 	je for18467_end
-	mov eax, dword ptr [ebp + -8]
 	mov ebx, dword ptr [ebp + -4]
+	mov eax, dword ptr [ebp + -8]
 	cmp eax, ebx
 	mov eax, 0
 	setl al

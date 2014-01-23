@@ -8,7 +8,7 @@ using namespace std;
 bool AsmArgRegister::operator==(AsmArg* o) const
 {
 	AsmArgRegister* tmp = dynamic_cast<AsmArgRegister*>(o);
-	return tmp && tmp->reg == reg;
+	return tmp && tmp->reg == reg && !dynamic_cast<AsmArgIndirect*>(o);
 }
 
 bool AsmArgIndirect::operator==(AsmArg* o) const
@@ -229,6 +229,16 @@ string AsmCmd1::generate() const
 		+ arg->generate();
 }
 
+bool AsmCmd1::operateWith(AsmArg* a) const
+{
+	AsmArgIndirect* ind = dynamic_cast<AsmArgIndirect*>(a);
+	AsmArgRegister* reg = dynamic_cast<AsmArgRegister*>(arg);
+	if (ind && reg)
+		return ind->usesRegister(reg->reg);
+	else
+		return *arg == a;
+}
+
 string AsmCmd2::generate() const
 {
 	return opCode > cmdDQ 
@@ -239,6 +249,17 @@ string AsmCmd2::generate() const
 bool AsmCmd2::changeStack() const 
 {
 	return *arg1 == EBP || *arg1 == ESP || *arg2 == EBP || *arg2 == ESP;
+}
+
+bool AsmCmd2::operateWith(AsmArg* a) const
+{
+	AsmArgIndirect* ind = dynamic_cast<AsmArgIndirect*>(a);
+	AsmArgRegister* reg1 = dynamic_cast<AsmArgRegister*>(arg1);
+	AsmArgRegister* reg2 = dynamic_cast<AsmArgRegister*>(arg2);
+	if (ind && (reg1 || reg2))
+		return (reg1 ? ind->usesRegister(reg1->reg) : 0) || (reg2 ? ind->usesRegister(reg2->reg) : 0);
+	else
+		return *arg1 == a || *arg2 == a;
 }
 
 string AsmIOCmd::generate() const

@@ -48,24 +48,24 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	invoke crt_printf, addr str1
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setl al
 	push eax
 	invoke crt_printf, addr str2
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setg al
 	push eax
 	invoke crt_printf, addr str3
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setle al
@@ -88,24 +88,24 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	invoke crt_printf, addr str6
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setge al
 	push eax
 	invoke crt_printf, addr str7
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	sete al
 	push eax
 	invoke crt_printf, addr str8
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
 	mov ebx, dword ptr [ebp + -8]
+	mov eax, dword ptr [ebp + -4]
 	cmp eax, ebx
 	mov eax, 0
 	setne al

@@ -28,10 +28,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
+	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -4]
 	mov tmp4, eax
 	fld tmp4
-	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -8]
 	mov tmp4, eax
 	fld tmp4
@@ -44,10 +44,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	push tmp4
 	invoke crt_printf, addr str0
 	add esp, 4
+	push dword ptr [ebp + -4]
 	mov eax, dword ptr [ebp + -8]
 	mov tmp4, eax
 	fld tmp4
-	push dword ptr [ebp + -4]
 	mov eax, dword ptr [ebp + -4]
 	mov tmp4, eax
 	fld tmp4
@@ -60,10 +60,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	push tmp4
 	invoke crt_printf, addr str1
 	add esp, 4
+	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -4]
 	mov tmp4, eax
 	fld tmp4
-	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -8]
 	mov tmp4, eax
 	fld tmp4
@@ -76,10 +76,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	push tmp4
 	invoke crt_printf, addr str2
 	add esp, 4
+	push dword ptr [ebp + -4]
 	mov eax, dword ptr [ebp + -8]
 	mov tmp4, eax
 	fld tmp4
-	push dword ptr [ebp + -4]
 	mov eax, dword ptr [ebp + -4]
 	mov tmp4, eax
 	fld tmp4

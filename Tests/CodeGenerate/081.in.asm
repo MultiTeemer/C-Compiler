@@ -48,11 +48,13 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop ebx
 	add dword ptr [eax + 0], ebx
 	mov ecx, eax
+	push dword ptr [ebp + 16]
+	push dword ptr [ebp + 12]
 	mov eax, dword ptr [ebp + 8]
 	mov dword ptr [ebp + 32], eax
-	mov eax, dword ptr [ebp + 12]
+	pop eax
 	mov dword ptr [ebp + 36], eax
-	mov eax, dword ptr [ebp + 16]
+	pop eax
 	mov dword ptr [ebp + 40], eax
 	f_add_end:
 	mov esp, ebp

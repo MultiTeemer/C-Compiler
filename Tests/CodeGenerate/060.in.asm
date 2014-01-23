@@ -40,8 +40,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	invoke crt_printf, addr str0
 	add esp, 4
-	mov eax, dword ptr [ebp + -8]
 	mov ebx, dword ptr [ebp + -4]
+	mov eax, dword ptr [ebp + -8]
 	cmp eax, ebx
 	mov eax, 0
 	setl al

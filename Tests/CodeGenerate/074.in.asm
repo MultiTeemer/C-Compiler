@@ -37,12 +37,14 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
+	push dword ptr [ebp + -4]
 	mov eax, offset var_$a
+	push dword ptr [ebp + -8]
 	mov ebx, dword ptr [ebp + -12]
 	mov dword ptr [eax + 0], ebx
-	mov ebx, dword ptr [ebp + -8]
+	pop ebx
 	mov dword ptr [eax + 4], ebx
-	mov ebx, dword ptr [ebp + -4]
+	pop ebx
 	mov dword ptr [eax + 8], ebx
 	mov eax, offset var_$a
 	mov ebx, 8

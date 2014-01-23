@@ -30,10 +30,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
+	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -4]
 	mov tmp4, eax
 	fld tmp4
-	push dword ptr [ebp + -8]
 	mov eax, dword ptr [ebp + -8]
 	mov tmp4, eax
 	fld tmp4

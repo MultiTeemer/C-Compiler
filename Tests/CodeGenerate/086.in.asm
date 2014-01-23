@@ -23,8 +23,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, dword ptr [ebx + 0]
 	mov eax, dword ptr [ebp + 8]
 	mov dword ptr [eax + 0], ebx
-	mov eax, dword ptr [ebp + 12]
 	mov ebx, dword ptr [ebp + -4]
+	mov eax, dword ptr [ebp + 12]
 	mov dword ptr [eax + 0], ebx
 	f_swap_end:
 	mov esp, ebp
