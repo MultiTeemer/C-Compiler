@@ -2,11 +2,23 @@
 
 using namespace std;
 
+bool AddOrSubESPZeroOptimization::optimize(AsmCode& code, int index) const
+{
+	AsmCmd2* cmd = dynamic_cast<AsmCmd2*>(code[index]);
+	if (cmd && *cmd->firstArg() == ESP && *cmd->secondArg() == 0)
+	{
+		code.deleteRange(index, index);
+	} else
+		return false;
+	return true;
+}
+
 bool PushPop2MovOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd1* cmd1 = dynamic_cast<AsmCmd1*>(code[index]);
 	AsmCmd1* cmd2 = dynamic_cast<AsmCmd1*>(code[index + 1]);
-	if  (cmd1 && cmd1->code() == cmdPUSH && cmd2 && cmd2->code() == cmdPOP && *cmd1->argument() != cmd2->argument())
+	if  (cmd1 && cmd1->code() == cmdPUSH && cmd2 && cmd2->code() == cmdPOP && *cmd1->argument() != cmd2->argument()
+		&& !(cmd1->argument()->isMemoryLocation() && cmd2->argument()->isMemoryLocation()))
 	{
 		AsmCmd* optCmd = new AsmCmd2(cmdMOV, cmd2->argument(), cmd1->argument());
 		code.deleteRange(index, index + 1);
@@ -45,6 +57,7 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 
 Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0)
 {
+	oneOpOpts.push_back(new AddOrSubESPZeroOptimization());
 	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new PushPop2NilOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
