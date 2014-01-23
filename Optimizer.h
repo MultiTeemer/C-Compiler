@@ -11,17 +11,7 @@ class Optimization
 public:
 	virtual bool optimize(AsmCode& code, int index) const = 0;
 };
-/*
-template <typename Op1, typename Op2>
-class Opt: public Optimization {
-	virtual bool optimize1(Op1 op1, Op2 op2, AsmCode& code, int index) {
-	}
-	bool optimize(AsmCode& code, int index) const {
-		//if ()
-		return optimize1(dynamic_cast<Op1>(code[index]), dynamic_cast<Op1>(code[index]), code, index);
-	}
-};
-*/
+
 class OneOperationOptimization : public Optimization
 {};
 
@@ -50,6 +40,12 @@ public:
 };
 
 class MovChainOptimization : public TwoOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
+class TwoSequentialMovs2EAX : public TwoOperationOptimization
 {
 public:
 	bool optimize(AsmCode& code, int index) const;

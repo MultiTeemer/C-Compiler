@@ -113,7 +113,7 @@ public:
 	AsmArgRegister(AsmRegistersT r): reg(r) {}
 	string generate() const { return regName(); }
 	bool operator == (AsmArg* o) const;
-	bool operator == (AsmRegistersT r) const { return r == reg; }
+	virtual bool operator == (AsmRegistersT r) const { return r == reg; }
 	bool isRegister() const { return true; }
 };
 
@@ -125,6 +125,7 @@ public:
 	AsmArgIndirect(AsmRegistersT r, int shift = 0): AsmArgRegister(r), offset(shift) {}
 	string generate() const { return "dword ptr [" + regName() + " + " + to_string(offset) + "]"; }
 	bool operator == (AsmArg* o) const;
+	bool operator == (AsmRegistersT r) const { return false; }
 	bool isMemoryLocation() const { return true; }
 };
 
@@ -194,6 +195,7 @@ public:
 	AsmCmd(AsmCommandsT opcode): opCode(opcode) {}
 	virtual string generate() const;
 	AsmCommandsT code() const { return opCode; }
+	bool operator == (AsmCommandsT cmd) { return opCode == cmd; }
 };
 
 class AsmCmd1 : public AsmCmd

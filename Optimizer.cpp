@@ -55,12 +55,26 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 	return true;
 }
 
+bool TwoSequentialMovs2EAX::optimize(AsmCode& code, int index) const
+{
+	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
+	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
+	if (cmd1 && *cmd1->firstArg() == EAX && *cmd1 == cmdMOV 
+		&& cmd2 && *cmd2->firstArg() == EAX && *cmd2 == cmdMOV)
+		code.deleteRange(index, index);
+	else 
+		return false;
+	return true;
+}
+
 Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0)
 {
 	oneOpOpts.push_back(new AddOrSubESPZeroOptimization());
+	
 	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new PushPop2NilOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
+	twoOpOpts.push_back(new TwoSequentialMovs2EAX());
 }
 
 void Optimizer::pushDownPopUp(AsmCode& code)
