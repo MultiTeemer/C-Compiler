@@ -238,8 +238,7 @@ void Optimizer::deleteUselessMovs(AsmCode& code)
 
 void Optimizer::optimize(AsmCode& code)
 {
-	bool cycle = true;
-	while (cycle)
+	while (1)
 	{
 		pushDownPopUp(code);
 		bool goToNextIteration = false;
