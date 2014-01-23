@@ -13,24 +13,20 @@ includelib c:\masm32\lib\msvcrt.lib
 	f_main:
 	push ebp
 	mov ebp, esp
-	mov eax, -1
-	push float0
-	push eax
 	mov eax, offset var_$b
 	mov ebx, 24020
 	add eax, ebx
-	pop ebx
+	mov ebx, -1
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
 	mov eax, offset var_$b
+	push float0
+	push ebx
 	mov ebx, 24016
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
 	mov eax, offset var_$b
+	push ebx
 	mov ebx, 4
 	add eax, ebx
 	pop ebx
@@ -49,14 +45,12 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, tmp4
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
 	mov eax, offset var_$b
+	push ebx
 	mov ebx, 8
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov ebx, ebx
 	mov eax, offset var_$b
 	mov dword ptr [eax + 0], ebx
 	mov eax, offset var_$b
@@ -131,8 +125,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, 12
 	add eax, ebx
 	mov ebx, eax
-	mov eax, dword ptr [ebx + 0]
-	mov tmp4, eax
+	push dword ptr [ebx + 0]
+	pop tmp4
 	fld tmp4
 	fstp tmp8
 	mov eax, offset tmp8

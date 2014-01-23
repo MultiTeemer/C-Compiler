@@ -161,22 +161,16 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, 3
 	mov dword ptr [eax + 0], ebx
-	mov ebx, -1
-	mov eax, offset var_$b
-	mov dword ptr [eax + 0], ebx
-	mov eax, -2
-	push eax
+	mov var_$b, -1
 	mov eax, offset var_$b
 	mov ebx, 4
 	add eax, ebx
-	pop ebx
+	mov ebx, -2
 	mov dword ptr [eax + 0], ebx
-	mov eax, -3
-	push eax
 	mov eax, offset var_$b
 	mov ebx, 8
 	add eax, ebx
-	pop ebx
+	mov ebx, -3
 	mov dword ptr [eax + 0], ebx
 	sub esp, 12
 	push dword ptr [var_$b + 8]
@@ -249,11 +243,10 @@ includelib c:\masm32\lib\msvcrt.lib
 	invoke crt_printf, addr str1
 	add esp, 12
 	sub esp, 12
-	mov eax, -1
 	push dword ptr [ebp + -4]
 	push dword ptr [ebp + -8]
 	push dword ptr [ebp + -12]
-	push eax
+	push dword ptr -1
 	push dword ptr [var_$a + 8]
 	push dword ptr [var_$a + 4]
 	push dword ptr [var_$a + 0]

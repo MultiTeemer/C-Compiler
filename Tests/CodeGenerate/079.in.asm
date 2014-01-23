@@ -87,8 +87,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	invoke crt_printf, addr str2
 	add esp, 4
 	sub esp, 4
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	push dword ptr 1
 	call f_equal
 	add esp, 8
@@ -96,8 +95,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 4
 	sub esp, 4
 	sub esp, 4
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	call f_inc
 	add esp, 4
 	push dword ptr 0

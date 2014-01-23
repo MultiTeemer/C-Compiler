@@ -19,9 +19,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebp, esp
 	mov var_a, 1
 	mov var_b, 2
-	mov ebx, -3
-	mov eax, offset var_c
-	mov dword ptr [eax + 0], ebx
+	mov var_c, -3
 	mov eax, dword ptr [var_a + 0]
 	mov ebx, dword ptr [var_b + 0]
 	add eax, ebx

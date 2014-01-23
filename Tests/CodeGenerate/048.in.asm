@@ -47,9 +47,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	idiv ebx
 	push eax
 	sub esp, 4
-	mov eax, -3
 	push dword ptr 1
-	push eax
+	push dword ptr -3
 	call f_sigma
 	add esp, 8
 	pop eax

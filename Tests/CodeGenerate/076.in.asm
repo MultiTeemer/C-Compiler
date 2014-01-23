@@ -12,30 +12,24 @@ includelib c:\masm32\lib\msvcrt.lib
 	f_main:
 	push ebp
 	mov ebp, esp
-	mov eax, -30
-	push eax
 	mov eax, offset var_$b
 	mov ebx, 8
 	add eax, ebx
-	pop ebx
+	mov ebx, -30
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
 	mov eax, offset var_$b
+	push ebx
 	mov ebx, 4
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov ebx, ebx
 	mov eax, offset var_$b
 	mov dword ptr [eax + 0], ebx
-	mov eax, -15
-	push eax
 	mov eax, offset var_$b
 	mov ebx, 12
 	add eax, ebx
-	pop ebx
 	mov eax, eax
+	mov ebx, -15
 	mov dword ptr [eax + 0], ebx
 	mov eax, offset var_$b
 	mov ebx, 12

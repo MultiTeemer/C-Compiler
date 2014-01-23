@@ -17,10 +17,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, offset var_c
 	mov ebx, float0
 	mov dword ptr [eax + 0], ebx
-	mov ebx, ebx
 	mov eax, offset var_b
 	mov dword ptr [eax + 0], ebx
-	mov ebx, ebx
 	mov eax, offset var_a
 	mov dword ptr [eax + 0], ebx
 	push dword ptr [var_c + 0]

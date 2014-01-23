@@ -22,9 +22,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	push ebp
 	mov ebp, esp
 	sub esp, 4
-	mov eax, -1
 	push dword ptr 1
-	push eax
+	push dword ptr -1
 	call f_sigma
 	add esp, 8
 	invoke crt_printf, addr str0

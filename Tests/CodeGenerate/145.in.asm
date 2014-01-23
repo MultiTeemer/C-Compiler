@@ -14,8 +14,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	push ebp
 	mov ebp, esp
 	sub esp, 8
-	mov eax, offset var_a
-	push eax
+	push offset var_a
 	mov eax, ebp
 	mov ebx, -4
 	add eax, ebx
@@ -70,16 +69,16 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, tmp4
 	mov dword ptr [eax + 0], ebx
 	mov ebx, dword ptr [ebp + -8]
-	mov eax, dword ptr [ebx + 0]
-	mov tmp4, eax
+	push dword ptr [ebx + 0]
+	pop tmp4
 	fld tmp4
 	fstp tmp8
 	mov eax, offset tmp8
 	mov ebx, dword ptr [ebp + -4]
 	push dword ptr [eax + 4]
 	push dword ptr [eax + 0]
-	mov eax, dword ptr [ebx + 0]
-	mov tmp4, eax
+	push dword ptr [ebx + 0]
+	pop tmp4
 	fld tmp4
 	fstp tmp8
 	mov eax, offset tmp8

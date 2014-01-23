@@ -211,8 +211,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -32
 	add eax, ebx
@@ -220,16 +219,14 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -32
 	add eax, ebx
 	pop ebx
 	mov eax, eax
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -16
 	add eax, ebx
@@ -237,8 +234,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -16
 	add eax, ebx
@@ -255,8 +251,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -16
 	add eax, ebx
@@ -307,8 +302,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	call f_print
 	add esp, 16
 	sub esp, 16
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	sub esp, 16
 	push dword ptr 3
 	push dword ptr [ebp + -4]
@@ -398,8 +392,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 32
 	sub esp, 4
 	sub esp, 16
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	push dword ptr [ebp + -20]
 	push dword ptr [ebp + -24]
 	push dword ptr [ebp + -28]
@@ -407,8 +400,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	call f_scale
 	add esp, 20
 	sub esp, 16
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	push dword ptr [ebp + -4]
 	push dword ptr [ebp + -8]
 	push dword ptr [ebp + -12]

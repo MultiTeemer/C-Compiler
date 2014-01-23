@@ -154,9 +154,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add esp, 24
 	invoke crt_printf, addr str1
 	add esp, 8
-	mov ebx, -1
-	mov eax, offset var_$b
-	mov dword ptr [eax + 0], ebx
+	mov var_$b, -1
 	sub esp, 4
 	push dword ptr [var_$a + 8]
 	push dword ptr [var_$a + 4]

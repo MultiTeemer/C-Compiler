@@ -17,16 +17,14 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, 2
 	cdq
 	idiv ebx
-	mov eax, edx
-	push eax
+	push edx
 	invoke crt_printf, addr str0
 	add esp, 4
 	mov ebx, dword ptr [var_a + 0]
 	mov eax, dword ptr [var_a + 0]
 	cdq
 	idiv ebx
-	mov eax, edx
-	push eax
+	push edx
 	invoke crt_printf, addr str1
 	add esp, 4
 	f_main_end:

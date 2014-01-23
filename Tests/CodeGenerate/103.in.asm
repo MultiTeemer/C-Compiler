@@ -35,8 +35,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	cmp eax, 0
 	je for41_end
 	sub esp, 4
-	mov eax, -1
-	push eax
+	push dword ptr -1
 	mov eax, ebp
 	mov ebx, -8
 	add eax, ebx

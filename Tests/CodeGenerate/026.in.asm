@@ -18,14 +18,12 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, -15
-	push eax
 	mov eax, dword ptr [ebp + -4]
 	mov ebx, 4
 	imul eax, ebx
 	mov ebx, offset var_a
 	add eax, ebx
-	pop ebx
+	mov ebx, -15
 	mov dword ptr [eax + 0], ebx
 	mov eax, dword ptr [ebp + -4]
 	mov ebx, 5
@@ -34,8 +32,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, 3
 	cdq
 	idiv ebx
-	mov ebx, edx
 	mov eax, dword ptr [ebp + -4]
+	mov ebx, edx
 	imul eax, ebx
 	mov ebx, eax
 	mov eax, dword ptr [ebp + -4]

@@ -30,14 +30,11 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov eax, offset var_a
 	mov dword ptr [eax + 0], ebx
 	mov ebx, dword ptr [var_a + 0]
-	mov eax, dword ptr [ebx + 0]
+	push dword ptr [ebx + 0]
 	mov ebx, dword ptr [var_a + 0]
-	push eax
-	mov eax, dword ptr [ebx + 0]
+	push dword ptr [ebx + 0]
 	mov ebx, dword ptr [var_a + 0]
-	push eax
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	invoke crt_printf, addr str0
 	add esp, 12
 	f_main_end:

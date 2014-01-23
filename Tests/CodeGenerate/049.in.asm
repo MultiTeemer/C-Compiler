@@ -16,8 +16,8 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, 5
 	mov dword ptr [eax + 0], ebx
-	mov ebx, offset var_$a
 	mov eax, 8
+	mov ebx, offset var_$a
 	add eax, ebx
 	push dword ptr [eax + 0]
 	invoke crt_printf, addr str0

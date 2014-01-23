@@ -42,7 +42,6 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	mov ebx, 5
 	mov dword ptr [eax + 0], ebx
-	mov ebx, ebx
 	mov eax, offset var_$b
 	mov dword ptr [eax + 0], ebx
 	mov eax, 400
@@ -88,16 +87,14 @@ includelib c:\masm32\lib\msvcrt.lib
 	push eax
 	call f_print
 	add esp, 4
-	mov eax, dword ptr [ebp + -4]
-	push eax
+	push dword ptr [ebp + -4]
 	mov eax, ebp
 	mov ebx, -8
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
 	mov ebx, dword ptr [ebp + -8]
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	invoke crt_printf, addr str1
 	add esp, 4
 	mov eax, dword ptr [ebp + -8]
@@ -111,8 +108,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop eax
 	mov dword ptr [ebx + 0], eax
 	mov ebx, dword ptr [ebp + -8]
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	invoke crt_printf, addr str2
 	add esp, 4
 	mov eax, dword ptr [ebp + -8]
@@ -126,8 +122,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	pop eax
 	mov dword ptr [ebx + 0], eax
 	mov ebx, dword ptr [ebp + -8]
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	invoke crt_printf, addr str3
 	add esp, 4
 	f_main_end:

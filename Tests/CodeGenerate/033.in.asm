@@ -20,8 +20,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
-	mov eax, ebx
-	push eax
+	push ebx
 	mov eax, ebp
 	mov ebx, -4
 	add eax, ebx
@@ -35,11 +34,9 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov dword ptr [eax + 0], ebx
 	push dword ptr [ebp + -12]
 	mov ebx, dword ptr [ebp + -8]
-	mov eax, dword ptr [ebx + 0]
+	push dword ptr [ebx + 0]
 	mov ebx, dword ptr [ebp + -4]
-	push eax
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	invoke crt_printf, addr str0
 	add esp, 12
 	f_main_end:

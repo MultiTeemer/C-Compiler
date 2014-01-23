@@ -28,27 +28,23 @@ includelib c:\masm32\lib\msvcrt.lib
 	add eax, ebx
 	pop ebx
 	mov dword ptr [eax + 0], ebx
+	mov var_$global, -1
+	mov eax, offset var_$global
+	mov ebx, 4
+	add eax, ebx
+	mov ebx, 1
+	mov dword ptr [eax + 0], ebx
+	mov eax, offset var_$global
+	mov ebx, 8
+	add eax, ebx
+	mov ebx, 1
+	mov dword ptr [eax + 0], ebx
+	mov eax, offset var_$global
+	mov ebx, 8
+	add eax, ebx
+	mov ebx, 4
+	add eax, ebx
 	mov ebx, -1
-	mov eax, offset var_$global
-	mov dword ptr [eax + 0], ebx
-	mov eax, offset var_$global
-	mov ebx, 4
-	add eax, ebx
-	mov ebx, 1
-	mov dword ptr [eax + 0], ebx
-	mov eax, offset var_$global
-	mov ebx, 8
-	add eax, ebx
-	mov ebx, 1
-	mov dword ptr [eax + 0], ebx
-	mov eax, -1
-	push eax
-	mov eax, offset var_$global
-	mov ebx, 8
-	add eax, ebx
-	mov ebx, 4
-	add eax, ebx
-	pop ebx
 	mov dword ptr [eax + 0], ebx
 	push dword ptr [var_$global + 12]
 	push dword ptr [var_$global + 8]

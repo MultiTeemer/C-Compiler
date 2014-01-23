@@ -22,8 +22,7 @@ includelib c:\masm32\lib\msvcrt.lib
 	mov ebx, -40
 	add eax, ebx
 	mov ebx, eax
-	mov eax, dword ptr [ebx + 0]
-	push eax
+	push dword ptr [ebx + 0]
 	mov eax, ebp
 	mov ebx, -40
 	add eax, ebx
