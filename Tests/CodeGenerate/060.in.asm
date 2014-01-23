@@ -59,8 +59,7 @@ postwhile18467_start:
 	invoke crt_printf, addr str1
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 10
-	cmp eax, ebx
+	cmp eax, 10
 	mov eax, 0
 	setl al
 	cmp eax, 0

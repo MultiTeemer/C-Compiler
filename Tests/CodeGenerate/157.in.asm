@@ -33,16 +33,14 @@ f_main:
 	mov ebx, tmp4
 	mov dword ptr [eax + 0], ebx
 	mov eax, dword ptr [var_a + 0]
-	mov ebx, dword ptr [var_b + 0]
-	cmp eax, ebx
+	cmp eax, dword ptr [var_b + 0]
 	mov eax, 0
 	setl al
 	push eax
 	invoke crt_printf, addr str0
 	add esp, 4
 	mov eax, dword ptr [var_a + 0]
-	mov ebx, dword ptr [var_b + 0]
-	cmp eax, ebx
+	cmp eax, dword ptr [var_b + 0]
 	mov eax, 0
 	setg al
 	push eax
@@ -54,16 +52,14 @@ f_main:
 	fmulp
 	fstp tmp4
 	mov eax, dword ptr [var_a + 0]
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	sete al
 	push eax
 	invoke crt_printf, addr str2
 	add esp, 4
 	mov eax, dword ptr [var_a + 0]
-	mov ebx, dword ptr [var_b + 0]
-	cmp eax, ebx
+	cmp eax, dword ptr [var_b + 0]
 	mov eax, 0
 	setne al
 	push eax
@@ -74,8 +70,7 @@ f_main:
 	fmulp
 	fstp tmp4
 	mov eax, float3
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	setle al
 	push dword ptr [var_a + 0]
@@ -86,8 +81,7 @@ f_main:
 	fild tmp4
 	fstp tmp4
 	mov eax, tmp4
-	mov ebx, dword ptr [var_b + 0]
-	cmp eax, ebx
+	cmp eax, dword ptr [var_b + 0]
 	mov eax, 0
 	setg al
 	push eax

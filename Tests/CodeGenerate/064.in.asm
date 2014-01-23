@@ -33,16 +33,14 @@ f_main:
 	pop ebx
 	mov dword ptr [eax + 0], ebx
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	sete al
 	push eax
 	invoke crt_printf, addr str0
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setne al
 	push eax
@@ -73,16 +71,14 @@ f_main:
 	invoke crt_printf, addr str4
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setle al
 	push eax
 	invoke crt_printf, addr str5
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setge al
 	push eax

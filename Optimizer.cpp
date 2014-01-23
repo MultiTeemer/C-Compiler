@@ -137,6 +137,23 @@ bool MovPush2PushOptimization::optimize(AsmCode& code, int index) const
 	return true;
 }
 
+bool RegRegCMP2RegIntCmpOptimization::optimize(AsmCode& code, int index) const
+{
+	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
+	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
+	if (
+		cmd1 && *cmd1 == cmdMOV && cmd2 && *cmd2 == cmdCMP
+		&& *cmd1->firstArg() == cmd2->secondArg()
+		)
+	{
+		AsmCmd2* optCmd = new AsmCmd2(cmdCMP, cmd2->firstArg(), cmd1->secondArg());
+		code.deleteRange(index, index + 1);
+		code.insertBefore(optCmd, index);
+	} else
+		return false;
+	return true;
+}
+
 bool AddZero2MovOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
@@ -233,6 +250,7 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0
 	twoOpOpts.push_back(new Neg2MovOppositeOptimization());
 	twoOpOpts.push_back(new Jmp2NextLineOptimization());	
 	twoOpOpts.push_back(new MovPush2PushOptimization());
+	twoOpOpts.push_back(new RegRegCMP2RegIntCmpOptimization());
 	
 	threeOpOpts.push_back(new AddZero2MovOptimization());
 	threeOpOpts.push_back(new MultIntByInt2MovOptimization());

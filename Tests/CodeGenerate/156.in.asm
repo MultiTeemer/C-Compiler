@@ -63,8 +63,7 @@ f_main:
 	fmulp
 	fstp tmp4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	sete al
 	push eax
@@ -88,8 +87,7 @@ f_main:
 	fmulp
 	fstp tmp4
 	mov eax, float3
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	setle al
 	push eax
@@ -99,8 +97,7 @@ f_main:
 	fild tmp4
 	fstp tmp4
 	mov eax, tmp4
-	mov ebx, dword ptr [ebp + -8]
-	cmp eax, ebx
+	cmp eax, dword ptr [ebp + -8]
 	mov eax, 0
 	setg al
 	push eax

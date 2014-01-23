@@ -25,17 +25,14 @@ f_main:
 	invoke crt_printf, addr str1
 	add esp, 4
 	mov eax, 1
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	sete al
 	cmp eax, 0
 	sete al
-	push eax
+	mov ebx, eax
 	mov eax, 1
-	mov ebx, 2
-	cmp eax, ebx
-	pop ebx
+	cmp eax, 2
 	mov eax, 0
 	setne al
 	cmp eax, 0

@@ -21,8 +21,7 @@ f_five:
 for41_cond:
 	push eax
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 10
-	cmp eax, ebx
+	cmp eax, 10
 	mov eax, 0
 	setl al
 	cmp eax, 0
@@ -35,8 +34,7 @@ for41_cond:
 	pop ebx
 	mov dword ptr [eax + 0], ebx
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 5
-	cmp eax, ebx
+	cmp eax, 5
 	mov eax, 0
 	setl al
 	cmp eax, 0

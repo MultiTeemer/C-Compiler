@@ -78,6 +78,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class RegRegCMP2RegIntCmpOptimization : public TwoOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class MultIntByInt2MovOptimization : public ThreeOperationOptimization
 {
 public:

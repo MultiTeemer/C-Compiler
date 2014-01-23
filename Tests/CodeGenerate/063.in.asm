@@ -27,80 +27,70 @@ f_main:
 	pop ebx
 	mov dword ptr [eax + 0], ebx
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	sete al
 	push eax
 	invoke crt_printf, addr str0
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setne al
 	push eax
 	invoke crt_printf, addr str1
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 2
-	cmp eax, ebx
+	cmp eax, 2
 	mov eax, 0
 	setl al
 	push eax
 	invoke crt_printf, addr str2
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 2
-	cmp eax, ebx
+	cmp eax, 2
 	mov eax, 0
 	setg al
 	push eax
 	invoke crt_printf, addr str3
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 2
-	cmp eax, ebx
+	cmp eax, 2
 	mov eax, 0
 	setle al
 	push eax
 	invoke crt_printf, addr str4
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setle al
 	push eax
 	invoke crt_printf, addr str5
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 1
-	cmp eax, ebx
+	cmp eax, 1
 	mov eax, 0
 	setge al
 	push eax
 	invoke crt_printf, addr str6
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 2
-	cmp eax, ebx
+	cmp eax, 2
 	mov eax, 0
 	setge al
 	push eax
 	invoke crt_printf, addr str7
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 3
-	cmp eax, ebx
+	cmp eax, 3
 	mov eax, 0
 	sete al
 	push eax
 	invoke crt_printf, addr str8
 	add esp, 4
 	mov eax, dword ptr [ebp + -4]
-	mov ebx, 3
-	cmp eax, ebx
+	cmp eax, 3
 	mov eax, 0
 	setne al
 	push eax

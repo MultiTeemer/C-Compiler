@@ -28,16 +28,14 @@ f_main:
 	fild tmp4
 	fstp tmp4
 	mov eax, float0
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	setl al
 	push eax
 	invoke crt_printf, addr str0
 	add esp, 4
 	mov eax, float1
-	mov ebx, float2
-	cmp eax, ebx
+	cmp eax, float2
 	mov eax, 0
 	setg al
 	push eax
@@ -71,16 +69,14 @@ f_main:
 	fild tmp4
 	fstp tmp4
 	mov eax, tmp4
-	mov ebx, float4
-	cmp eax, ebx
+	cmp eax, float4
 	mov eax, 0
 	setge al
 	push eax
 	invoke crt_printf, addr str3
 	add esp, 4
 	mov eax, float5
-	mov ebx, float6
-	cmp eax, ebx
+	cmp eax, float6
 	mov eax, 0
 	sete al
 	push eax
@@ -97,8 +93,7 @@ f_main:
 	fdivp
 	fstp tmp4
 	mov eax, float7
-	mov ebx, tmp4
-	cmp eax, ebx
+	cmp eax, tmp4
 	mov eax, 0
 	sete al
 	push eax
