@@ -55,6 +55,21 @@ bool MovChainOptimization::optimize(AsmCode& code, int index) const
 	return true;
 }
 
+bool AddZeroToEAX2NilOptimization::optimize(AsmCode& code, int index) const
+{
+	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
+	AsmCmd2* cmd2 = dynamic_cast<AsmCmd2*>(code[index + 1]);
+	if (
+		cmd1 && *cmd1 == cmdMOV && *cmd1->secondArg() == 0
+		&& cmd2 && *cmd2 == cmdADD && *cmd1->firstArg() == cmd2->secondArg()
+		)
+		code.deleteRange(index, index + 1);
+	else
+		return false;
+	return true;
+}
+}
+
 bool Mov2MemoryDirectlyOptimization::optimize(AsmCode& code, int index) const
 {
 	AsmCmd2* cmd1 = dynamic_cast<AsmCmd2*>(code[index]);
@@ -86,6 +101,7 @@ Optimizer::Optimizer(): oneOpOpts(0), twoOpOpts(0), threeOpOpts(0), fourOpOpts(0
 	twoOpOpts.push_back(new PushPop2MovOptimization());
 	twoOpOpts.push_back(new PushPop2NilOptimization());
 	twoOpOpts.push_back(new MovChainOptimization());
+	twoOpOpts.push_back(new AddZeroToEAX2NilOptimization());
 	
 	fourOpOpts.push_back(new Mov2MemoryDirectlyOptimization());
 }

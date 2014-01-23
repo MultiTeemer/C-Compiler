@@ -48,6 +48,12 @@ public:
 	bool optimize(AsmCode& code, int index) const;
 };
 
+class AddZeroToEAX2NilOptimization : public TwoOperationOptimization
+{
+public:
+	bool optimize(AsmCode& code, int index) const;
+};
+
 class Mov2MemoryDirectlyOptimization : public FourOperationOptimization
 {
 public:
